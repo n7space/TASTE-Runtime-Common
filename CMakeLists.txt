@@ -16,7 +16,7 @@ add_library(common_build_options INTERFACE)
 include(CommonBuildOptions)
 include(Sanitizers)
 
-option(OPTIONS_WARNINGS_AS_ERRORS
+option(TASTE_RUNTIME_COMMON_WARNINGS_AS_ERRORS
        "Treat compiler wargnings as errors"
        TRUE)
 
@@ -59,3 +59,24 @@ include(ClangFormat)
 include(Doxygen)
 
 add_subdirectory(src)
+
+option(TASTE_RUNTIME_COMMON_BUILD_TESTS "Build tests" TRUE)
+if(TASTE_RUNTIME_COMMON_BUILD_TESTS)
+    set(STD_C ON CACHE BOOL "cpputest - Use the standard C library")
+    set(STD_CPP OFF CACHE BOOL "cpputest - Use the standard C++ library")
+    set(CPPUTEST_FLAGS ON CACHE BOOL "cpputest - Use the CFLAGS/CXXFLAGS/LDFLAGS set by CppUTest")
+    set(MEMORY_LEAK_DETECTION OFF CACHE BOOL "cpputest - Enable memory leak detection")
+    set(EXTENSIONS OFF CACHE BOOL "cpputest - Use the CppUTest extension library")
+    set(LONGLONG OFF CACHE BOOL "cpputest - Support long long")
+    set(MAP_FILE OFF CACHE BOOL "cpputest - Enable the creation of a map file")
+    set(COVERAGE OFF CACHE BOOL "cpputest - Enable running with coverage")
+    set(C++11 ON CACHE BOOL "cpputest - Compile with C++11 support")
+    set(WERROR OFF CACHE BOOL "cpputest - Compile with warnings as errors")
+    set(TESTS OFF CACHE BOOL "cpputest - Compile and make tests for the code?")
+    set(TESTS_DETAILED OFF CACHE BOOL "cpputest - Run each test separately instead of grouped?")
+    set(TESTS_BUILD_DISCOVER OFF CACHE BOOL "cpputest - Build time test discover")
+    set(EXAMPLES OFF CACHE BOOL "cpputest - Compile and make examples?")
+    set(VERBOSE_CONFIG OFF CACHE BOOL "cpputest - Print configuration to stdout during generation")
+
+    add_subdirectory(src/ThirdParty/cpputest)
+endif()
