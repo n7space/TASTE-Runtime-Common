@@ -6,6 +6,7 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 set(EXECUTABLE_OUTPUT_PATH ${CMAKE_BINARY_DIR}/build/bin)
 set(LIBRARY_OUTPUT_PATH ${CMAKE_BINARY_DIR}/build/lib)
+set(TESTS_OUTPUT_PATH ${CMAKE_BINARY_DIR}/build/tests)
 
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
 
@@ -62,6 +63,8 @@ add_subdirectory(src)
 
 option(TASTE_RUNTIME_COMMON_BUILD_TESTS "Build tests" TRUE)
 if(TASTE_RUNTIME_COMMON_BUILD_TESTS)
+    enable_testing()
+
     set(STD_C ON CACHE BOOL "cpputest - Use the standard C library")
     set(STD_CPP OFF CACHE BOOL "cpputest - Use the standard C++ library")
     set(CPPUTEST_FLAGS ON CACHE BOOL "cpputest - Use the CFLAGS/CXXFLAGS/LDFLAGS set by CppUTest")
@@ -70,7 +73,7 @@ if(TASTE_RUNTIME_COMMON_BUILD_TESTS)
     set(LONGLONG OFF CACHE BOOL "cpputest - Support long long")
     set(MAP_FILE OFF CACHE BOOL "cpputest - Enable the creation of a map file")
     set(COVERAGE OFF CACHE BOOL "cpputest - Enable running with coverage")
-    set(C++11 ON CACHE BOOL "cpputest - Compile with C++11 support")
+    set(C++11 OFF CACHE BOOL "cpputest - Compile with C++11 support")
     set(WERROR OFF CACHE BOOL "cpputest - Compile with warnings as errors")
     set(TESTS OFF CACHE BOOL "cpputest - Compile and make tests for the code?")
     set(TESTS_DETAILED OFF CACHE BOOL "cpputest - Run each test separately instead of grouped?")
@@ -79,4 +82,6 @@ if(TASTE_RUNTIME_COMMON_BUILD_TESTS)
     set(VERBOSE_CONFIG OFF CACHE BOOL "cpputest - Print configuration to stdout during generation")
 
     add_subdirectory(src/ThirdParty/cpputest)
+
+    add_subdirectory(tests)
 endif()

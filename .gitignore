@@ -70,6 +70,7 @@ _deps
 
 ### Ninja ###
 build.ninja
+rules.ninja
 .ninja_deps
 .ninja_log
 
