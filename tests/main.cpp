@@ -5,5 +5,5 @@ IMPORT_TEST_GROUP(Packetizer);
 int
 main(int argc, char** argv)
 {
-    return RUN_ALL_TESTS(argc, argv);
+    return CommandLineTestRunner::RunAllTests(argc, argv);
 }

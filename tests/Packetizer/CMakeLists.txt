@@ -1,21 +1,16 @@
-project(PacketizerTests VERSION 1.0.0 LANGUAGES C CXX)
+project(PacketizerTests VERSION 1.0.0 LANGUAGES CXX)
 
-add_executable(PacketizerTests)
+add_library(PacketizerTests SHARED)
 target_sources(PacketizerTests
-    PRIVATE     main.cpp
-                PacketizerTests.cpp)
+    PRIVATE     PacketizerTests.cpp)
 target_link_libraries(PacketizerTests
     PRIVATE     common_build_options
-                TASTE::Packetizer
-                CppUTest
-                atomic
-                m)
+    PUBLIC      CppUTest
+                TASTE::Packetizer)
 target_compile_definitions(PacketizerTests
-    PRIVATE     CPPUTEST_MEM_LEAK_DETECTION_DISABLED)
+    PUBLIC      CPPUTEST_MEM_LEAK_DETECTION_DISABLED)
 
 set_target_properties(PacketizerTests PROPERTIES
-    RUNTIME_OUTPUT_DIRECTORY ${TESTS_OUTPUT_PATH})
+    LIBRARY_OUTPUT_DIRECTORY ${TESTS_OUTPUT_PATH})
 
 add_format_target(PacketizerTests)
-
-add_test(PacketizerTests ${TESTS_OUTPUT_PATH}/PacketizerTests)

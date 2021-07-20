@@ -75,7 +75,8 @@ Packetizer_depacketize(const Packetizer* const self,
     // TODO Check if CRC16 is correct
 
     // Check packet type
-    const Packetizer_PacketType receivedPacketType = (packetPointer[0] & PACKETIZER_PACKET_TYPE_MASK) != 0;
+    const Packetizer_PacketType receivedPacketType =
+            (packetPointer[0] & SPACE_PACKET_TYPE_MASK) >> SPACE_PACKET_TYPE_OFFSET;
     if(receivedPacketType != packetType) {
         if(errorCode != NULL) {
             *errorCode = Packetizer_ErrorCode_IncorrectPacketType;
@@ -84,8 +85,8 @@ Packetizer_depacketize(const Packetizer* const self,
     }
 
     // Save the results
-    *destination = ((packetPointer[0] & PACKETIZER_APID_HIGH_BITS_MASK) << (8u - PACKETIZER_APID_HIGH_BITS_OFFSET))
-                   | packetPointer[1];
+    *destination = packetPointer[1]
+                   | (packetPointer[0] & SPACE_PACKET_APID_HIGH_BITS_MASK) << (8u - SPACE_PACKET_APID_HIGH_BITS_OFFSET);
     *dataOffset = SPACE_PACKET_PRIMARY_HEADER_SIZE_BYTES;
     *dataSize = (uint32_t)(packetPointer[4] << 8u) | packetPointer[5];
 
@@ -96,14 +97,14 @@ void
 writePacketId(uint8_t* const dataPointer, const Packetizer_PacketType packetType, const uint16_t destination)
 {
     // 4th bit - Packet type (1 bit)
-    dataPointer[0] |= packetType << PACKETIZER_PACKET_TYPE_OFFSET;
+    dataPointer[0] |= packetType << SPACE_PACKET_TYPE_OFFSET;
 
     // 5th bit - Secondary header flag, always set (1 bit)
-    dataPointer[0] |= 1 << PACKETIZER_SECONDARY_HEADER_FLAG_OFFSET;
+    dataPointer[0] |= 1 << SPACE_PACKET_SECONDARY_HEADER_FLAG_OFFSET;
 
     // 6th bit - Application process ID (11 bits) - BIG ENDIAN
     dataPointer[0] |=
-            (destination & PACKETIZER_DESTINATION_HIGH_BITS_MASK) >> (8u - PACKETIZER_DESTINATION_HIGH_BITS_OFFSET);
+            (destination & PACKETIZER_DESTINATION_HIGH_BITS_MASK) >> (8u - SPACE_PACKET_APID_HIGH_BITS_OFFSET);
     dataPointer[1] |= destination & 0xFF;
 }
 
@@ -111,12 +112,12 @@ void
 writePacketSequenceControl(uint8_t* const dataPointer, const Packetizer* const packetizer)
 {
     // 1st bit - Sequence flags, both bits always set (2 bits)
-    dataPointer[2] |= 1 << PACKETIZER_SEQUENCE_FLAGS_FIRST_OFFSET;
-    dataPointer[2] |= 1 << PACKETIZER_SEQUENCE_FLAGS_SECOND_OFFSET;
+    dataPointer[2] |= 1 << SPACE_PACKET_SEQUENCE_FLAGS_FIRST_OFFSET;
+    dataPointer[2] |= 1 << SPACE_PACKET_SEQUENCE_FLAGS_SECOND_OFFSET;
 
     // 3rd bit - Packet sequence count (14 bits)
-    dataPointer[2] |= (packetizer->packetSequenceCount & PACKETIZER_SEQUENCE_COUNT_HIGH_BITS_MASK)
-                      >> (8u - PACKETIZER_SEQUENCE_COUNT_HIGH_BITS_OFFSET);
+    dataPointer[2] |= (packetizer->packetSequenceCount & PACKETIZER_PACKET_SEQUENCE_CONTROL_HIGH_BITS_MASK)
+                      >> (8u - SPACE_PACKET_SEQUENCE_CONTROL_HIGH_BITS_OFFSET);
     dataPointer[3] |= packetizer->packetSequenceCount & 0xFF;
 }
 
