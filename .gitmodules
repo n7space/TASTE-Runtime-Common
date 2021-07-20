@@ -4,3 +4,4 @@
 [submodule "src/ThirdParty/cpputest"]
 	path = src/ThirdParty/cpputest
 	url = https://github.com/Glamhoth/cpputest
+    ignore = dirty

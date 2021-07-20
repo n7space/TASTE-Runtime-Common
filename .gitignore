@@ -76,3 +76,6 @@ rules.ninja
 
 ### CTags ###
 tags
+
+### Ignore third party dependencies ###
+src/ThirdParty/
