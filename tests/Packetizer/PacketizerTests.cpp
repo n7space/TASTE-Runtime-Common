@@ -5,6 +5,7 @@
 extern "C"
 {
 #include "Packetizer.h"
+#include "PacketizerInternal.h"
 #include "SpacePacket.h"
 }
 
@@ -119,4 +120,85 @@ TEST(Packetizer, DepacketizeTelecommand)
     CHECK_EQUAL(0x606, receivedDestination);
     CHECK_EQUAL(SPACE_PACKET_PRIMARY_HEADER_SIZE_BYTES, receivedDataOffset);
     CHECK_EQUAL(dataSize - 1, receivedDataSize);
+};
+
+TEST_GROUP(PacketizerInternal)
+{
+    uint8_t packetData[SPACE_PACKET_PRIMARY_HEADER_SIZE_BYTES];
+
+    void setup() { memset(packetData, 0, SPACE_PACKET_PRIMARY_HEADER_SIZE_BYTES); }
+};
+
+TEST(PacketizerInternal, ApidMin)
+{
+    writePacketId(packetData, Packetizer_PacketType_Telecommand, 0);
+
+    CHECK_EQUAL(0b00011000, packetData[0]);
+    CHECK_EQUAL(0b00000000, packetData[1]);
+};
+
+TEST(PacketizerInternal, ApidStandard)
+{
+    writePacketId(packetData, Packetizer_PacketType_Telecommand, 685);
+
+    CHECK_EQUAL(0b01011000, packetData[0]);
+    CHECK_EQUAL(0b10101101, packetData[1]);
+};
+
+TEST(PacketizerInternal, ApidMax)
+{
+    writePacketId(packetData, Packetizer_PacketType_Telecommand, SPACE_PACKET_MAX_APID_SIZE);
+    CHECK_EQUAL(0b11111000, packetData[0]);
+    CHECK_EQUAL(0b11111111, packetData[1]);
+};
+
+TEST(PacketizerInternal, SequenceCounterMin)
+{
+    Packetizer packetizer = { .packetSequenceCount = 0 };
+    writePacketSequenceControl(packetData, &packetizer);
+
+    CHECK_EQUAL(0b00000011, packetData[2]);
+    CHECK_EQUAL(0b00000000, packetData[3]);
+};
+
+TEST(PacketizerInternal, SequenceCounterStandard)
+{
+    Packetizer packetizer = { .packetSequenceCount = 718 };
+    writePacketSequenceControl(packetData, &packetizer);
+
+    CHECK_EQUAL(0b00001011, packetData[2]);
+    CHECK_EQUAL(0b11001110, packetData[3]);
+};
+
+TEST(PacketizerInternal, SequenceCounterMax)
+{
+    Packetizer packetizer = { .packetSequenceCount = SPACE_PACKET_MAX_PACKET_SEQUENCE_COUNT };
+    writePacketSequenceControl(packetData, &packetizer);
+
+    CHECK_EQUAL(0b11111111, packetData[2]);
+    CHECK_EQUAL(0b11111111, packetData[3]);
+};
+
+TEST(PacketizerInternal, DataSizeMin)
+{
+    writePacketDataLength(packetData, 1);
+
+    CHECK_EQUAL(0b00000000, packetData[4]);
+    CHECK_EQUAL(0b00000000, packetData[5]);
+};
+
+TEST(PacketizerInternal, DataSizeStandard)
+{
+    writePacketDataLength(packetData, 43606);
+
+    CHECK_EQUAL(0b10101010, packetData[4]);
+    CHECK_EQUAL(0b01010101, packetData[5]);
+};
+
+TEST(PacketizerInternal, DataSizeMax)
+{
+    writePacketDataLength(packetData, SPACE_PACKET_MAX_PACKET_DATA_SIZE);
+
+    CHECK_EQUAL(0b11111111, packetData[4]);
+    CHECK_EQUAL(0b11111111, packetData[5]);
 };

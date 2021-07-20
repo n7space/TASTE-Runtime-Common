@@ -4,6 +4,7 @@ add_library(Packetizer STATIC)
 target_sources(Packetizer
     PRIVATE     main.c
                 Packetizer.c
+                PacketizerInternal.h
     PUBLIC      Packetizer.h
                 SpacePacket.h)
 

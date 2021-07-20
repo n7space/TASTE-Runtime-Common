@@ -6,11 +6,8 @@
 #include <stdio.h>
 #include <string.h>
 
+#include "PacketizerInternal.h"
 #include "SpacePacket.h"
-
-static void writePacketId(uint8_t* const dataPointer, const Packetizer_PacketType packetType, const uint16_t source);
-static void writePacketSequenceControl(uint8_t* const dataPointer, const Packetizer* const packetizer);
-static void writePacketDataLength(uint8_t* const dataPointer, const uint32_t dataSize);
 
 uint32_t
 Packetizer_packetize(Packetizer* const self,
