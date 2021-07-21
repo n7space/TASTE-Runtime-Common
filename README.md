@@ -1,5 +1,8 @@
 # TASTE-Runtime-Common
 
+TASTE Runtime Common was developed under a programme of, and funded by, the European Space Agency.  
+Licensed under the ESA Public License (ESA-PL) Permissive, Version 2.3 (see LICENSE for details)
+
 ## Usage
 
 Update submodules:  
