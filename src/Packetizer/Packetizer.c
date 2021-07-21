@@ -86,6 +86,7 @@ Packetizer_depacketize(const Packetizer* const self,
     assert(dataSize != NULL);
     assert(destination != NULL);
 
+    // Get and check data size
     size_t receivedDataSize = ((size_t)(packetPointer[4] << 8u) | packetPointer[5]) + 1;
     if(packetSize != SPACE_PACKET_PRIMARY_HEADER_SIZE + receivedDataSize + SPACE_PACKET_ERROR_CONTROL_SIZE) {
         if(errorCode != NULL) {
@@ -94,6 +95,7 @@ Packetizer_depacketize(const Packetizer* const self,
         return false;
     }
 
+    // Check if CRC matches
     uint16_t receivedCrc = packetPointer[SPACE_PACKET_PRIMARY_HEADER_SIZE + receivedDataSize + 1]
                            | (packetPointer[SPACE_PACKET_PRIMARY_HEADER_SIZE + receivedDataSize] << 8);
     uint16_t expectedCrc = calculateCrc16(packetPointer, packetSize - SPACE_PACKET_ERROR_CONTROL_SIZE);
