@@ -1,3 +1,7 @@
+### C ###
+# Build directory
+build/
+
 # Prerequisites
 *.d
 
@@ -50,3 +54,28 @@ modules.order
 Module.symvers
 Mkfile.old
 dkms.conf
+
+### CMake ###
+CMakeLists.txt.user
+CMakeCache.txt
+CMakeFiles
+CMakeScripts
+Testing
+Makefile
+cmake_install.cmake
+install_manifest.txt
+compile_commands.json
+CTestTestfile.cmake
+_deps
+
+### Ninja ###
+build.ninja
+rules.ninja
+.ninja_deps
+.ninja_log
+
+### CTags ###
+tags
+
+### Ignore third party dependencies ###
+src/ThirdParty/
