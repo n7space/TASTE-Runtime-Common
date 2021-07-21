@@ -20,15 +20,22 @@
  * limitations under the License.
  */
 
-#ifndef PACKETIZER_INTERNAL_H
-#define PACKETIZER_INTERNAL_H
+#ifndef SPACE_PACKET_INTERNAL_H
+#define SPACE_PACKET_INTERNAL_H
 
-#define PACKETIZER_DESTINATION_HIGH_BITS_MASK 0x0700
-#define PACKETIZER_PACKET_SEQUENCE_CONTROL_HIGH_BITS_MASK 0x3F00
+#define SPACE_PACKET_VERSION_NUMBER_MASK 0x07
+#define SPACE_PACKET_TYPE_MASK 0x08
+#define SPACE_PACKET_APID_HIGH_BITS_MASK 0xE0
+#define SPACE_PACKET_SECONDARY_HEADER_FLAG_MASK 0x16
+#define SPACE_PACKET_SEQUENCE_FLAGS_FIRST_MASK 0x01
+#define SPACE_PACKET_SEQUENCE_FLAGS_SECOND_MASK 0x02
 
-void writePacketId(uint8_t* const packetPointer, const Packetizer_PacketType packetType, const uint16_t source);
-void writePacketSequenceControl(uint8_t* const packetPointer, const Packetizer* const packetizer);
-void writePacketDataLength(uint8_t* const packetPointer, const size_t dataSize);
-void writeCrc(uint8_t* const packetPointer, const size_t dataSize);
+#define SPACE_PACKET_VERSION_NUMBER_OFFSET 0u
+#define SPACE_PACKET_TYPE_OFFSET 3u
+#define SPACE_PACKET_APID_HIGH_BITS_OFFSET 5u
+#define SPACE_PACKET_SECONDARY_HEADER_FLAG_OFFSET 4u
+#define SPACE_PACKET_SEQUENCE_FLAGS_FIRST_OFFSET 0u
+#define SPACE_PACKET_SEQUENCE_FLAGS_SECOND_OFFSET 1u
+#define SPACE_PACKET_SEQUENCE_CONTROL_HIGH_BITS_OFFSET 2u
 
-#endif // PACKETIZER_INTERNAL_H
+#endif // SPACE_PACKET_INTERNAL_H

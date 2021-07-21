@@ -7,14 +7,13 @@ extern "C"
 #include "Crc16.h"
 #include "Packetizer.h"
 #include "PacketizerInternal.h"
-#include "SpacePacket.h"
+#include "SpacePacketInternal.h"
 }
 
 TEST_GROUP(Packetizer)
 {
     static constexpr size_t dataSize = 514;
-    static constexpr size_t packetSize =
-            SPACE_PACKET_PRIMARY_HEADER_SIZE_BYTES + dataSize + SPACE_PACKET_ERROR_CONTROL_SIZE_BYTES;
+    static constexpr size_t packetSize = SPACE_PACKET_PRIMARY_HEADER_SIZE + dataSize + SPACE_PACKET_ERROR_CONTROL_SIZE;
     uint8_t packetData[packetSize];
 
     void setup() { memset(packetData, 0, packetSize); }
@@ -32,7 +31,7 @@ TEST(Packetizer, PacketizeTelemetry)
                                            0,
                                            destination,
                                            packetData,
-                                           SPACE_PACKET_PRIMARY_HEADER_SIZE_BYTES,
+                                           SPACE_PACKET_PRIMARY_HEADER_SIZE,
                                            dataSize);
 
     CHECK_EQUAL(packetSize, resultSize);
@@ -43,7 +42,7 @@ TEST(Packetizer, PacketizeTelemetry)
     CHECK_EQUAL(0b00000010, packetData[4]);
     CHECK_EQUAL(0b00000001, packetData[5]);
 
-    uint16_t expectedCrc = calculateCrc16(packetData, packetSize - SPACE_PACKET_ERROR_CONTROL_SIZE_BYTES);
+    uint16_t expectedCrc = calculateCrc16(packetData, packetSize - SPACE_PACKET_ERROR_CONTROL_SIZE);
 
     CHECK_EQUAL((expectedCrc >> 8u) & 0xFF, packetData[packetSize - 2]);
     CHECK_EQUAL(expectedCrc & 0xFF, packetData[packetSize - 1]);
@@ -61,7 +60,7 @@ TEST(Packetizer, PacketizeTelecommand)
                                            0,
                                            destination,
                                            packetData,
-                                           SPACE_PACKET_PRIMARY_HEADER_SIZE_BYTES,
+                                           SPACE_PACKET_PRIMARY_HEADER_SIZE,
                                            dataSize);
 
     CHECK_EQUAL(packetSize, resultSize);
@@ -72,7 +71,7 @@ TEST(Packetizer, PacketizeTelecommand)
     CHECK_EQUAL(0b00000010, packetData[4]);
     CHECK_EQUAL(0b00000001, packetData[5]);
 
-    uint16_t expectedCrc = calculateCrc16(packetData, packetSize - SPACE_PACKET_ERROR_CONTROL_SIZE_BYTES);
+    uint16_t expectedCrc = calculateCrc16(packetData, packetSize - SPACE_PACKET_ERROR_CONTROL_SIZE);
 
     CHECK_EQUAL((expectedCrc >> 8u) & 0xFF, packetData[packetSize - 2]);
     CHECK_EQUAL(expectedCrc & 0xFF, packetData[packetSize - 1]);
@@ -87,14 +86,14 @@ TEST(Packetizer, DepacketizeTelemetry)
     packetData[4] = 0b00000010;
     packetData[5] = 0b00000001;
 
-    uint16_t crc = calculateCrc16(packetData, packetSize - SPACE_PACKET_ERROR_CONTROL_SIZE_BYTES);
+    uint16_t crc = calculateCrc16(packetData, packetSize - SPACE_PACKET_ERROR_CONTROL_SIZE);
     packetData[packetSize - 2] = (crc >> 8u) & 0xFF;
     packetData[packetSize - 1] = crc & 0xFF;
 
     uint16_t receivedDestination = 0;
     size_t receivedDataOffset = 0;
     size_t receivedDataSize = 0;
-    uint32_t receivedErrorCode = 0;
+    int32_t receivedErrorCode = 0;
 
     auto success = Packetizer_depacketize(&packetizer,
                                           Packetizer_PacketType_Telemetry,
@@ -110,8 +109,8 @@ TEST(Packetizer, DepacketizeTelemetry)
     CHECK(success);
 
     CHECK_EQUAL(0x0505, receivedDestination);
-    CHECK_EQUAL(SPACE_PACKET_PRIMARY_HEADER_SIZE_BYTES, receivedDataOffset);
-    CHECK_EQUAL(dataSize - 1, receivedDataSize);
+    CHECK_EQUAL(SPACE_PACKET_PRIMARY_HEADER_SIZE, receivedDataOffset);
+    CHECK_EQUAL(dataSize, receivedDataSize);
 }
 
 TEST(Packetizer, DepacketizeTelecommand)
@@ -123,14 +122,14 @@ TEST(Packetizer, DepacketizeTelecommand)
     packetData[4] = 0b00000010;
     packetData[5] = 0b00000001;
 
-    uint16_t crc = calculateCrc16(packetData, packetSize - SPACE_PACKET_ERROR_CONTROL_SIZE_BYTES);
+    uint16_t crc = calculateCrc16(packetData, packetSize - SPACE_PACKET_ERROR_CONTROL_SIZE);
     packetData[packetSize - 2] = (crc >> 8u) & 0xFF;
     packetData[packetSize - 1] = crc & 0xFF;
 
     uint16_t receivedDestination = 0;
     size_t receivedDataOffset = 0;
     size_t receivedDataSize = 0;
-    uint32_t receivedErrorCode = 0;
+    int32_t receivedErrorCode = 0;
 
     auto success = Packetizer_depacketize(&packetizer,
                                           Packetizer_PacketType_Telecommand,
@@ -146,15 +145,15 @@ TEST(Packetizer, DepacketizeTelecommand)
     CHECK(success);
 
     CHECK_EQUAL(0x606, receivedDestination);
-    CHECK_EQUAL(SPACE_PACKET_PRIMARY_HEADER_SIZE_BYTES, receivedDataOffset);
-    CHECK_EQUAL(dataSize - 1, receivedDataSize);
+    CHECK_EQUAL(SPACE_PACKET_PRIMARY_HEADER_SIZE, receivedDataOffset);
+    CHECK_EQUAL(dataSize, receivedDataSize);
 }
 
 TEST_GROUP(PacketizerInternal)
 {
-    uint8_t packetData[SPACE_PACKET_PRIMARY_HEADER_SIZE_BYTES];
+    uint8_t packetData[SPACE_PACKET_PRIMARY_HEADER_SIZE];
 
-    void setup() { memset(packetData, 0, SPACE_PACKET_PRIMARY_HEADER_SIZE_BYTES); }
+    void setup() { memset(packetData, 0, SPACE_PACKET_PRIMARY_HEADER_SIZE); }
 };
 
 TEST(PacketizerInternal, ApidMin)
@@ -175,7 +174,7 @@ TEST(PacketizerInternal, ApidStandard)
 
 TEST(PacketizerInternal, ApidMax)
 {
-    writePacketId(packetData, Packetizer_PacketType_Telecommand, SPACE_PACKET_MAX_APID_SIZE);
+    writePacketId(packetData, Packetizer_PacketType_Telecommand, SPACE_PACKET_MAX_APID);
     CHECK_EQUAL(0b11111000, packetData[0]);
     CHECK_EQUAL(0b11111111, packetData[1]);
 }

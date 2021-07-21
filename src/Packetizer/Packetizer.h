@@ -34,6 +34,8 @@
 #include <stddef.h>
 #include <stdint.h>
 
+#include "SpacePacket.h"
+
 /// @brief  Possible Space Packet types
 typedef enum {
     Packetizer_PacketType_Telemetry = 0,  ///< Telemetry packet
@@ -42,8 +44,9 @@ typedef enum {
 
 /// @brief  Enumeration listing possible error codes.
 typedef enum {
-    Packetizer_ErrorCode_IncorrectCrc16 = 1,
-    Packetizer_ErrorCode_IncorrectPacketType = 2
+    Packetizer_ErrorCode_IncorrectCrc16 = 1,      ///< Mismatching CRC16 during depacketization
+    Packetizer_ErrorCode_IncorrectPacketType = 2, ///< Mismatching packet type during depacketization
+    Packetizer_ErrorCode_IncorrectPacketSize = 3  ///< Mismatching packet size during depacketization
 } Packetizer_ErrorCode;
 
 /// @brief  Structure representing Packetizer
@@ -58,13 +61,13 @@ typedef struct {
  * that contains data which is properly offsetted for header to fit
  * and is also padded to for CRC.
  *
- * @param[in,out]   self        Pointer to a structure representing Packetizer
- * @param[in]       packetType  Type of packet that should be created
- * @param[in]       source      Source application ID
- * @param[in]       destination Destination application ID
- * @param[in,out]   dataPointer Pointer to an array with the data
- * @param[in]       dataOffset  Offset to where data starts
- * @param[in]       dataSize    Size of the data
+ * @param[in,out]   self            Pointer to a structure representing Packetizer
+ * @param[in]       packetType      Type of packet that should be created
+ * @param[in]       source          Source application ID
+ * @param[in]       destination     Destination application ID
+ * @param[in,out]   packetPointer   Pointer to an array with the data
+ * @param[in]       dataOffset      Offset to where data starts
+ * @param[in]       dataSize        Size of the data
  *
  * @returns Packet size.
  */
@@ -72,7 +75,7 @@ size_t Packetizer_packetize(Packetizer* const self,
                             const Packetizer_PacketType packetType,
                             const uint16_t source,
                             const uint16_t destination,
-                            uint8_t* const dataPointer,
+                            uint8_t* const packetPointer,
                             const size_t dataOffset,
                             const size_t dataSize);
 
@@ -99,6 +102,6 @@ bool Packetizer_depacketize(const Packetizer* const self,
                             uint16_t* const destination,
                             size_t* const dataOffset,
                             size_t* const dataSize,
-                            uint32_t* const errorCode);
+                            int32_t* const errorCode);
 
 #endif // PACKETIZER_H

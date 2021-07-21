@@ -6,6 +6,7 @@ target_sources(Packetizer
                 Packetizer.c
                 Crc16.h
                 PacketizerInternal.h
+                SpacePacketInternal.h
     PUBLIC      Packetizer.h
                 SpacePacket.h)
 
