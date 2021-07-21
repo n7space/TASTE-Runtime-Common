@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.13 FATAL_ERROR)
-project(TASTE-Runtime-Common VERSION 1.0.0 LANGUAGES C)
+project(TASTE-Runtime-Common VERSION 1.0.0 LANGUAGES C CXX)
 
 set(CMAKE_C_STANDARD 99)
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
@@ -35,20 +35,17 @@ set(CLANG_WARNINGS -Wall
                    -Wsign-conversion
                    -Wnull-dereference
                    -Wdouble-promotion
-                   -Wformat=2
-                   -Wno-c99-extensions
-                   -Wno-deprecated-volatile)
+                   -Wformat=2)
 
 set(GCC_WARNINGS ${CLANG_WARNINGS}
                  -Wmisleading-indentation
                  -Wduplicated-cond
                  -Wduplicated-branches
-                 -Wlogical-op
-                 -Wuseless-cast)
+                 -Wlogical-op)
 
 if(CMAKE_C_COMPILER_ID STREQUAL "Clang")
     set(PROJECT_WARNINGS ${CLANG_WARNINGS})
-elseif(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+elseif(CMAKE_C_COMPILER_ID STREQUAL "GNU")
     set(PROJECT_WARNINGS ${GCC_WARNINGS})
 endif()
 

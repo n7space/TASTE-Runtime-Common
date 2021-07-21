@@ -3,7 +3,9 @@ project(Packetizer VERSION 1.0.0 LANGUAGES C)
 add_library(Packetizer STATIC)
 target_sources(Packetizer
     PRIVATE     main.c
+                Crc16.c
                 Packetizer.c
+                Crc16.h
                 PacketizerInternal.h
     PUBLIC      Packetizer.h
                 SpacePacket.h)

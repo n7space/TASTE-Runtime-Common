@@ -4,6 +4,7 @@
 
 extern "C"
 {
+#include "Crc16.h"
 #include "Packetizer.h"
 #include "PacketizerInternal.h"
 #include "SpacePacket.h"
@@ -24,9 +25,9 @@ TEST(Packetizer, PacketizeTelemetry)
     const uint16_t destination = 682;
     const uint16_t sequenceCount = 792;
 
-    Packetizer packetizer = { .packetSequenceCount = sequenceCount };
+    Packetizer packetizer{ sequenceCount };
 
-    auto packetSize = Packetizer_packetize(&packetizer,
+    auto resultSize = Packetizer_packetize(&packetizer,
                                            Packetizer_PacketType_Telemetry,
                                            0,
                                            destination,
@@ -34,42 +35,65 @@ TEST(Packetizer, PacketizeTelemetry)
                                            SPACE_PACKET_PRIMARY_HEADER_SIZE_BYTES,
                                            dataSize);
 
+    CHECK_EQUAL(packetSize, resultSize);
     CHECK_EQUAL(0b01010000, packetData[0]);
     CHECK_EQUAL(0b10101010, packetData[1]);
     CHECK_EQUAL(0b00001111, packetData[2]);
     CHECK_EQUAL(0b00011000, packetData[3]);
     CHECK_EQUAL(0b00000010, packetData[4]);
     CHECK_EQUAL(0b00000001, packetData[5]);
-};
+
+    uint16_t expectedCrc = calculateCrc16(packetData, packetSize - SPACE_PACKET_ERROR_CONTROL_SIZE_BYTES);
+
+    CHECK_EQUAL((expectedCrc >> 8u) & 0xFF, packetData[packetSize - 2]);
+    CHECK_EQUAL(expectedCrc & 0xFF, packetData[packetSize - 1]);
+}
 
 TEST(Packetizer, PacketizeTelecommand)
 {
     const uint16_t destination = 1365;
     const uint16_t sequenceCount = 793;
 
-    Packetizer packetizer = { .packetSequenceCount = sequenceCount };
+    Packetizer packetizer = { sequenceCount };
 
-    auto packetSize = Packetizer_packetize(&packetizer,
+    auto resultSize = Packetizer_packetize(&packetizer,
                                            Packetizer_PacketType_Telecommand,
                                            0,
                                            destination,
                                            packetData,
                                            SPACE_PACKET_PRIMARY_HEADER_SIZE_BYTES,
                                            dataSize);
-};
+
+    CHECK_EQUAL(packetSize, resultSize);
+    CHECK_EQUAL(0b10111000, packetData[0]);
+    CHECK_EQUAL(0b01010101, packetData[1]);
+    CHECK_EQUAL(0b00001111, packetData[2]);
+    CHECK_EQUAL(0b00011001, packetData[3]);
+    CHECK_EQUAL(0b00000010, packetData[4]);
+    CHECK_EQUAL(0b00000001, packetData[5]);
+
+    uint16_t expectedCrc = calculateCrc16(packetData, packetSize - SPACE_PACKET_ERROR_CONTROL_SIZE_BYTES);
+
+    CHECK_EQUAL((expectedCrc >> 8u) & 0xFF, packetData[packetSize - 2]);
+    CHECK_EQUAL(expectedCrc & 0xFF, packetData[packetSize - 1]);
+}
 
 TEST(Packetizer, DepacketizeTelemetry)
 {
-    Packetizer packetizer = { .packetSequenceCount = 8 };
+    Packetizer packetizer = { 8 };
 
     packetData[0] = 0b10110000;
     packetData[1] = 0b00000101;
     packetData[4] = 0b00000010;
     packetData[5] = 0b00000001;
 
+    uint16_t crc = calculateCrc16(packetData, packetSize - SPACE_PACKET_ERROR_CONTROL_SIZE_BYTES);
+    packetData[packetSize - 2] = (crc >> 8u) & 0xFF;
+    packetData[packetSize - 1] = crc & 0xFF;
+
     uint16_t receivedDestination = 0;
-    uint32_t receivedDataOffset = 0;
-    uint32_t receivedDataSize = 0;
+    size_t receivedDataOffset = 0;
+    size_t receivedDataSize = 0;
     uint32_t receivedErrorCode = 0;
 
     auto success = Packetizer_depacketize(&packetizer,
@@ -88,20 +112,24 @@ TEST(Packetizer, DepacketizeTelemetry)
     CHECK_EQUAL(0x0505, receivedDestination);
     CHECK_EQUAL(SPACE_PACKET_PRIMARY_HEADER_SIZE_BYTES, receivedDataOffset);
     CHECK_EQUAL(dataSize - 1, receivedDataSize);
-};
+}
 
 TEST(Packetizer, DepacketizeTelecommand)
 {
-    Packetizer packetizer = { .packetSequenceCount = 7 };
+    Packetizer packetizer = { 7 };
 
     packetData[0] = 0b11011000;
     packetData[1] = 0b00000110;
     packetData[4] = 0b00000010;
     packetData[5] = 0b00000001;
 
+    uint16_t crc = calculateCrc16(packetData, packetSize - SPACE_PACKET_ERROR_CONTROL_SIZE_BYTES);
+    packetData[packetSize - 2] = (crc >> 8u) & 0xFF;
+    packetData[packetSize - 1] = crc & 0xFF;
+
     uint16_t receivedDestination = 0;
-    uint32_t receivedDataOffset = 0;
-    uint32_t receivedDataSize = 0;
+    size_t receivedDataOffset = 0;
+    size_t receivedDataSize = 0;
     uint32_t receivedErrorCode = 0;
 
     auto success = Packetizer_depacketize(&packetizer,
@@ -120,7 +148,7 @@ TEST(Packetizer, DepacketizeTelecommand)
     CHECK_EQUAL(0x606, receivedDestination);
     CHECK_EQUAL(SPACE_PACKET_PRIMARY_HEADER_SIZE_BYTES, receivedDataOffset);
     CHECK_EQUAL(dataSize - 1, receivedDataSize);
-};
+}
 
 TEST_GROUP(PacketizerInternal)
 {
@@ -135,7 +163,7 @@ TEST(PacketizerInternal, ApidMin)
 
     CHECK_EQUAL(0b00011000, packetData[0]);
     CHECK_EQUAL(0b00000000, packetData[1]);
-};
+}
 
 TEST(PacketizerInternal, ApidStandard)
 {
@@ -143,41 +171,41 @@ TEST(PacketizerInternal, ApidStandard)
 
     CHECK_EQUAL(0b01011000, packetData[0]);
     CHECK_EQUAL(0b10101101, packetData[1]);
-};
+}
 
 TEST(PacketizerInternal, ApidMax)
 {
     writePacketId(packetData, Packetizer_PacketType_Telecommand, SPACE_PACKET_MAX_APID_SIZE);
     CHECK_EQUAL(0b11111000, packetData[0]);
     CHECK_EQUAL(0b11111111, packetData[1]);
-};
+}
 
 TEST(PacketizerInternal, SequenceCounterMin)
 {
-    Packetizer packetizer = { .packetSequenceCount = 0 };
+    Packetizer packetizer = { 0 };
     writePacketSequenceControl(packetData, &packetizer);
 
     CHECK_EQUAL(0b00000011, packetData[2]);
     CHECK_EQUAL(0b00000000, packetData[3]);
-};
+}
 
 TEST(PacketizerInternal, SequenceCounterStandard)
 {
-    Packetizer packetizer = { .packetSequenceCount = 718 };
+    Packetizer packetizer = { 718 };
     writePacketSequenceControl(packetData, &packetizer);
 
     CHECK_EQUAL(0b00001011, packetData[2]);
     CHECK_EQUAL(0b11001110, packetData[3]);
-};
+}
 
 TEST(PacketizerInternal, SequenceCounterMax)
 {
-    Packetizer packetizer = { .packetSequenceCount = SPACE_PACKET_MAX_PACKET_SEQUENCE_COUNT };
+    Packetizer packetizer = { SPACE_PACKET_MAX_PACKET_SEQUENCE_COUNT };
     writePacketSequenceControl(packetData, &packetizer);
 
     CHECK_EQUAL(0b11111111, packetData[2]);
     CHECK_EQUAL(0b11111111, packetData[3]);
-};
+}
 
 TEST(PacketizerInternal, DataSizeMin)
 {
@@ -185,7 +213,7 @@ TEST(PacketizerInternal, DataSizeMin)
 
     CHECK_EQUAL(0b00000000, packetData[4]);
     CHECK_EQUAL(0b00000000, packetData[5]);
-};
+}
 
 TEST(PacketizerInternal, DataSizeStandard)
 {
@@ -193,7 +221,7 @@ TEST(PacketizerInternal, DataSizeStandard)
 
     CHECK_EQUAL(0b10101010, packetData[4]);
     CHECK_EQUAL(0b01010101, packetData[5]);
-};
+}
 
 TEST(PacketizerInternal, DataSizeMax)
 {
@@ -201,4 +229,4 @@ TEST(PacketizerInternal, DataSizeMax)
 
     CHECK_EQUAL(0b11111111, packetData[4]);
     CHECK_EQUAL(0b11111111, packetData[5]);
-};
+}

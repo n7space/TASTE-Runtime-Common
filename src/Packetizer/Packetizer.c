@@ -6,17 +6,18 @@
 #include <stdio.h>
 #include <string.h>
 
+#include "Crc16.h"
 #include "PacketizerInternal.h"
 #include "SpacePacket.h"
 
-uint32_t
+size_t
 Packetizer_packetize(Packetizer* const self,
                      const Packetizer_PacketType packetType,
                      const uint16_t source,
                      const uint16_t destination,
                      uint8_t* const dataPointer,
-                     const uint32_t dataOffset,
-                     const uint32_t dataSize)
+                     const size_t dataOffset,
+                     const size_t dataSize)
 {
     // Unused in this implementation
     (void)source;
@@ -34,8 +35,7 @@ Packetizer_packetize(Packetizer* const self,
     writePacketId(dataPointer, packetType, destination);
     writePacketSequenceControl(dataPointer, self);
     writePacketDataLength(dataPointer, dataSize);
-
-    // TODO: Calculate CRC16
+    writeCrc(dataPointer, dataSize);
 
     // Increase sequence counter, it should wrap to zero after 2^14-1
     ++self->packetSequenceCount;
@@ -43,18 +43,18 @@ Packetizer_packetize(Packetizer* const self,
         self->packetSequenceCount = 0; // Counter should wrap to zero
     }
 
-    return 0;
+    return SPACE_PACKET_PRIMARY_HEADER_SIZE_BYTES + dataSize + SPACE_PACKET_ERROR_CONTROL_SIZE_BYTES;
 }
 
 bool
 Packetizer_depacketize(const Packetizer* const self,
                        const Packetizer_PacketType packetType,
                        const uint8_t* const packetPointer,
-                       const uint32_t packetSize,
+                       const size_t packetSize,
                        uint16_t* const source,
                        uint16_t* const destination,
-                       uint32_t* const dataOffset,
-                       uint32_t* const dataSize,
+                       size_t* const dataOffset,
+                       size_t* const dataSize,
                        uint32_t* const errorCode)
 {
     // Unused in this implementation
@@ -69,7 +69,15 @@ Packetizer_depacketize(const Packetizer* const self,
     assert(dataSize != NULL);
     assert(destination != NULL);
 
-    // TODO Check if CRC16 is correct
+    uint16_t receivedCrc = packetPointer[packetSize - 1] | (packetPointer[packetSize - 2] << 8);
+    uint16_t expectedCrc = calculateCrc16(packetPointer, packetSize - SPACE_PACKET_ERROR_CONTROL_SIZE_BYTES);
+
+    if(receivedCrc != expectedCrc) {
+        if(errorCode != NULL) {
+            *errorCode = Packetizer_ErrorCode_IncorrectCrc16;
+        }
+        return false;
+    }
 
     // Check packet type
     const Packetizer_PacketType receivedPacketType =
@@ -85,7 +93,7 @@ Packetizer_depacketize(const Packetizer* const self,
     *destination = packetPointer[1]
                    | (packetPointer[0] & SPACE_PACKET_APID_HIGH_BITS_MASK) << (8u - SPACE_PACKET_APID_HIGH_BITS_OFFSET);
     *dataOffset = SPACE_PACKET_PRIMARY_HEADER_SIZE_BYTES;
-    *dataSize = (uint32_t)(packetPointer[4] << 8u) | packetPointer[5];
+    *dataSize = (size_t)(packetPointer[4] << 8u) | packetPointer[5];
 
     return true;
 }
@@ -119,8 +127,17 @@ writePacketSequenceControl(uint8_t* const dataPointer, const Packetizer* const p
 }
 
 void
-writePacketDataLength(uint8_t* const dataPointer, const uint32_t dataSize)
+writePacketDataLength(uint8_t* const dataPointer, const size_t dataSize)
 {
     dataPointer[4] = ((dataSize - 1) >> 8) & 0xFF;
     dataPointer[5] = (dataSize - 1) & 0xFF;
+}
+
+void
+writeCrc(uint8_t* const dataPointer, const size_t dataSize)
+{
+    uint16_t crc = calculateCrc16(dataPointer, SPACE_PACKET_PRIMARY_HEADER_SIZE_BYTES + dataSize);
+
+    dataPointer[SPACE_PACKET_PRIMARY_HEADER_SIZE_BYTES + dataSize] = (crc >> 8) & 0xFF;
+    dataPointer[SPACE_PACKET_PRIMARY_HEADER_SIZE_BYTES + dataSize + 1] = crc & 0xFF;
 }

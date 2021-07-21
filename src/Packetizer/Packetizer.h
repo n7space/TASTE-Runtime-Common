@@ -22,22 +22,22 @@ typedef struct {
     uint16_t packetSequenceCount;
 } Packetizer;
 
-uint32_t Packetizer_packetize(Packetizer* const self,
-                              const Packetizer_PacketType packetType,
-                              const uint16_t source,
-                              const uint16_t destination,
-                              uint8_t* const dataPointer,
-                              const uint32_t dataOffset,
-                              const uint32_t dataSize);
+size_t Packetizer_packetize(Packetizer* const self,
+                            const Packetizer_PacketType packetType,
+                            const uint16_t source,
+                            const uint16_t destination,
+                            uint8_t* const dataPointer,
+                            const size_t dataOffset,
+                            const size_t dataSize);
 
 bool Packetizer_depacketize(const Packetizer* const self,
                             const Packetizer_PacketType packetType,
                             const uint8_t* const packetPointer,
-                            const uint32_t packetSize,
+                            const size_t packetSize,
                             uint16_t* const source,
                             uint16_t* const destination,
-                            uint32_t* const dataOffset,
-                            uint32_t* const dataSize,
+                            size_t* const dataOffset,
+                            size_t* const dataSize,
                             uint32_t* const errorCode);
 
 #endif // PACKETIZER_H
