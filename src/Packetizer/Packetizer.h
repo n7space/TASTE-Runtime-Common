@@ -55,6 +55,15 @@ typedef struct {
 } Packetizer;
 
 /**
+ * @brief   Initialize Packetizer struct
+ *
+ * Initializes packet sequence count to 0
+ *
+ * @param[in]   self    Pointer to a structure representing Packetizer
+ */
+void Packetizer_init(Packetizer* const self);
+
+/**
  * @brief   Packetize given data with Space Packet header and CRC.
  *
  * This function assumes that the user is passing a pointer to array

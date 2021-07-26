@@ -30,6 +30,12 @@
 #include "PacketizerInternal.h"
 #include "SpacePacketInternal.h"
 
+void
+Packetizer_init(Packetizer* const self)
+{
+    self->packetSequenceCount = 0;
+}
+
 size_t
 Packetizer_packetize(Packetizer* const self,
                      const Packetizer_PacketType packetType,
