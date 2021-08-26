@@ -6,6 +6,12 @@
 #include <stddef.h>
 #include <stdint.h>
 
+#include <Packetizer.h>
+#include <request_size.h>
+
+#define BROKER_BUFFER_SIZE                                                                                             \
+    (SPACE_PACKET_PRIMARY_HEADER_SIZE + GENERIC_LINUX_BUFFER_SIZE + SPACE_PACKET_ERROR_CONTROL_SIZE)
+
 void Broker_initialize(void);
 void Broker_deliver_request(enum RemoteInterface interface, uint8_t* data, size_t size);
 void Broker_receive_packet(uint8_t* data, size_t size);
