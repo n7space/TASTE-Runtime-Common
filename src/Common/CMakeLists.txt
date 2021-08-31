@@ -11,6 +11,9 @@ target_include_directories(Common
 target_link_libraries(Common
     PRIVATE     common_build_options)
 
+target_link_libraries(Common
+  PUBLIC      TASTE::Mocks)
+
 add_format_target(Common)
 
 add_library(TASTE::Common ALIAS Common)
