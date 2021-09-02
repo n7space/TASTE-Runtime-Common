@@ -1,4 +1,4 @@
 add_subdirectory(Packetizer)
-add_subdirectory(Common)
+add_subdirectory(RuntimeCommon)
 add_subdirectory(Broker)
 add_subdirectory(RuntimeMocks)

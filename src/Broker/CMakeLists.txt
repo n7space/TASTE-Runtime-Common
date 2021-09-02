@@ -9,13 +9,9 @@ target_include_directories(Broker
   PUBLIC      ${CMAKE_CURRENT_SOURCE_DIR})
 
 target_link_libraries(Broker
-  PRIVATE     common_build_options)
-
-target_link_libraries(Broker
-  PUBLIC      TASTE::RuntimeMocks)
-
-target_link_libraries(Broker
-  PUBLIC      TASTE::Packetizer)
+  PRIVATE     common_build_options
+              TASTE::RuntimeMocks
+              TASTE::Packetizer)
 
 add_format_target(Broker)
 
