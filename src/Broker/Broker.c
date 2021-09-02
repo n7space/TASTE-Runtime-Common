@@ -20,7 +20,7 @@ Broker_initialize()
 }
 
 void
-Broker_deliver_request(enum RemoteInterface interface, uint8_t* data, size_t length)
+Broker_deliver_request(enum RemoteInterface interface, uint8_t* const data, const size_t length)
 {
     Broker_acquire_lock();
     memcpy(packetizer_buffer + SPACE_PACKET_PRIMARY_HEADER_SIZE, data, length);
