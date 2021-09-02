@@ -12,7 +12,7 @@ target_link_libraries(Broker
   PRIVATE     common_build_options)
 
 target_link_libraries(Broker
-  PUBLIC      TASTE::Mocks)
+  PUBLIC      TASTE::RuntimeMocks)
 
 target_link_libraries(Broker
   PUBLIC      TASTE::Packetizer)

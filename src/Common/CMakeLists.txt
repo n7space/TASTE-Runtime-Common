@@ -12,7 +12,7 @@ target_link_libraries(Common
     PRIVATE     common_build_options)
 
 target_link_libraries(Common
-  PUBLIC      TASTE::Mocks)
+  PUBLIC      TASTE::RuntimeMocks)
 
 add_format_target(Common)
 
