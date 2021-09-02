@@ -25,13 +25,13 @@ Broker_deliver_request(const enum RemoteInterface interface, uint8_t* const data
     Broker_acquire_lock();
     memcpy(packetizer_buffer + SPACE_PACKET_PRIMARY_HEADER_SIZE, data, length);
 
-    size_t packet_size = Packetizer_packetize(&packetizer_data,
-                                              Packetizer_PacketType_Telemetry,
-                                              0,
-                                              (uint16_t)interface,
-                                              packetizer_buffer,
-                                              SPACE_PACKET_PRIMARY_HEADER_SIZE,
-                                              length);
+    const size_t packet_size = Packetizer_packetize(&packetizer_data,
+                                                    Packetizer_PacketType_Telemetry,
+                                                    0,
+                                                    (uint16_t)interface,
+                                                    packetizer_buffer,
+                                                    SPACE_PACKET_PRIMARY_HEADER_SIZE,
+                                                    length);
 
     // sent to driver
     const enum SystemBus bus_id = port_to_bus_map[interface];
