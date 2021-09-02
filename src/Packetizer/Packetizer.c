@@ -47,6 +47,7 @@ Packetizer_packetize(Packetizer* const self,
 {
     // Unused in this implementation
     (void)source;
+    (void)dataOffset;
 
     assert(self->packetSequenceCount <= SPACE_PACKET_MAX_PACKET_SEQUENCE_COUNT);
     assert(destination <= SPACE_PACKET_MAX_APID);
