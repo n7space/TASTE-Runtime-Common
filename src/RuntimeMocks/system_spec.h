@@ -3,9 +3,6 @@
 
 enum RemoteInterface {
     INTERFACE_INVALID_ID,
-
-    // Sporadic interfaces from x86_partition
-
     INTERFACE_MAX_ID,
 };
 

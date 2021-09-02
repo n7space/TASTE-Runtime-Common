@@ -34,7 +34,7 @@ Broker_deliver_request(enum RemoteInterface interface, uint8_t* data, size_t len
                                               length);
 
     // sent to driver
-    enum SystemBus bus_id = port_to_bus_map[interface];
+    const enum SystemBus bus_id = port_to_bus_map[interface];
     void* driver_private_data = bus_to_driver_private_data[bus_id];
     driver_send_function send_function = bus_to_driver_send_function[bus_id];
     send_function(driver_private_data, packetizer_buffer, packet_size);
@@ -44,7 +44,7 @@ Broker_deliver_request(enum RemoteInterface interface, uint8_t* data, size_t len
 
 // this shall be called by driver
 void
-Broker_receive_packet(uint8_t* data, size_t size)
+Broker_receive_packet(uint8_t* const data, const size_t size)
 {
     Broker_acquire_lock();
     // mutex
@@ -53,15 +53,15 @@ Broker_receive_packet(uint8_t* data, size_t size)
     size_t data_offset;
     size_t data_size;
     int32_t error_code;
-    bool success = Packetizer_depacketize(&packetizer_data,
-                                          Packetizer_PacketType_Telemetry,
-                                          data,
-                                          size,
-                                          &source,
-                                          &destination,
-                                          &data_offset,
-                                          &data_size,
-                                          &error_code);
+    const bool success = Packetizer_depacketize(&packetizer_data,
+                                                Packetizer_PacketType_Telemetry,
+                                                data,
+                                                size,
+                                                &source,
+                                                &destination,
+                                                &data_offset,
+                                                &data_size,
+                                                &error_code);
     if(!success) {
         Broker_release_lock();
         return;

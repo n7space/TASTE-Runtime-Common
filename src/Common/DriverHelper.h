@@ -3,7 +3,7 @@
 
 #include <system_spec.h>
 
-void* get_device_configuration(enum SystemDevice device_id);
-void* get_remote_device_configuration(enum SystemDevice device_id);
+const void* get_device_configuration(const enum SystemDevice device_id);
+const void* get_remote_device_configuration(const enum SystemDevice device_id);
 
 #endif

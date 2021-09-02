@@ -93,7 +93,7 @@ Packetizer_depacketize(const Packetizer* const self,
     assert(destination != NULL);
 
     // Get and check data size
-    size_t receivedDataSize = readPacketDataLength(packetPointer);
+    const size_t receivedDataSize = readPacketDataLength(packetPointer);
     if(packetSize != SPACE_PACKET_PRIMARY_HEADER_SIZE + receivedDataSize + SPACE_PACKET_ERROR_CONTROL_SIZE) {
         if(errorCode != NULL) {
             *errorCode = Packetizer_ErrorCode_IncorrectPacketSize;
@@ -184,7 +184,7 @@ writeCrc(uint8_t* const packetPointer, const size_t dataSize)
 }
 
 size_t
-readPacketDataLength(uint8_t* const packetPointer)
+readPacketDataLength(const uint8_t* const packetPointer)
 {
 #ifdef STANDARD_SPACE_PACKET
     return ((size_t)(packetPointer[4] << 8u) | packetPointer[5]) + 1;
