@@ -6,7 +6,7 @@
 #include <stddef.h>
 #include <stdint.h>
 
-#include <Packetizer.h>
+#include <SpacePacket.h>
 #include <request_size.h>
 
 #define BROKER_BUFFER_SIZE                                                                                             \

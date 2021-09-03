@@ -11,7 +11,7 @@ target_include_directories(Broker
 target_link_libraries(Broker
   PRIVATE     common_build_options
               TASTE::RuntimeMocks
-              TASTE::Packetizer)
+  PUBLIC      TASTE::Packetizer)
 
 add_format_target(Broker)
 

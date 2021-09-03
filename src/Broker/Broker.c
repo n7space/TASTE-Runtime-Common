@@ -3,6 +3,8 @@
 #include <string.h>
 #include <stdint.h>
 
+#include <Packetizer.h>
+
 static Packetizer packetizer_data = { 0 };
 static uint8_t packetizer_buffer[BROKER_BUFFER_SIZE];
 
