@@ -50,7 +50,7 @@
 
 /// @brief  Buffer size to store space packet data.
 #define BROKER_BUFFER_SIZE                                                                                             \
-    (SPACE_PACKET_PRIMARY_HEADER_SIZE + GENERIC_LINUX_BUFFER_SIZE + SPACE_PACKET_ERROR_CONTROL_SIZE)
+    (SPACE_PACKET_PRIMARY_HEADER_SIZE + GENERIC_PARTITION_BUFFER_SIZE + SPACE_PACKET_ERROR_CONTROL_SIZE)
 
 /** @brief Initialize Broker
  *

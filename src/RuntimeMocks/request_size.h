@@ -25,7 +25,7 @@
 
 #include <stdint.h>
 
-#define GENERIC_LINUX_BUFFER_SIZE (2)
+#define GENERIC_PARTITION_BUFFER_SIZE (2)
 
 #define FUNCTION1_PONG_REQUEST_SIZE (sizeof (int))
 

@@ -49,15 +49,22 @@ Broker_deliver_request(const enum RemoteInterface interface, uint8_t* const data
     Broker_acquire_lock();
     memcpy(packetizer_buffer + SPACE_PACKET_PRIMARY_HEADER_SIZE, data, length);
 
+#if defined BROKER_SEND_TELECOMMAND
+    const Packetizer_PacketType packet_type = Packetizer_PacketType_Telecommand;
+#elif defined BROKER_SEND_TELEMETRY
+    const Packetizer_PacketType packet_type = Packetizer_PacketType_Telemetry;
+#else
+    const Packetizer_PacketType packet_type = Packetizer_PacketType_Telemetry;
+#endif
+
     const size_t packet_size = Packetizer_packetize(&packetizer_data,
-                                                    Packetizer_PacketType_Telemetry,
+                                                    packet_type,
                                                     0,
                                                     (uint16_t)interface,
                                                     packetizer_buffer,
                                                     SPACE_PACKET_PRIMARY_HEADER_SIZE,
                                                     length);
 
-    // sent to driver
     const enum SystemBus bus_id = port_to_bus_map[interface];
     void* driver_private_data = bus_to_driver_private_data[bus_id];
     driver_send_function send_function = bus_to_driver_send_function[bus_id];
@@ -66,26 +73,26 @@ Broker_deliver_request(const enum RemoteInterface interface, uint8_t* const data
     Broker_release_lock();
 }
 
-// this shall be called by driver
 void
 Broker_receive_packet(uint8_t* const data, const size_t length)
 {
     Broker_acquire_lock();
-    // mutex
     uint16_t source;
     uint16_t destination;
     size_t data_offset;
     size_t data_size;
     int32_t error_code;
-    const bool success = Packetizer_depacketize(&packetizer_data,
-                                                Packetizer_PacketType_Telemetry,
-                                                data,
-                                                length,
-                                                &source,
-                                                &destination,
-                                                &data_offset,
-                                                &data_size,
-                                                &error_code);
+
+#if defined BROKER_EXPECT_TELECOMMAND
+    const Packetizer_PacketType packet_type = Packetizer_PacketType_Telecommand;
+#elif defined BROKER_EXPECT_TELEMETRT
+    const Packetizer_PacketType packet_type = Packetizer_PacketType_Telemetry;
+#else
+    const Packetizer_PacketType packet_type = Packetizer_PacketType_Telemetry;
+#endif
+
+    const bool success = Packetizer_depacketize(
+            &packetizer_data, packet_type, data, length, &source, &destination, &data_offset, &data_size, &error_code);
     if(!success) {
         Broker_release_lock();
         return;
