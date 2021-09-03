@@ -68,7 +68,7 @@ Broker_deliver_request(const enum RemoteInterface interface, uint8_t* const data
 
 // this shall be called by driver
 void
-Broker_receive_packet(uint8_t* const data, const size_t size)
+Broker_receive_packet(uint8_t* const data, const size_t length)
 {
     Broker_acquire_lock();
     // mutex
@@ -80,7 +80,7 @@ Broker_receive_packet(uint8_t* const data, const size_t size)
     const bool success = Packetizer_depacketize(&packetizer_data,
                                                 Packetizer_PacketType_Telemetry,
                                                 data,
-                                                size,
+                                                length,
                                                 &source,
                                                 &destination,
                                                 &data_offset,
