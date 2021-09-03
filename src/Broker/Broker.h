@@ -54,7 +54,7 @@
 
 /** @brief Initialize Broker
  *
- * Broker shall be initialized at the before starting system's threads.
+ * Broker shall be initialized before starting system's threads.
  */
 void Broker_initialize(void);
 
