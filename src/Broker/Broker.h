@@ -54,11 +54,11 @@
 
 /** @brief Initialize Broker
  *
- * Broker shall be initialized at the before starting threads of system.
+ * Broker shall be initialized at the before starting system's threads.
  */
 void Broker_initialize(void);
 
-/** @brief deliver message to remote interface
+/** @brief Deliver message to remote interface
  *
  * This function shall be used to deliver a message (sporadic interface call)
  * to remote partition. This function is used in code generated using kazoo.
@@ -69,7 +69,7 @@ void Broker_initialize(void);
  */
 void Broker_deliver_request(const enum RemoteInterface interface, uint8_t* const data, const size_t length);
 
-/** @brief deliver message from remote interface
+/** @brief Deliver message from remote interface
  *
  * This function shall be used to deliver a message (sporadic interface call)
  * from remote partition. This function is used by device drivers.
