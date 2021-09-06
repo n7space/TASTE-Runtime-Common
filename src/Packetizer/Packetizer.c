@@ -189,7 +189,6 @@ readPacketDataLength(const uint8_t* const packetPointer)
 {
 #ifdef STANDARD_SPACE_PACKET
     return ((size_t)(packetPointer[4] << 8u) | packetPointer[5]) + 1;
-
 #else
     return ((size_t)(packetPointer[4] << 24u) | packetPointer[5] << 16u | packetPointer[6] << 8u | packetPointer[7])
            + 1;
