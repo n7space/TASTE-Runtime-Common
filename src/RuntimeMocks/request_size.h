@@ -20,16 +20,15 @@
  * limitations under the License.
  */
 
-#ifndef PACKETIZER_INTERNAL_H
-#define PACKETIZER_INTERNAL_H
+#ifndef REQUEST_SIZE_H
+#define REQUEST_SIZE_H
 
-#define PACKETIZER_DESTINATION_HIGH_BITS_MASK 0x0700
-#define PACKETIZER_PACKET_SEQUENCE_CONTROL_HIGH_BITS_MASK 0x3F00
+#include <stdint.h>
 
-void writePacketId(uint8_t* const packetPointer, const Packetizer_PacketType packetType, const uint16_t source);
-void writePacketSequenceControl(uint8_t* const packetPointer, const Packetizer* const packetizer);
-void writePacketDataLength(uint8_t* const packetPointer, const size_t dataSize);
-void writeCrc(uint8_t* const packetPointer, const size_t dataSize);
-size_t readPacketDataLength(const uint8_t* const packetPointer);
+#define GENERIC_PARTITION_BUFFER_SIZE (2)
 
-#endif // PACKETIZER_INTERNAL_H
+#define FUNCTION1_PONG_REQUEST_SIZE (sizeof (int))
+
+#define FUNCTION2_PING_REQUEST_SIZE (sizeof (int))
+
+#endif

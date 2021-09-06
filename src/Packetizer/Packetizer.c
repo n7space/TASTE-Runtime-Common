@@ -47,6 +47,7 @@ Packetizer_packetize(Packetizer* const self,
 {
     // Unused in this implementation
     (void)source;
+    (void)dataOffset;
 
     assert(self->packetSequenceCount <= SPACE_PACKET_MAX_PACKET_SEQUENCE_COUNT);
     assert(destination <= SPACE_PACKET_MAX_APID);
@@ -93,7 +94,7 @@ Packetizer_depacketize(const Packetizer* const self,
     assert(destination != NULL);
 
     // Get and check data size
-    size_t receivedDataSize = ((size_t)(packetPointer[4] << 8u) | packetPointer[5]) + 1;
+    const size_t receivedDataSize = readPacketDataLength(packetPointer);
     if(packetSize != SPACE_PACKET_PRIMARY_HEADER_SIZE + receivedDataSize + SPACE_PACKET_ERROR_CONTROL_SIZE) {
         if(errorCode != NULL) {
             *errorCode = Packetizer_ErrorCode_IncorrectPacketSize;
@@ -163,8 +164,15 @@ writePacketSequenceControl(uint8_t* const packetPointer, const Packetizer* const
 void
 writePacketDataLength(uint8_t* const packetPointer, const size_t dataSize)
 {
+#ifdef STANDARD_SPACE_PACKET
     packetPointer[4] = ((dataSize - 1) >> 8) & 0xFF;
     packetPointer[5] = (dataSize - 1) & 0xFF;
+#else
+    packetPointer[4] = ((dataSize - 1) >> 24) & 0xFF;
+    packetPointer[5] = ((dataSize - 1) >> 16) & 0xFF;
+    packetPointer[6] = ((dataSize - 1) >> 8) & 0xFF;
+    packetPointer[7] = (dataSize - 1) & 0xFF;
+#endif
 }
 
 void
@@ -174,4 +182,15 @@ writeCrc(uint8_t* const packetPointer, const size_t dataSize)
 
     packetPointer[SPACE_PACKET_PRIMARY_HEADER_SIZE + dataSize] = (crc >> 8) & 0xFF;
     packetPointer[SPACE_PACKET_PRIMARY_HEADER_SIZE + dataSize + 1] = crc & 0xFF;
+}
+
+size_t
+readPacketDataLength(const uint8_t* const packetPointer)
+{
+#ifdef STANDARD_SPACE_PACKET
+    return ((size_t)(packetPointer[4] << 8u) | packetPointer[5]) + 1;
+#else
+    return ((size_t)(packetPointer[4] << 24u) | packetPointer[5] << 16u | packetPointer[6] << 8u | packetPointer[7])
+           + 1;
+#endif
 }

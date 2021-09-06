@@ -20,16 +20,30 @@
  * limitations under the License.
  */
 
-#ifndef PACKETIZER_INTERNAL_H
-#define PACKETIZER_INTERNAL_H
+#include "DriverHelper.h"
 
-#define PACKETIZER_DESTINATION_HIGH_BITS_MASK 0x0700
-#define PACKETIZER_PACKET_SEQUENCE_CONTROL_HIGH_BITS_MASK 0x3F00
+const void*
+get_device_configuration(const enum SystemDevice device_id)
+{
+    if((int)device_id > SYSTEM_DEVICE_NUMBER) {
+        return (void*)0;
+    }
 
-void writePacketId(uint8_t* const packetPointer, const Packetizer_PacketType packetType, const uint16_t source);
-void writePacketSequenceControl(uint8_t* const packetPointer, const Packetizer* const packetizer);
-void writePacketDataLength(uint8_t* const packetPointer, const size_t dataSize);
-void writeCrc(uint8_t* const packetPointer, const size_t dataSize);
-size_t readPacketDataLength(const uint8_t* const packetPointer);
+    return device_configurations[(int)device_id];
+}
 
-#endif // PACKETIZER_INTERNAL_H
+const void*
+get_remote_device_configuration(const enum SystemDevice device_id)
+{
+    if((int)device_id > SYSTEM_DEVICE_NUMBER) {
+        return (void*)0;
+    }
+    const enum SystemBus bus_id = device_to_bus_map[(int)device_id];
+    for(int index = 0; index < SYSTEM_DEVICE_NUMBER; ++index) {
+        if(index != (int)device_id && device_to_bus_map[index] == bus_id) {
+            return device_configurations[index];
+        }
+    }
+
+    return (void*)0;
+}
