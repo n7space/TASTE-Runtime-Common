@@ -37,20 +37,23 @@
 #include "SpacePacket.h"
 
 /// @brief  Possible Space Packet types
-typedef enum {
+typedef enum
+{
     Packetizer_PacketType_Telemetry = 0,  ///< Telemetry packet
     Packetizer_PacketType_Telecommand = 1 ///< Telecommand packet
 } Packetizer_PacketType;
 
 /// @brief  Enumeration listing possible error codes.
-typedef enum {
+typedef enum
+{
     Packetizer_ErrorCode_IncorrectCrc16 = 1,      ///< Mismatching CRC16 during depacketization
     Packetizer_ErrorCode_IncorrectPacketType = 2, ///< Mismatching packet type during depacketization
     Packetizer_ErrorCode_IncorrectPacketSize = 3  ///< Mismatching packet size during depacketization
 } Packetizer_ErrorCode;
 
 /// @brief  Structure representing Packetizer
-typedef struct {
+typedef struct
+{
     uint16_t packetSequenceCount; ///< Counter for created packets
 } Packetizer;
 

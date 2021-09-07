@@ -23,17 +23,20 @@
 #ifndef SYSTEM_SPEC_H
 #define SYSTEM_SPEC_H
 
-enum RemoteInterface {
+enum RemoteInterface
+{
     INTERFACE_INVALID_ID,
     INTERFACE_MAX_ID,
 };
 
-enum SystemPartition {
+enum SystemPartition
+{
     PARTITION_INVALID_ID,
     X86_PARTITION,
 };
 
-enum SystemBus {
+enum SystemBus
+{
     BUS_INVALID_ID,
 };
 
@@ -42,7 +45,8 @@ enum SystemBus {
 extern enum SystemBus port_to_bus_map[];
 extern enum RemoteInterface bus_to_port_map[];
 
-enum SystemDevice {
+enum SystemDevice
+{
     DEVICE_INVALID_ID,
 };
 

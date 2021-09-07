@@ -21,15 +21,15 @@ BinPackArguments: false
 BinPackParameters: false
 BreakBeforeBraces: Custom
 BraceWrapping:
-  AfterClass: false
+  AfterClass: true
   AfterControlStatement: false
-  AfterEnum: false
+  AfterEnum: true
   AfterFunction: true
   AfterNamespace: false
   AfterObjCDeclaration: false
-  AfterStruct: false
-  AfterUnion: false
-  AfterExternBlock: true
+  AfterStruct: true
+  AfterUnion: true
+  AfterExternBlock: false
   BeforeCatch: false
   BeforeElse: false
   IndentBraces: false
