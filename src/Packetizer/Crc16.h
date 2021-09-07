@@ -34,7 +34,10 @@
  */
 
 /// @brief   Initial value of CRC checksum (checksum of empty data collection).
-enum { Crc16_InitialValue = 0xFFFF };
+enum
+{
+    Crc16_InitialValue = 0xFFFF
+};
 
 /**
  * @brief   Calculates CRC checksum for given data block.
