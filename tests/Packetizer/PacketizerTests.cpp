@@ -2,7 +2,8 @@
 
 #include <cstring>
 
-extern "C" {
+extern "C"
+{
 #include "Crc16.h"
 #include "Packetizer.h"
 #include "PacketizerInternal.h"
