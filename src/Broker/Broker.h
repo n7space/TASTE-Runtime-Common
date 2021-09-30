@@ -67,7 +67,7 @@ void Broker_initialize(void);
  * @param[in]    data           Pointer to an array with the data
  * @param[in]    length         Size of the data
  */
-void Broker_deliver_request(const enum RemoteInterface interface, uint8_t* const data, const size_t length);
+void Broker_deliver_request(const enum RemoteInterface interface, const uint8_t* const data, const size_t length);
 
 /** @brief Deliver message from remote interface
  *
