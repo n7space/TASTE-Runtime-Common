@@ -53,7 +53,9 @@ Packetizer_packetize(Packetizer* const self,
     assert(destination <= SPACE_PACKET_MAX_APID);
     assert(packetPointer != NULL);
     assert(dataOffset == SPACE_PACKET_PRIMARY_HEADER_SIZE);
+#ifdef STANDARD_SPACE_PACKET
     assert(dataSize >= 1);
+#endif
     assert(dataSize < SPACE_PACKET_MAX_PACKET_DATA_SIZE);
 
     memset(packetPointer, 0, SPACE_PACKET_PRIMARY_HEADER_SIZE);
@@ -88,7 +90,11 @@ Packetizer_depacketize(const Packetizer* const self,
     (void)source;
 
     assert(packetPointer != NULL);
+#ifdef STANDARD_SPACE_PACKET
     assert(packetSize > SPACE_PACKET_PRIMARY_HEADER_SIZE + SPACE_PACKET_ERROR_CONTROL_SIZE);
+#else
+    assert(packetSize >= SPACE_PACKET_PRIMARY_HEADER_SIZE + SPACE_PACKET_ERROR_CONTROL_SIZE);
+#endif
     assert(dataOffset != NULL);
     assert(dataSize != NULL);
     assert(destination != NULL);
@@ -168,10 +174,17 @@ writePacketDataLength(uint8_t* const packetPointer, const size_t dataSize)
     packetPointer[4] = ((dataSize - 1) >> 8) & 0xFF;
     packetPointer[5] = (dataSize - 1) & 0xFF;
 #else
-    packetPointer[4] = ((dataSize - 1) >> 24) & 0xFF;
-    packetPointer[5] = ((dataSize - 1) >> 16) & 0xFF;
-    packetPointer[6] = ((dataSize - 1) >> 8) & 0xFF;
-    packetPointer[7] = (dataSize - 1) & 0xFF;
+    if(dataSize != 0) {
+        packetPointer[4] = ((dataSize - 1) >> 24) & 0xFF;
+        packetPointer[5] = ((dataSize - 1) >> 16) & 0xFF;
+        packetPointer[6] = ((dataSize - 1) >> 8) & 0xFF;
+        packetPointer[7] = (dataSize - 1) & 0xFF;
+    } else {
+        packetPointer[4] = 0xFF;
+        packetPointer[5] = 0xFF;
+        packetPointer[6] = 0xFF;
+        packetPointer[7] = 0xFF;
+    }
 #endif
 }
 
@@ -190,7 +203,12 @@ readPacketDataLength(const uint8_t* const packetPointer)
 #ifdef STANDARD_SPACE_PACKET
     return ((size_t)(packetPointer[4] << 8u) | packetPointer[5]) + 1;
 #else
-    return ((size_t)(packetPointer[4] << 24u) | packetPointer[5] << 16u | packetPointer[6] << 8u | packetPointer[7])
-           + 1;
+    const uint32_t packetSize =
+            ((size_t)(packetPointer[4] << 24u) | packetPointer[5] << 16u | packetPointer[6] << 8u | packetPointer[7]);
+    const uint32_t zeroPacketSize = 0xffffffff;
+    if(packetSize == zeroPacketSize) {
+        return 0;
+    }
+    return (size_t)packetSize + 1;
 #endif
 }
