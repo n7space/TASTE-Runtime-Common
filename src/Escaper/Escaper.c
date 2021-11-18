@@ -28,7 +28,7 @@
 #define ESCAPE_BYTE (uint8_t)0xFE
 
 void
-Escaper_parse_recv_buffer(Escaper* self, uint8_t* buffer, const size_t length)
+Escaper_parse_recv_buffer(Escaper* const self, uint8_t* buffer, const size_t length)
 {
     for(size_t i = 0; i < length; ++i) {
         switch(self->m_parse_state) {
@@ -62,13 +62,13 @@ Escaper_parse_recv_buffer(Escaper* self, uint8_t* buffer, const size_t length)
 }
 
 void
-Escaper_init_parser(Escaper* self)
+Escaper_init_parser(Escaper* const self)
 {
     self->m_parse_state = STATE_WAIT;
 }
 
 void
-Escaper_init_encode(Escaper* self)
+Escaper_init_encode(Escaper* const self)
 {
     self->m_encode_finished = false;
     self->m_escape = false;
@@ -76,11 +76,11 @@ Escaper_init_encode(Escaper* self)
 }
 
 bool
-Escaper_encode_packet(Escaper* self,
+Escaper_encode_packet(Escaper* const self,
                       const uint8_t* const data,
                       const size_t length,
-                      size_t* index,
-                      size_t* packetLength)
+                      size_t* const index,
+                      size_t* const packetLength)
 {
     size_t send_buffer_index = 0;
 

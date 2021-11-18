@@ -66,7 +66,7 @@ typedef struct
  * @param[in]   buffer	Pointer to a buffer that holds received data
  * @param[in]   length  Length of received data buffer
  */
-void Escaper_parse_recv_buffer(Escaper* self, uint8_t* buffer, const size_t length);
+void Escaper_parse_recv_buffer(Escaper* const self, uint8_t* buffer, const size_t length);
 
 /** @brief Initialize parser
  *
@@ -74,7 +74,7 @@ void Escaper_parse_recv_buffer(Escaper* self, uint8_t* buffer, const size_t leng
  * before polling loop.
  * @param[in]   self    Pointer to a structure representing Escaper
  */
-void Escaper_init_parser(Escaper* self);
+void Escaper_init_parser(Escaper* const self);
 
 /** @brief Initialize packer encoder
  *
@@ -83,7 +83,7 @@ void Escaper_init_parser(Escaper* self);
  *
  * @param[in]   self    Pointer to a structure representing Escaper
  */
-void Escaper_init_encode(Escaper* self);
+void Escaper_init_encode(Escaper* const self);
 
 /** @brief Encode packet
  *
@@ -99,10 +99,10 @@ void Escaper_init_encode(Escaper* self);
  *								to parse
  * @param[im]	packetLength 	Pointer to variable holding packet length
  */
-bool Escaper_encode_packet(Escaper* self,
+bool Escaper_encode_packet(Escaper* const self,
                            const uint8_t* const data,
                            const size_t length,
-                           size_t* index,
-                           size_t* packetLength);
+                           size_t* const index,
+                           size_t* const packetLength);
 
 #endif
