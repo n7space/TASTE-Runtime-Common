@@ -8,11 +8,10 @@ target_sources(Escaper
 
 target_include_directories(Escaper
   PUBLIC     ${CMAKE_CURRENT_SOURCE_DIR})
+  
 target_link_libraries(Escaper
  PRIVATE     common_build_options
-             TASTE::RuntimeMocks
  PUBLIC      TASTE::Broker)
 
 add_format_target(Escaper)
-
 add_library(TASTE::Escaper ALIAS Escaper)
