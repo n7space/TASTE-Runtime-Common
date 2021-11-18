@@ -23,7 +23,19 @@
 #ifndef ESCAPER_H
 #define ESCAPER_H
 
+/**
+ * @file    Escaper.h
+ * @brief   Main header file for escaping mode
+ *
+ */
+
 #include <stdint.h>
+#include <stdbool.h>
+#include <stddef.h>
+
+#include "Broker.h"
+
+#define PACKET_MAX_SIZE 8 * 1024
 
 /// @brief Enumeration listing possible parser states
 enum Escaper_PacketParseState
@@ -39,17 +51,58 @@ typedef struct
     enum Escaper_PacketParseState m_parse_state;
     bool m_encode_started;
     bool m_escape;
-	bool m_encode_finished;
-	uint8_t m_message_buffer[BROKER_BUFFER_SIZE];
-    size_t m_message_buffer_index;
+    bool m_encode_finished;
+    uint8_t m_recv_packet_buffer[BROKER_BUFFER_SIZE];
+    size_t m_recv_packet_buffer_index;
+    uint8_t m_send_packet_buffer[PACKET_MAX_SIZE];
 } Escaper;
 
-/**
- * @file    Escaper.h
- * @brief   Main header file for escaping mode
+/** @brief Parse received message
  *
+ * This function shall be used in polling loop in order to
+ * parse received data.
+ *
+ * @param[in]   self    Pointer to a structure representing Escaper
+ * @param[in]   buffer	Pointer to a buffer that holds received data
+ * @param[in]   length  Length of received data buffer
  */
-void
-Escaper_parse_recv_buffer(Escaper * this, uint8_t* buffer, const size_t length);
+void Escaper_parse_recv_buffer(Escaper* self, uint8_t* buffer, const size_t length);
+
+/** @brief Initialize parser
+ *
+ * This function shall be used in the polling method
+ * before polling loop.
+ * @param[in]   self    Pointer to a structure representing Escaper
+ */
+void Escaper_init_parser(Escaper* self);
+
+/** @brief Initialize packer encoder
+ *
+ * This function shall be used in the sender method
+ * before calling Escaper_encode_packet
+ *
+ * @param[in]   self    Pointer to a structure representing Escaper
+ */
+void Escaper_init_encode(Escaper* self);
+
+/** @brief Encode packet
+ *
+ * This function shall be used in the send method the sending while loop
+ * parameter. This method puts encoded data into self->m_send_buffer array. This
+ * array together with the packetLength parameter can be passed to device
+ * specific sending method.
+ *
+ * @param[in]   self    		Pointer to a structure representing Escaper
+ * @param[im]	data			Pointer to array of data to be sent
+ * @param[im]	length			Length of data to be sent
+ * @param[im]	index			Pointer to variable holding index of next byte
+ *								to parse
+ * @param[im]	packetLength 	Pointer to variable holding packet length
+ */
+bool Escaper_encode_packet(Escaper* self,
+                           const uint8_t* const data,
+                           const size_t length,
+                           size_t* index,
+                           size_t* packetLength);
 
 #endif

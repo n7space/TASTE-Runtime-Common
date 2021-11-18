@@ -23,43 +23,108 @@
 #include "Escaper.h"
 #include "Broker.h"
 
-#include <stdbool.h>
-#include <stddef.h>
-
 #define START_BYTE (uint8_t)0x00
 #define STOP_BYTE (uint8_t)0xFF
 #define ESCAPE_BYTE (uint8_t)0xFE
 
 void
-Escaper_parse_recv_buffer(Escaper * this, uint8_t* buffer, const size_t length)
+Escaper_parse_recv_buffer(Escaper* self, uint8_t* buffer, const size_t length)
 {
     for(size_t i = 0; i < length; ++i) {
-        switch(this->m_parse_state) {
+        switch(self->m_parse_state) {
             case STATE_WAIT:
                 if(buffer[i] == START_BYTE) {
-                    this->m_parse_state = STATE_DATA_BYTE;
+                    self->m_parse_state = STATE_DATA_BYTE;
                 }
                 break;
             case STATE_DATA_BYTE:
                 if(buffer[i] == STOP_BYTE) {
-                    Broker_receive_packet(this->m_message_buffer, this->m_message_buffer_index);
-                    this->m_message_buffer_index = 0;
-                    this->m_parse_state = STATE_WAIT;
+                    Broker_receive_packet(self->m_recv_packet_buffer, self->m_recv_packet_buffer_index);
+                    self->m_recv_packet_buffer_index = 0;
+                    self->m_parse_state = STATE_WAIT;
                 } else if(buffer[i] == ESCAPE_BYTE) {
-                    this->m_parse_state = STATE_ESCAPE_BYTE;
+                    self->m_parse_state = STATE_ESCAPE_BYTE;
                 } else if(buffer[i] == START_BYTE) {
-                    this->m_message_buffer_index = 0;
-                    this->m_parse_state = STATE_DATA_BYTE;
+                    self->m_recv_packet_buffer_index = 0;
+                    self->m_parse_state = STATE_DATA_BYTE;
                 } else {
-                    this->m_message_buffer[this->m_message_buffer_index] = buffer[i];
-                    ++this->m_message_buffer_index;
+                    self->m_recv_packet_buffer[self->m_recv_packet_buffer_index] = buffer[i];
+                    ++self->m_recv_packet_buffer_index;
                 }
                 break;
             case STATE_ESCAPE_BYTE:
-                this->m_message_buffer[this->m_message_buffer_index] = buffer[i];
-                ++this->m_message_buffer_index;
-                this->m_parse_state = STATE_DATA_BYTE;
+                self->m_recv_packet_buffer[self->m_recv_packet_buffer_index] = buffer[i];
+                ++self->m_recv_packet_buffer_index;
+                self->m_parse_state = STATE_DATA_BYTE;
                 break;
         }
     }
+}
+
+void
+Escaper_init_parser(Escaper* self)
+{
+    self->m_parse_state = STATE_WAIT;
+}
+
+void
+Escaper_init_encode(Escaper* self)
+{
+    self->m_encode_finished = false;
+    self->m_escape = false;
+    self->m_encode_started = false;
+}
+
+bool
+Escaper_encode_packet(Escaper* self,
+                      const uint8_t* const data,
+                      const size_t length,
+                      size_t* index,
+                      size_t* packetLength)
+{
+    size_t send_buffer_index = 0;
+
+    if(!self->m_encode_started) {
+        self->m_send_packet_buffer[0] = START_BYTE;
+        ++send_buffer_index;
+        self->m_encode_started = true;
+    }
+
+    while(*index < length) {
+        if(self->m_escape) {
+            self->m_send_packet_buffer[send_buffer_index] = data[*index];
+            ++send_buffer_index;
+            ++*index;
+            self->m_escape = false;
+        } else if(data[*index] == START_BYTE) {
+            self->m_send_packet_buffer[send_buffer_index] = ESCAPE_BYTE;
+            ++send_buffer_index;
+            self->m_escape = true;
+        } else if(data[*index] == ESCAPE_BYTE) {
+            self->m_send_packet_buffer[send_buffer_index] = ESCAPE_BYTE;
+            ++send_buffer_index;
+            self->m_escape = true;
+        } else if(data[*index] == STOP_BYTE) {
+            self->m_send_packet_buffer[send_buffer_index] = ESCAPE_BYTE;
+            ++send_buffer_index;
+            self->m_escape = true;
+        } else {
+            self->m_send_packet_buffer[send_buffer_index] = data[*index];
+            ++send_buffer_index;
+            ++*index;
+        }
+
+        if(send_buffer_index == PACKET_MAX_SIZE) {
+            return send_buffer_index;
+        }
+    }
+
+    if(*index == length) {
+        self->m_send_packet_buffer[send_buffer_index] = STOP_BYTE;
+        ++send_buffer_index;
+        self->m_encode_finished = true;
+    }
+
+    *packetLength = send_buffer_index;
+    return self->m_encode_finished;
 }
