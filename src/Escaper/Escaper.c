@@ -75,12 +75,8 @@ Escaper_init_encode(Escaper* const self)
     self->m_encode_started = false;
 }
 
-bool
-Escaper_encode_packet(Escaper* const self,
-                      const uint8_t* const data,
-                      const size_t length,
-                      size_t* const index,
-                      size_t* const packetLength)
+size_t
+Escaper_encode_packet(Escaper* const self, const uint8_t* const data, const size_t length, size_t* const index)
 {
     size_t send_buffer_index = 0;
 
@@ -125,6 +121,5 @@ Escaper_encode_packet(Escaper* const self,
         self->m_encode_finished = true;
     }
 
-    *packetLength = send_buffer_index;
-    return self->m_encode_finished;
+    return send_buffer_index;
 }

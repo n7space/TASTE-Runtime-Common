@@ -93,16 +93,12 @@ void Escaper_init_encode(Escaper* const self);
  * specific sending method.
  *
  * @param[in]   self    		Pointer to a structure representing Escaper
- * @param[im]	data			Pointer to array of data to be sent
- * @param[im]	length			Length of data to be sent
- * @param[im]	index			Pointer to variable holding index of next byte
+ * @param[in]	data			Pointer to array of data to be sent
+ * @param[in]	length			Length of data to be sent
+ * @param[in]	index			Pointer to variable holding index of next byte
  *								to parse
- * @param[im]	packetLength 	Pointer to variable holding packet length
+ * @param[out]	packetLength 	Length of packet to be sent
  */
-bool Escaper_encode_packet(Escaper* const self,
-                           const uint8_t* const data,
-                           const size_t length,
-                           size_t* const index,
-                           size_t* const packetLength);
+size_t Escaper_encode_packet(Escaper* const self, const uint8_t* const data, const size_t length, size_t* const index);
 
 #endif
