@@ -72,6 +72,7 @@ void Escaper_parse_recv_buffer(Escaper* const self, uint8_t* buffer, const size_
  *
  * This function shall be used in the polling method
  * before polling loop.
+ *
  * @param[in]   self    Pointer to a structure representing Escaper
  */
 void Escaper_init_parser(Escaper* const self);
@@ -97,7 +98,7 @@ void Escaper_init_encode(Escaper* const self);
  * @param[in]	length			Length of data to be sent
  * @param[in]	index			Pointer to variable holding index of next byte
  *								to parse
- * @param[out]	packetLength 	Length of packet to be sent
+ * @param[out]	packetLength    Length of packet to be sent
  */
 size_t Escaper_encode_packet(Escaper* const self, const uint8_t* const data, const size_t length, size_t* const index);
 
