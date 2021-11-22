@@ -5,4 +5,3 @@
 	path = src/ThirdParty/cpputest
 	url = https://github.com/cpputest/cpputest
 	ignore = dirty
-	
