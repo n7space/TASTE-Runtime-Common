@@ -36,8 +36,6 @@
 #include <Broker.h>
 #include "EscaperInternal.h"
 
-#define PACKET_MAX_SIZE 8 * 1024
-
 /// @brief Enumeration listing possible parser states
 enum Escaper_PacketParseState
 {
