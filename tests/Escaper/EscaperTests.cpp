@@ -19,11 +19,10 @@ TEST_GROUP(Escaper)
     static constexpr uint8_t ONLY_ESCAPE_BYTES[] = { ESCAPE_BYTE, ESCAPE_BYTE, ESCAPE_BYTE,
                                                      ESCAPE_BYTE, ESCAPE_BYTE, ESCAPE_BYTE };
 
-    static constexpr int LENGTH_TEST_ARRAY_1{ 14 };
-    static constexpr int LENGTH_TEST_ARRAY_2{ 16 };
-
-    uint8_t TEST_ARRAY_1[LENGTH_TEST_ARRAY_1];
-    uint8_t TEST_ARRAY_2[LENGTH_TEST_ARRAY_2];
+    static constexpr uint8_t TEST_ARRAY_1[] = { 5,         123,       START_BYTE, 21,          37, 234,
+                                                STOP_BYTE, STOP_BYTE, 2,          ESCAPE_BYTE, 46, 13 };
+    static constexpr uint8_t TEST_ARRAY_2[] = { STOP_BYTE, 21,  87,         START_BYTE, ESCAPE_BYTE, 43, 98,
+                                                122,       197, START_BYTE, 252,        2,           8 };
 
     Escaper* escaper{ nullptr };
 
@@ -81,30 +80,6 @@ TEST_GROUP(Escaper)
             BYTES_EQUAL(buffer[j], escaper->m_recv_packet_buffer[j]);
         }
     }
-
-    void GenerateRandTestCase(uint8_t * buffer, int size)
-    {
-        for(int i = 0; i < size; i++) {
-            buffer[i] = rand() % ESCAPE_BYTE + 1; /// Generate random "non-special" byte
-        }
-
-        /// In random places, put bytes that need to be escaped
-        static constexpr int NUMBER_OF_START_BYTES{ 2 };
-        static constexpr int NUMBER_OF_STOP_BYTES{ 3 };
-        static constexpr int NUMBER_OF_ESCAPE_BYTES{ 1 };
-
-        for(int i = 0; i < NUMBER_OF_START_BYTES; i++) {
-            buffer[rand() % size] = START_BYTE;
-        }
-
-        for(int i = 0; i < NUMBER_OF_STOP_BYTES; i++) {
-            buffer[rand() % size] = STOP_BYTE;
-        }
-
-        for(int i = 0; i < NUMBER_OF_ESCAPE_BYTES; i++) {
-            buffer[rand() % size] = ESCAPE_BYTE;
-        }
-    }
 };
 
 TEST(Escaper, encodingNoSpecialBytes1)
@@ -155,7 +130,6 @@ TEST(Escaper, encodingOnlyEscape_BYTES)
 TEST(Escaper, encodingRandChar1)
 {
     size_t index{ 0 }, encodedLength;
-    GenerateRandTestCase(TEST_ARRAY_1, LENGTH_TEST_ARRAY_1);
     Escaper_start_encoder(escaper);
     encodedLength = Escaper_encode_packet(escaper, TEST_ARRAY_1, sizeof(TEST_ARRAY_1), &index);
     VerifyEncoding(escaper, encodedLength);
@@ -164,7 +138,6 @@ TEST(Escaper, encodingRandChar1)
 TEST(Escaper, encodingRandChar2)
 {
     size_t index{ 0 }, encodedLength;
-    GenerateRandTestCase(TEST_ARRAY_2, LENGTH_TEST_ARRAY_2);
     Escaper_start_encoder(escaper);
     encodedLength = Escaper_encode_packet(escaper, TEST_ARRAY_2, sizeof(TEST_ARRAY_2), &index);
     VerifyEncoding(escaper, encodedLength);
@@ -218,19 +191,17 @@ TEST(Escaper, parsingOnlyEscape_BYTES)
 TEST(Escaper, parsingRandChar1)
 {
     size_t encodedLength;
-    GenerateRandTestCase(TEST_ARRAY_1, LENGTH_TEST_ARRAY_1);
     encodedLength = SetupParsing(escaper, TEST_ARRAY_1, sizeof(TEST_ARRAY_1));
     Escaper_start_decoder(escaper);
     Escaper_decode_packet(escaper, escaper->m_send_packet_buffer, encodedLength, ReceivePacket);
-    VerifyParsing(escaper, TEST_ARRAY_1, LENGTH_TEST_ARRAY_1);
+    VerifyParsing(escaper, TEST_ARRAY_1, sizeof(TEST_ARRAY_1));
 };
 
 TEST(Escaper, parsingRandChar2)
 {
     size_t encodedLength;
-    GenerateRandTestCase(TEST_ARRAY_2, LENGTH_TEST_ARRAY_2);
     encodedLength = SetupParsing(escaper, TEST_ARRAY_2, sizeof(TEST_ARRAY_2));
     Escaper_start_decoder(escaper);
     Escaper_decode_packet(escaper, escaper->m_send_packet_buffer, encodedLength, ReceivePacket);
-    VerifyParsing(escaper, TEST_ARRAY_2, LENGTH_TEST_ARRAY_2);
+    VerifyParsing(escaper, TEST_ARRAY_2, sizeof(TEST_ARRAY_2));
 };
