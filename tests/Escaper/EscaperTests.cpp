@@ -19,11 +19,11 @@ TEST_GROUP(Escaper)
     static constexpr uint8_t ONLY_ESCAPE_BYTES[] = { ESCAPE_BYTE, ESCAPE_BYTE, ESCAPE_BYTE,
                                                      ESCAPE_BYTE, ESCAPE_BYTE, ESCAPE_BYTE };
 
-    static constexpr int RANDOM_CHAR_STRING_LENGTH1{ 14 };
-    static constexpr int RANDOM_CHAR_STRING_LENGTH2{ 16 };
+    static constexpr int LENGTH_TEST_ARRAY_1{ 14 };
+    static constexpr int LENGTH_TEST_ARRAY_2{ 16 };
 
-    uint8_t RANDOM_CHARS_WITH_SPECIAL_BYTES1[RANDOM_CHAR_STRING_LENGTH1];
-    uint8_t RANDOM_CHARS_WITH_SPECIAL_BYTES2[RANDOM_CHAR_STRING_LENGTH2];
+    uint8_t TEST_ARRAY_1[LENGTH_TEST_ARRAY_1];
+    uint8_t TEST_ARRAY_2[LENGTH_TEST_ARRAY_2];
 
     Escaper* escaper{ nullptr };
 
@@ -34,6 +34,8 @@ TEST_GROUP(Escaper)
     }
 
     void teardown() { delete escaper; }
+
+    static void ReceivePacket(uint8_t* const buffer, size_t length) {}
 
     void VerifyEncoding(const Escaper* const escaper, size_t encodedLength)
     {
@@ -66,7 +68,7 @@ TEST_GROUP(Escaper)
     size_t SetupParsing(Escaper* const escaper, const uint8_t* const buffer, int size)
     {
         size_t index{ 0 }, encodedLength;
-        Escaper_init_encode(escaper);
+        Escaper_start_encoder(escaper);
         encodedLength = Escaper_encode_packet(escaper, buffer, size, &index);
         VerifyEncoding(escaper, encodedLength);
 
@@ -109,7 +111,7 @@ TEST(Escaper, encodingNoSpecialBytes1)
 {
     size_t index{ 0 }, encodedLength;
 
-    Escaper_init_encode(escaper);
+    Escaper_start_encoder(escaper);
     encodedLength = Escaper_encode_packet(escaper, NO_SPECIAL_CHARS1, sizeof(NO_SPECIAL_CHARS1), &index);
     VerifyEncoding(escaper, encodedLength);
 };
@@ -118,7 +120,7 @@ TEST(Escaper, encodingNoSpecialBytes2)
 {
     size_t index{ 0 }, encodedLength;
 
-    Escaper_init_encode(escaper);
+    Escaper_start_encoder(escaper);
     encodedLength = Escaper_encode_packet(escaper, NO_SPECIAL_CHARS2, sizeof(NO_SPECIAL_CHARS2), &index);
     VerifyEncoding(escaper, encodedLength);
 };
@@ -127,7 +129,7 @@ TEST(Escaper, encodingOnlySTART_BYTES)
 {
     size_t index{ 0 }, encodedLength;
 
-    Escaper_init_encode(escaper);
+    Escaper_start_encoder(escaper);
     encodedLength = Escaper_encode_packet(escaper, ONLY_START_BYTES, sizeof(ONLY_START_BYTES), &index);
     VerifyEncoding(escaper, encodedLength);
 };
@@ -136,7 +138,7 @@ TEST(Escaper, encodingOnlySTOP_BYTES)
 {
     size_t index{ 0 }, encodedLength;
 
-    Escaper_init_encode(escaper);
+    Escaper_start_encoder(escaper);
     encodedLength = Escaper_encode_packet(escaper, ONLY_STOP_BYTES, sizeof(ONLY_STOP_BYTES), &index);
     VerifyEncoding(escaper, encodedLength);
 };
@@ -145,7 +147,7 @@ TEST(Escaper, encodingOnlyEscape_BYTES)
 {
     size_t index{ 0 }, encodedLength;
 
-    Escaper_init_encode(escaper);
+    Escaper_start_encoder(escaper);
     encodedLength = Escaper_encode_packet(escaper, ONLY_ESCAPE_BYTES, sizeof(ONLY_ESCAPE_BYTES), &index);
     VerifyEncoding(escaper, encodedLength);
 };
@@ -153,20 +155,18 @@ TEST(Escaper, encodingOnlyEscape_BYTES)
 TEST(Escaper, encodingRandChar1)
 {
     size_t index{ 0 }, encodedLength;
-    GenerateRandTestCase(RANDOM_CHARS_WITH_SPECIAL_BYTES1, RANDOM_CHAR_STRING_LENGTH1);
-    Escaper_init_encode(escaper);
-    encodedLength = Escaper_encode_packet(
-            escaper, RANDOM_CHARS_WITH_SPECIAL_BYTES1, sizeof(RANDOM_CHARS_WITH_SPECIAL_BYTES1), &index);
+    GenerateRandTestCase(TEST_ARRAY_1, LENGTH_TEST_ARRAY_1);
+    Escaper_start_encoder(escaper);
+    encodedLength = Escaper_encode_packet(escaper, TEST_ARRAY_1, sizeof(TEST_ARRAY_1), &index);
     VerifyEncoding(escaper, encodedLength);
 };
 
 TEST(Escaper, encodingRandChar2)
 {
     size_t index{ 0 }, encodedLength;
-    GenerateRandTestCase(RANDOM_CHARS_WITH_SPECIAL_BYTES2, RANDOM_CHAR_STRING_LENGTH2);
-    Escaper_init_encode(escaper);
-    encodedLength = Escaper_encode_packet(
-            escaper, RANDOM_CHARS_WITH_SPECIAL_BYTES2, sizeof(RANDOM_CHARS_WITH_SPECIAL_BYTES2), &index);
+    GenerateRandTestCase(TEST_ARRAY_2, LENGTH_TEST_ARRAY_2);
+    Escaper_start_encoder(escaper);
+    encodedLength = Escaper_encode_packet(escaper, TEST_ARRAY_2, sizeof(TEST_ARRAY_2), &index);
     VerifyEncoding(escaper, encodedLength);
 };
 
@@ -174,7 +174,8 @@ TEST(Escaper, parsingNoSpecialBytes1)
 {
     size_t encodedLength;
     encodedLength = SetupParsing(escaper, NO_SPECIAL_CHARS1, sizeof(NO_SPECIAL_CHARS1));
-    Escaper_parse_recv_buffer(escaper, escaper->m_send_packet_buffer, encodedLength);
+    Escaper_start_decoder(escaper);
+    Escaper_decode_packet(escaper, escaper->m_send_packet_buffer, encodedLength, ReceivePacket);
     VerifyParsing(escaper, NO_SPECIAL_CHARS1, sizeof(NO_SPECIAL_CHARS1));
 };
 
@@ -182,7 +183,8 @@ TEST(Escaper, parsingNoSpecialBytes2)
 {
     size_t encodedLength;
     encodedLength = SetupParsing(escaper, NO_SPECIAL_CHARS2, sizeof(NO_SPECIAL_CHARS2));
-    Escaper_parse_recv_buffer(escaper, escaper->m_send_packet_buffer, encodedLength);
+    Escaper_start_decoder(escaper);
+    Escaper_decode_packet(escaper, escaper->m_send_packet_buffer, encodedLength, ReceivePacket);
     VerifyParsing(escaper, NO_SPECIAL_CHARS2, sizeof(NO_SPECIAL_CHARS2));
 };
 
@@ -190,7 +192,8 @@ TEST(Escaper, parsingOnlySTART_BYTES)
 {
     size_t encodedLength;
     encodedLength = SetupParsing(escaper, ONLY_START_BYTES, sizeof(ONLY_START_BYTES));
-    Escaper_parse_recv_buffer(escaper, escaper->m_send_packet_buffer, encodedLength);
+    Escaper_start_decoder(escaper);
+    Escaper_decode_packet(escaper, escaper->m_send_packet_buffer, encodedLength, ReceivePacket);
     VerifyParsing(escaper, ONLY_START_BYTES, sizeof(ONLY_START_BYTES));
 };
 
@@ -198,7 +201,8 @@ TEST(Escaper, parsingOnlySTOP_BYTES)
 {
     size_t encodedLength;
     encodedLength = SetupParsing(escaper, ONLY_STOP_BYTES, sizeof(ONLY_STOP_BYTES));
-    Escaper_parse_recv_buffer(escaper, escaper->m_send_packet_buffer, encodedLength);
+    Escaper_start_decoder(escaper);
+    Escaper_decode_packet(escaper, escaper->m_send_packet_buffer, encodedLength, ReceivePacket);
     VerifyParsing(escaper, ONLY_STOP_BYTES, sizeof(ONLY_STOP_BYTES));
 };
 
@@ -206,24 +210,27 @@ TEST(Escaper, parsingOnlyEscape_BYTES)
 {
     size_t encodedLength;
     encodedLength = SetupParsing(escaper, ONLY_ESCAPE_BYTES, sizeof(ONLY_ESCAPE_BYTES));
-    Escaper_parse_recv_buffer(escaper, escaper->m_send_packet_buffer, encodedLength);
+    Escaper_start_decoder(escaper);
+    Escaper_decode_packet(escaper, escaper->m_send_packet_buffer, encodedLength, ReceivePacket);
     VerifyParsing(escaper, ONLY_ESCAPE_BYTES, sizeof(ONLY_ESCAPE_BYTES));
 };
 
 TEST(Escaper, parsingRandChar1)
 {
     size_t encodedLength;
-    GenerateRandTestCase(RANDOM_CHARS_WITH_SPECIAL_BYTES1, RANDOM_CHAR_STRING_LENGTH1);
-    encodedLength = SetupParsing(escaper, RANDOM_CHARS_WITH_SPECIAL_BYTES1, sizeof(RANDOM_CHARS_WITH_SPECIAL_BYTES1));
-    Escaper_parse_recv_buffer(escaper, escaper->m_send_packet_buffer, encodedLength);
-    VerifyParsing(escaper, RANDOM_CHARS_WITH_SPECIAL_BYTES1, RANDOM_CHAR_STRING_LENGTH1);
+    GenerateRandTestCase(TEST_ARRAY_1, LENGTH_TEST_ARRAY_1);
+    encodedLength = SetupParsing(escaper, TEST_ARRAY_1, sizeof(TEST_ARRAY_1));
+    Escaper_start_decoder(escaper);
+    Escaper_decode_packet(escaper, escaper->m_send_packet_buffer, encodedLength, ReceivePacket);
+    VerifyParsing(escaper, TEST_ARRAY_1, LENGTH_TEST_ARRAY_1);
 };
 
 TEST(Escaper, parsingRandChar2)
 {
     size_t encodedLength;
-    GenerateRandTestCase(RANDOM_CHARS_WITH_SPECIAL_BYTES2, RANDOM_CHAR_STRING_LENGTH2);
-    encodedLength = SetupParsing(escaper, RANDOM_CHARS_WITH_SPECIAL_BYTES2, sizeof(RANDOM_CHARS_WITH_SPECIAL_BYTES2));
-    Escaper_parse_recv_buffer(escaper, escaper->m_send_packet_buffer, encodedLength);
-    VerifyParsing(escaper, RANDOM_CHARS_WITH_SPECIAL_BYTES2, RANDOM_CHAR_STRING_LENGTH2);
+    GenerateRandTestCase(TEST_ARRAY_2, LENGTH_TEST_ARRAY_2);
+    encodedLength = SetupParsing(escaper, TEST_ARRAY_2, sizeof(TEST_ARRAY_2));
+    Escaper_start_decoder(escaper);
+    Escaper_decode_packet(escaper, escaper->m_send_packet_buffer, encodedLength, ReceivePacket);
+    VerifyParsing(escaper, TEST_ARRAY_2, LENGTH_TEST_ARRAY_2);
 };

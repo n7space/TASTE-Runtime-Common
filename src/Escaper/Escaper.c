@@ -26,7 +26,13 @@
 #include <assert.h>
 
 void
-Escaper_parse_recv_buffer(Escaper* const self, uint8_t* buffer, const size_t length)
+Escaper_start_decoder(Escaper* const self)
+{
+    self->m_parse_state = STATE_WAIT;
+}
+
+void
+Escaper_decode_packet(Escaper* const self, uint8_t* buffer, const size_t length, Receive_packet receivePacket)
 {
     for(size_t i = 0; i < length; ++i) {
         switch(self->m_parse_state) {
@@ -37,7 +43,7 @@ Escaper_parse_recv_buffer(Escaper* const self, uint8_t* buffer, const size_t len
                 break;
             case STATE_DATA_BYTE:
                 if(buffer[i] == STOP_BYTE) {
-                    Broker_receive_packet(self->m_recv_packet_buffer, self->m_recv_packet_buffer_index);
+                    receivePacket(self->m_recv_packet_buffer, self->m_recv_packet_buffer_index);
                     self->m_recv_packet_buffer_index = 0;
                     self->m_parse_state = STATE_WAIT;
                 } else if(buffer[i] == ESCAPE_BYTE) {
@@ -64,13 +70,7 @@ Escaper_parse_recv_buffer(Escaper* const self, uint8_t* buffer, const size_t len
 }
 
 void
-Escaper_init_parser(Escaper* const self)
-{
-    self->m_parse_state = STATE_WAIT;
-}
-
-void
-Escaper_init_encode(Escaper* const self)
+Escaper_start_encoder(Escaper* const self)
 {
     self->m_encode_finished = false;
     self->m_escape = false;

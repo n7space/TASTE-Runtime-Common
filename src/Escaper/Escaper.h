@@ -33,13 +33,10 @@
 #include <stdbool.h>
 #include <stddef.h>
 
-#include "Broker.h"
+#include <Broker.h>
+#include "EscaperInternal.h"
 
 #define PACKET_MAX_SIZE 8 * 1024
-
-#define START_BYTE (uint8_t)0x00
-#define STOP_BYTE (uint8_t)0xFF
-#define ESCAPE_BYTE (uint8_t)0xFE
 
 /// @brief Enumeration listing possible parser states
 enum Escaper_PacketParseState
@@ -61,25 +58,28 @@ typedef struct
     uint8_t m_send_packet_buffer[PACKET_MAX_SIZE];
 } Escaper;
 
-/** @brief Parse received message
- *
- * This function shall be used in polling loop in order to
- * parse received data.
- *
- * @param[in]   self    Pointer to a structure representing Escaper
- * @param[in]   buffer	Pointer to a buffer that holds received data
- * @param[in]   length  Length of received data buffer
- */
-void Escaper_parse_recv_buffer(Escaper* const self, uint8_t* buffer, const size_t length);
+typedef void (*Receive_packet)(uint8_t* const, const size_t);
 
-/** @brief Initialize parser
+/** @brief Initialize decoder
  *
  * This function shall be used in the polling method
  * before polling loop.
  *
  * @param[in]   self    Pointer to a structure representing Escaper
  */
-void Escaper_init_parser(Escaper* const self);
+void Escaper_start_decoder(Escaper* const self);
+
+/** @brief Decode received message
+ *
+ * This function shall be used in polling loop in order to
+ * decode received data.
+ *
+ * @param[in]   self            Pointer to a structure representing Escaper
+ * @param[in]   buffer          Pointer to a buffer that holds received data
+ * @param[in]   length          Length of received data buffer
+ * @param[in]   receivePacket   Pointer to a function that handles packet reception
+ */
+void Escaper_decode_packet(Escaper* const self, uint8_t* buffer, const size_t length, Receive_packet receivePacket);
 
 /** @brief Initialize packer encoder
  *
@@ -88,13 +88,13 @@ void Escaper_init_parser(Escaper* const self);
  *
  * @param[in]   self    Pointer to a structure representing Escaper
  */
-void Escaper_init_encode(Escaper* const self);
+void Escaper_start_encoder(Escaper* const self);
 
 /** @brief Encode packet
  *
- * This function shall be used in the send method the sending while loop
- * parameter. This method puts encoded data into self->m_send_buffer array. This
- * array together with the packetLength parameter can be passed to device
+ * This function shall be used in the send method inside the sending loop.
+ * This method puts encoded data into self->m_send_buffer array. This
+ * array together with the returned packetLength parameter can be passed to device
  * specific sending method.
  *
  * @param[in]   self    		Pointer to a structure representing Escaper
