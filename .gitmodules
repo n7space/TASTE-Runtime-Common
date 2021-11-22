@@ -5,6 +5,6 @@
 	path = src/ThirdParty/cpputest
 	url = https://github.com/cpputest/cpputest
 	ignore = dirty
-[submodule "src/Escaper/test/resources/TASTE-Linux-Runtime"]
-	path = src/Escaper/test/resources/TASTE-Linux-Runtime
+[submodule "tests/Escaper/resources/TASTE-Linux-Runtime"]
+	path = tests/Escaper/resources/TASTE-Linux-Runtime
 	url = https://github.com/n7space/TASTE-Linux-Runtime.git
