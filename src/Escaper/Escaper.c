@@ -23,6 +23,8 @@
 #include "Escaper.h"
 #include "Broker.h"
 
+#include <assert.h>
+
 void
 Escaper_parse_recv_buffer(Escaper* const self, uint8_t* buffer, const size_t length)
 {
@@ -53,7 +55,11 @@ Escaper_parse_recv_buffer(Escaper* const self, uint8_t* buffer, const size_t len
                 ++self->m_recv_packet_buffer_index;
                 self->m_parse_state = STATE_DATA_BYTE;
                 break;
+            default:
+                assert("Unknown parser state");
+                break;
         }
+        assert(self->m_recv_packet_buffer_index < sizeof(self->m_recv_packet_buffer));
     }
 }
 
