@@ -1,5 +1,7 @@
 project(EscaperTests VERSION 1.0.0 LANGUAGES CXX)
 
+add_subdirectory(resources/TASTE-Linux-Runtime/src)
+
 add_library(EscaperTests SHARED)
 target_sources(EscaperTests
     PRIVATE     EscaperTests.cpp)
