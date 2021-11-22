@@ -127,7 +127,7 @@ TEST(Escaper, encodingOnlyEscape_BYTES)
     VerifyEncoding(escaper, encodedLength);
 };
 
-TEST(Escaper, encodingRandChar1)
+TEST(Escaper, encodingByteArray1)
 {
     size_t index{ 0 }, encodedLength;
     Escaper_start_encoder(escaper);
@@ -135,7 +135,7 @@ TEST(Escaper, encodingRandChar1)
     VerifyEncoding(escaper, encodedLength);
 };
 
-TEST(Escaper, encodingRandChar2)
+TEST(Escaper, encodingByteArray2)
 {
     size_t index{ 0 }, encodedLength;
     Escaper_start_encoder(escaper);
@@ -188,7 +188,7 @@ TEST(Escaper, parsingOnlyEscape_BYTES)
     VerifyParsing(escaper, ONLY_ESCAPE_BYTES, sizeof(ONLY_ESCAPE_BYTES));
 };
 
-TEST(Escaper, parsingRandChar1)
+TEST(Escaper, parsingByteArray1)
 {
     size_t encodedLength;
     encodedLength = SetupParsing(escaper, TEST_ARRAY_1, sizeof(TEST_ARRAY_1));
@@ -197,7 +197,7 @@ TEST(Escaper, parsingRandChar1)
     VerifyParsing(escaper, TEST_ARRAY_1, sizeof(TEST_ARRAY_1));
 };
 
-TEST(Escaper, parsingRandChar2)
+TEST(Escaper, parsingByteArray2)
 {
     size_t encodedLength;
     encodedLength = SetupParsing(escaper, TEST_ARRAY_2, sizeof(TEST_ARRAY_2));
