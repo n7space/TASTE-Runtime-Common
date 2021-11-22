@@ -23,10 +23,6 @@
 #include "Escaper.h"
 #include "Broker.h"
 
-#define START_BYTE (uint8_t)0x00
-#define STOP_BYTE (uint8_t)0xFF
-#define ESCAPE_BYTE (uint8_t)0xFE
-
 void
 Escaper_parse_recv_buffer(Escaper* const self, uint8_t* buffer, const size_t length)
 {

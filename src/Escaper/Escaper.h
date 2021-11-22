@@ -37,6 +37,10 @@
 
 #define PACKET_MAX_SIZE 8 * 1024
 
+#define START_BYTE (uint8_t)0x00
+#define STOP_BYTE (uint8_t)0xFF
+#define ESCAPE_BYTE (uint8_t)0xFE
+
 /// @brief Enumeration listing possible parser states
 enum Escaper_PacketParseState
 {
