@@ -33,30 +33,31 @@
 #include <stdbool.h>
 #include <stddef.h>
 
-#include <Broker.h>
 #include "EscaperInternal.h"
 
 /// @brief Enumeration listing possible parser states
-enum Escaper_PacketParseState
+typedef enum
 {
-    STATE_WAIT,
-    STATE_DATA_BYTE,
-    STATE_ESCAPE_BYTE,
-};
+    Escaper_State_Wait,
+    Escaper_State_Data_Byte,
+    Escaper_State_Escape_Byte,
+} Escaper_PacketParseState;
 
 /// @brief Structure representing escaper
 typedef struct
 {
-    enum Escaper_PacketParseState m_parse_state;
+    Escaper_PacketParseState m_parse_state;
     bool m_encode_started;
     bool m_escape;
     bool m_encode_finished;
-    uint8_t m_recv_packet_buffer[BROKER_BUFFER_SIZE];
-    size_t m_recv_packet_buffer_index;
-    uint8_t m_send_packet_buffer[PACKET_MAX_SIZE];
+    uint8_t* m_encoded_packet_buffer;
+    size_t m_encoded_packet_max_size;
+    uint8_t* m_decoded_packet_buffer;
+    size_t m_decoded_packet_max_size;
+    size_t m_decoded_packet_buffer_index;
 } Escaper;
 
-typedef void (*Receive_packet)(uint8_t* const, const size_t);
+typedef void (*Receive_packet_fn)(uint8_t* const, const size_t);
 
 /** @brief Initialize decoder
  *
@@ -77,7 +78,10 @@ void Escaper_start_decoder(Escaper* const self);
  * @param[in]   length          Length of received data buffer
  * @param[in]   receivePacket   Pointer to a function that handles packet reception
  */
-void Escaper_decode_packet(Escaper* const self, uint8_t* buffer, const size_t length, Receive_packet receivePacket);
+void Escaper_decode_packet(Escaper* const self,
+                           uint8_t* buffer,
+                           const size_t length,
+                           Receive_packet_fn receivePacketFn);
 
 /** @brief Initialize packer encoder
  *
