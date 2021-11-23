@@ -111,7 +111,7 @@ Escaper_encode_packet(Escaper* const self, const uint8_t* const data, const size
             ++*index;
         }
 
-        if(encoded_packet_buffer_index == PACKET_MAX_SIZE) {
+        if(encoded_packet_buffer_index == self->m_encoded_packet_max_size) {
             return encoded_packet_buffer_index;
         }
     }
