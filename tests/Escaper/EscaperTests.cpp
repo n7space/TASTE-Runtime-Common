@@ -92,7 +92,7 @@ TEST_GROUP(Escaper)
 
     void VerifyParsing(const Escaper* const escaper, const uint8_t* const buffer, int size)
     {
-        for(int j = 0; (j < size && j < sizeof(escaper->m_decoded_packet_buffer)); j++) {
+        for(int j = 0; (j < size && j < escaper->m_decoded_packet_max_size); j++) {
             BYTES_EQUAL(buffer[j], escaper->m_decoded_packet_buffer[j]);
         }
     }
