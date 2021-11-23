@@ -3,6 +3,7 @@
 extern "C"
 {
 #include <Escaper.h>
+#include <EscaperInternal.h>
 }
 
 void* bus_to_driver_private_data[16];

@@ -21,8 +21,27 @@
  */
 
 #include "Escaper.h"
+#include "EscaperInternal.h"
 
 #include <assert.h>
+
+void
+Escaper_init(Escaper* const self,
+             uint8_t* m_encoded_packet_buffer,
+             size_t m_encoded_packet_buffer_size,
+             uint8_t* m_decoded_packet_buffer,
+             size_t m_decoded_packet_buffer_size)
+{
+    self->m_parse_state = Escaper_State_Wait;
+    self->m_encode_started = false;
+    self->m_escape = false;
+    self->m_encode_finished = false;
+    self->m_encoded_packet_buffer = m_encoded_packet_buffer;
+    self->m_encoded_packet_max_size = m_encoded_packet_buffer_size;
+    self->m_decoded_packet_buffer = m_decoded_packet_buffer;
+    self->m_decoded_packet_buffer_index = m_decoded_packet_buffer_size;
+    self->m_decoded_packet_buffer_index = 0;
+}
 
 void
 Escaper_start_decoder(Escaper* const self)

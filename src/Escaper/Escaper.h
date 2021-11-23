@@ -33,8 +33,6 @@
 #include <stdbool.h>
 #include <stddef.h>
 
-#include "EscaperInternal.h"
-
 /// @brief Enumeration listing possible parser states
 typedef enum
 {
@@ -57,7 +55,26 @@ typedef struct
     size_t m_decoded_packet_buffer_index;
 } Escaper;
 
+/** @brief Function pointer to function responsible for packet reception
+ *
+ * @param[in]   Pointer to received packet data buffer
+ * @param[in]   Size of the received packet data buffer
+ */
 typedef void (*Receive_packet_fn)(uint8_t* const, const size_t);
+
+/** @brief Initialize structure representing escaper
+ *
+ * @param[in]   self                            Pointer to a structure representing Escaper
+ * @param[in]   m_encoded_packet_buffer         Pointer to a buffer that holds encoded packets
+ * @param[in]   m_encoded_packet_buffer_size    Length of encoded packet buffer
+ * @param[in]   m_decoded_packet_buffer         Pointer to a buffer that holds decoded packets
+ * @param[in]   m_decoded_packet_buffer_size    Length of decoded packet buffer
+ */
+void Escaper_init(Escaper* const self,
+                  uint8_t* m_encoded_packet_buffer,
+                  size_t m_encoded_packet_buffer_size,
+                  uint8_t* m_decoded_packet_buffer,
+                  size_t m_decoded_packet_buffer_size);
 
 /** @brief Initialize decoder
  *
@@ -99,12 +116,13 @@ void Escaper_start_encoder(Escaper* const self);
  * array together with the returned packetLength parameter can be passed to device
  * specific sending method.
  *
- * @param[in]   self    		Pointer to a structure representing Escaper
- * @param[in]	data			Pointer to array of data to be sent
- * @param[in]	length			Length of data to be sent
- * @param[in]	index			Pointer to variable holding index of next byte
- *								to parse
- * @param[out]	packetLength    Length of packet to be sent
+ * @param[in]       self            Pointer to a structure representing Escaper
+ * @param[in]       data            Pointer to array of data to be sent
+ * @param[in]       length          Length of data to be sent
+ * @param[in,out]   index           Pointer to variable holding index of next byte to encode.
+ *                                  If index == length, then the whole data bufer was encoded.
+ *
+ * @returns	Length of packet to be sent.
  */
 size_t Escaper_encode_packet(Escaper* const self, const uint8_t* const data, const size_t length, size_t* const index);
 
