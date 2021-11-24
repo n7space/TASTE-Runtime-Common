@@ -25,31 +25,18 @@ TEST_GROUP(Escaper)
     static constexpr uint8_t TEST_ARRAY_2[] = { STOP_BYTE, 21,  87,         START_BYTE, ESCAPE_BYTE, 43, 98,
                                                 122,       197, START_BYTE, 252,        2,           8 };
 
-    Escaper* escaper{ nullptr };
+    Escaper escaper;
 
     static constexpr size_t ENCODED_PACKET_MAX_SIZE{ 20 };
     static constexpr size_t DECODED_PACKET_MAX_SIZE{ 20 };
+    uint8_t encodedPacketBuffer[ENCODED_PACKET_MAX_SIZE];
+    uint8_t decodedPacketBuffer[DECODED_PACKET_MAX_SIZE];
 
-    uint8_t* encodedPacketBuffer;
-    uint8_t* decodedPacketBuffer;
-
-    void setup()
+    void setup() override
     {
-        // always create "fresh" buffers and structure before test
-        encodedPacketBuffer = new uint8_t[ENCODED_PACKET_MAX_SIZE];
-        decodedPacketBuffer = new uint8_t[DECODED_PACKET_MAX_SIZE];
-        escaper = new Escaper{ .m_encoded_packet_buffer = encodedPacketBuffer,
-                               .m_encoded_packet_max_size = ENCODED_PACKET_MAX_SIZE,
-                               .m_decoded_packet_buffer = decodedPacketBuffer,
-                               .m_decoded_packet_max_size = DECODED_PACKET_MAX_SIZE };
-    }
-
-    void teardown()
-    {
-        delete escaper;
-        delete[] encodedPacketBuffer;
-        delete[] decodedPacketBuffer;
-    }
+        Escaper_init(
+                &escaper, encodedPacketBuffer, ENCODED_PACKET_MAX_SIZE, decodedPacketBuffer, DECODED_PACKET_MAX_SIZE);
+    };
 
     static void ReceivePacketFn(uint8_t* const buffer, size_t length) {}
 
@@ -103,122 +90,122 @@ TEST(Escaper, encodingNoSpecialBytes1)
 {
     size_t index{ 0 }, encodedLength;
 
-    Escaper_start_encoder(escaper);
-    encodedLength = Escaper_encode_packet(escaper, NO_SPECIAL_CHARS1, sizeof(NO_SPECIAL_CHARS1), &index);
-    VerifyEncoding(escaper, encodedLength);
+    Escaper_start_encoder(&escaper);
+    encodedLength = Escaper_encode_packet(&escaper, NO_SPECIAL_CHARS1, sizeof(NO_SPECIAL_CHARS1), &index);
+    VerifyEncoding(&escaper, encodedLength);
 };
 
 TEST(Escaper, encodingNoSpecialBytes2)
 {
     size_t index{ 0 }, encodedLength;
 
-    Escaper_start_encoder(escaper);
-    encodedLength = Escaper_encode_packet(escaper, NO_SPECIAL_CHARS2, sizeof(NO_SPECIAL_CHARS2), &index);
-    VerifyEncoding(escaper, encodedLength);
+    Escaper_start_encoder(&escaper);
+    encodedLength = Escaper_encode_packet(&escaper, NO_SPECIAL_CHARS2, sizeof(NO_SPECIAL_CHARS2), &index);
+    VerifyEncoding(&escaper, encodedLength);
 };
 
 TEST(Escaper, encodingOnlySTART_BYTES)
 {
     size_t index{ 0 }, encodedLength;
 
-    Escaper_start_encoder(escaper);
-    encodedLength = Escaper_encode_packet(escaper, ONLY_START_BYTES, sizeof(ONLY_START_BYTES), &index);
-    VerifyEncoding(escaper, encodedLength);
+    Escaper_start_encoder(&escaper);
+    encodedLength = Escaper_encode_packet(&escaper, ONLY_START_BYTES, sizeof(ONLY_START_BYTES), &index);
+    VerifyEncoding(&escaper, encodedLength);
 };
 
 TEST(Escaper, encodingOnlySTOP_BYTES)
 {
     size_t index{ 0 }, encodedLength;
 
-    Escaper_start_encoder(escaper);
-    encodedLength = Escaper_encode_packet(escaper, ONLY_STOP_BYTES, sizeof(ONLY_STOP_BYTES), &index);
-    VerifyEncoding(escaper, encodedLength);
+    Escaper_start_encoder(&escaper);
+    encodedLength = Escaper_encode_packet(&escaper, ONLY_STOP_BYTES, sizeof(ONLY_STOP_BYTES), &index);
+    VerifyEncoding(&escaper, encodedLength);
 };
 
 TEST(Escaper, encodingOnlyEscape_BYTES)
 {
     size_t index{ 0 }, encodedLength;
 
-    Escaper_start_encoder(escaper);
-    encodedLength = Escaper_encode_packet(escaper, ONLY_ESCAPE_BYTES, sizeof(ONLY_ESCAPE_BYTES), &index);
-    VerifyEncoding(escaper, encodedLength);
+    Escaper_start_encoder(&escaper);
+    encodedLength = Escaper_encode_packet(&escaper, ONLY_ESCAPE_BYTES, sizeof(ONLY_ESCAPE_BYTES), &index);
+    VerifyEncoding(&escaper, encodedLength);
 };
 
 TEST(Escaper, encodingByteArray1)
 {
     size_t index{ 0 }, encodedLength;
-    Escaper_start_encoder(escaper);
-    encodedLength = Escaper_encode_packet(escaper, TEST_ARRAY_1, sizeof(TEST_ARRAY_1), &index);
-    VerifyEncoding(escaper, encodedLength);
+    Escaper_start_encoder(&escaper);
+    encodedLength = Escaper_encode_packet(&escaper, TEST_ARRAY_1, sizeof(TEST_ARRAY_1), &index);
+    VerifyEncoding(&escaper, encodedLength);
 };
 
 TEST(Escaper, encodingByteArray2)
 {
     size_t index{ 0 }, encodedLength;
-    Escaper_start_encoder(escaper);
-    encodedLength = Escaper_encode_packet(escaper, TEST_ARRAY_2, sizeof(TEST_ARRAY_2), &index);
-    VerifyEncoding(escaper, encodedLength);
+    Escaper_start_encoder(&escaper);
+    encodedLength = Escaper_encode_packet(&escaper, TEST_ARRAY_2, sizeof(TEST_ARRAY_2), &index);
+    VerifyEncoding(&escaper, encodedLength);
 };
 
 TEST(Escaper, parsingNoSpecialBytes1)
 {
     size_t encodedLength;
-    encodedLength = SetupParsing(escaper, NO_SPECIAL_CHARS1, sizeof(NO_SPECIAL_CHARS1));
-    Escaper_start_decoder(escaper);
-    Escaper_decode_packet(escaper, escaper->m_encoded_packet_buffer, encodedLength, ReceivePacketFn);
-    VerifyParsing(escaper, NO_SPECIAL_CHARS1, sizeof(NO_SPECIAL_CHARS1));
+    encodedLength = SetupParsing(&escaper, NO_SPECIAL_CHARS1, sizeof(NO_SPECIAL_CHARS1));
+    Escaper_start_decoder(&escaper);
+    Escaper_decode_packet(&escaper, escaper.m_encoded_packet_buffer, encodedLength, ReceivePacketFn);
+    VerifyParsing(&escaper, NO_SPECIAL_CHARS1, sizeof(NO_SPECIAL_CHARS1));
 };
 
 TEST(Escaper, parsingNoSpecialBytes2)
 {
     size_t encodedLength;
-    encodedLength = SetupParsing(escaper, NO_SPECIAL_CHARS2, sizeof(NO_SPECIAL_CHARS2));
-    Escaper_start_decoder(escaper);
-    Escaper_decode_packet(escaper, escaper->m_encoded_packet_buffer, encodedLength, ReceivePacketFn);
-    VerifyParsing(escaper, NO_SPECIAL_CHARS2, sizeof(NO_SPECIAL_CHARS2));
+    encodedLength = SetupParsing(&escaper, NO_SPECIAL_CHARS2, sizeof(NO_SPECIAL_CHARS2));
+    Escaper_start_decoder(&escaper);
+    Escaper_decode_packet(&escaper, escaper.m_encoded_packet_buffer, encodedLength, ReceivePacketFn);
+    VerifyParsing(&escaper, NO_SPECIAL_CHARS2, sizeof(NO_SPECIAL_CHARS2));
 };
 
 TEST(Escaper, parsingOnlySTART_BYTES)
 {
     size_t encodedLength;
-    encodedLength = SetupParsing(escaper, ONLY_START_BYTES, sizeof(ONLY_START_BYTES));
-    Escaper_start_decoder(escaper);
-    Escaper_decode_packet(escaper, escaper->m_encoded_packet_buffer, encodedLength, ReceivePacketFn);
-    VerifyParsing(escaper, ONLY_START_BYTES, sizeof(ONLY_START_BYTES));
+    encodedLength = SetupParsing(&escaper, ONLY_START_BYTES, sizeof(ONLY_START_BYTES));
+    Escaper_start_decoder(&escaper);
+    Escaper_decode_packet(&escaper, escaper.m_encoded_packet_buffer, encodedLength, ReceivePacketFn);
+    VerifyParsing(&escaper, ONLY_START_BYTES, sizeof(ONLY_START_BYTES));
 };
 
 TEST(Escaper, parsingOnlySTOP_BYTES)
 {
     size_t encodedLength;
-    encodedLength = SetupParsing(escaper, ONLY_STOP_BYTES, sizeof(ONLY_STOP_BYTES));
-    Escaper_start_decoder(escaper);
-    Escaper_decode_packet(escaper, escaper->m_encoded_packet_buffer, encodedLength, ReceivePacketFn);
-    VerifyParsing(escaper, ONLY_STOP_BYTES, sizeof(ONLY_STOP_BYTES));
+    encodedLength = SetupParsing(&escaper, ONLY_STOP_BYTES, sizeof(ONLY_STOP_BYTES));
+    Escaper_start_decoder(&escaper);
+    Escaper_decode_packet(&escaper, escaper.m_encoded_packet_buffer, encodedLength, ReceivePacketFn);
+    VerifyParsing(&escaper, ONLY_STOP_BYTES, sizeof(ONLY_STOP_BYTES));
 };
 
 TEST(Escaper, parsingOnlyEscape_BYTES)
 {
     size_t encodedLength;
-    encodedLength = SetupParsing(escaper, ONLY_ESCAPE_BYTES, sizeof(ONLY_ESCAPE_BYTES));
-    Escaper_start_decoder(escaper);
-    Escaper_decode_packet(escaper, escaper->m_encoded_packet_buffer, encodedLength, ReceivePacketFn);
-    VerifyParsing(escaper, ONLY_ESCAPE_BYTES, sizeof(ONLY_ESCAPE_BYTES));
+    encodedLength = SetupParsing(&escaper, ONLY_ESCAPE_BYTES, sizeof(ONLY_ESCAPE_BYTES));
+    Escaper_start_decoder(&escaper);
+    Escaper_decode_packet(&escaper, escaper.m_encoded_packet_buffer, encodedLength, ReceivePacketFn);
+    VerifyParsing(&escaper, ONLY_ESCAPE_BYTES, sizeof(ONLY_ESCAPE_BYTES));
 };
 
 TEST(Escaper, parsingByteArray1)
 {
     size_t encodedLength;
-    encodedLength = SetupParsing(escaper, TEST_ARRAY_1, sizeof(TEST_ARRAY_1));
-    Escaper_start_decoder(escaper);
-    Escaper_decode_packet(escaper, escaper->m_encoded_packet_buffer, encodedLength, ReceivePacketFn);
-    VerifyParsing(escaper, TEST_ARRAY_1, sizeof(TEST_ARRAY_1));
+    encodedLength = SetupParsing(&escaper, TEST_ARRAY_1, sizeof(TEST_ARRAY_1));
+    Escaper_start_decoder(&escaper);
+    Escaper_decode_packet(&escaper, escaper.m_encoded_packet_buffer, encodedLength, ReceivePacketFn);
+    VerifyParsing(&escaper, TEST_ARRAY_1, sizeof(TEST_ARRAY_1));
 };
 
 TEST(Escaper, parsingByteArray2)
 {
     size_t encodedLength;
-    encodedLength = SetupParsing(escaper, TEST_ARRAY_2, sizeof(TEST_ARRAY_2));
-    Escaper_start_decoder(escaper);
-    Escaper_decode_packet(escaper, escaper->m_encoded_packet_buffer, encodedLength, ReceivePacketFn);
-    VerifyParsing(escaper, TEST_ARRAY_2, sizeof(TEST_ARRAY_2));
+    encodedLength = SetupParsing(&escaper, TEST_ARRAY_2, sizeof(TEST_ARRAY_2));
+    Escaper_start_decoder(&escaper);
+    Escaper_decode_packet(&escaper, escaper.m_encoded_packet_buffer, encodedLength, ReceivePacketFn);
+    VerifyParsing(&escaper, TEST_ARRAY_2, sizeof(TEST_ARRAY_2));
 };
