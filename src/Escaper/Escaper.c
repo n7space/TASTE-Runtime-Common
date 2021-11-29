@@ -82,7 +82,7 @@ Escaper_decode_packet(Escaper* const self, uint8_t* buffer, const size_t length,
                 self->m_parse_state = Escaper_State_Data_Byte;
                 break;
             default:
-                assert((self->m_parse_state < Escaper_State_Escape_Byte) && "Unknown parser state");
+                assert((self->m_parse_state <= Escaper_State_Escape_Byte) && "Unknown parser state");
                 break;
         }
     }
