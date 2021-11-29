@@ -18,10 +18,10 @@ include(CommonBuildOptions)
 include(Sanitizers)
 
 option(TASTE_RUNTIME_COMMON_WARNINGS_AS_ERRORS
-       "Treat compiler wargnings as errors"
+       "Treat compiler warnings as errors"
        TRUE)
 
-if(OPTIONS_WARNINGS_AS_ERRORS)
+if(TASTE_RUNTIME_COMMON_WARNINGS_AS_ERRORS)
     log_option_enabled("warnings as errors")
     set(CLANG_WARNINGS ${CLANG_WARNINGS} -Werror)
 endif()
