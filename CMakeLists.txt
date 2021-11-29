@@ -23,10 +23,11 @@ option(TASTE_RUNTIME_COMMON_WARNINGS_AS_ERRORS
 
 if(TASTE_RUNTIME_COMMON_WARNINGS_AS_ERRORS)
     log_option_enabled("warnings as errors")
-    set(CLANG_WARNINGS ${CLANG_WARNINGS} -Werror)
+    set(CLANG_WARNINGS -Werror)
 endif()
 
-set(CLANG_WARNINGS -Wall
+set(CLANG_WARNINGS ${CLANG_WARNINGS}
+                   -Wall
                    -Wextra
                    -Wpedantic
                    -Wshadow
