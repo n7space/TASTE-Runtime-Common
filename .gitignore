@@ -79,3 +79,6 @@ tags
 
 ### Ignore third party dependencies ###
 src/ThirdParty/
+
+### Documentation ####
+docs
