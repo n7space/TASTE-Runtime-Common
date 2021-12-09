@@ -90,14 +90,21 @@ Packetizer_depacketize(const Packetizer* const self,
     (void)source;
 
     assert(packetPointer != NULL);
-#ifdef STANDARD_SPACE_PACKET
-    assert(packetSize > SPACE_PACKET_PRIMARY_HEADER_SIZE + SPACE_PACKET_ERROR_CONTROL_SIZE);
-#else
-    assert(packetSize >= SPACE_PACKET_PRIMARY_HEADER_SIZE + SPACE_PACKET_ERROR_CONTROL_SIZE);
-#endif
     assert(dataOffset != NULL);
     assert(dataSize != NULL);
     assert(destination != NULL);
+
+#ifdef STANDARD_SPACE_PACKET
+    if(packetSize <= SPACE_PACKET_PRIMARY_HEADER_SIZE + SPACE_PACKET_ERROR_CONTROL_SIZE) {
+        // the packet is smaller than expected (header + 1 byte of payload + checksum)
+        return false;
+    }
+#else
+    if(packetSize < SPACE_PACKET_PRIMARY_HEADER_SIZE + SPACE_PACKET_ERROR_CONTROL_SIZE) {
+        // the packet is smaller than expected (header + checksum)
+        return false;
+    }
+#endif
 
     // Get and check data size
     const size_t receivedDataSize = readPacketDataLength(packetPointer);
