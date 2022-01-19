@@ -28,8 +28,8 @@
 #include <Packetizer.h>
 
 static Packetizer packetizer_data = { 0 };
-static uint8_t packetizer_buffer[BROKER_BUFFER_SIZE];
 
+__attribute__((section(".sdramMemorySection"))) static uint8_t packetizer_buffer[BROKER_BUFFER_SIZE];
 extern driver_send_function bus_to_driver_send_function[SYSTEM_BUSES_NUMBER];
 extern void* bus_to_driver_private_data[SYSTEM_BUSES_NUMBER];
 extern deliver_function interface_to_deliver_function[INTERFACE_MAX_ID];
