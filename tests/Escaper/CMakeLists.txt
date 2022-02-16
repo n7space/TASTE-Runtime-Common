@@ -2,7 +2,7 @@ project(EscaperTests VERSION 1.0.0 LANGUAGES CXX)
 
 add_library(EscaperTests SHARED)
 target_sources(EscaperTests
-    PRIVATE     EscaperTests.cpp)
+    PRIVATE     EscaperTests.cc)
 target_link_libraries(EscaperTests
     PRIVATE     TASTE::Escaper
     PUBLIC      CppUTest)
