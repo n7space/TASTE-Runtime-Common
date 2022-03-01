@@ -46,7 +46,6 @@ typedef struct
 {
     Escaper_PacketParseState m_parse_state;
     bool m_encode_started;
-    bool m_escape;
     bool m_encode_finished;
     uint8_t* m_encoded_packet_buffer;
     size_t m_encoded_packet_max_size;

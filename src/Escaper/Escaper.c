@@ -34,7 +34,6 @@ Escaper_init(Escaper* const self,
 {
     self->m_parse_state = Escaper_State_Wait;
     self->m_encode_started = false;
-    self->m_escape = false;
     self->m_encode_finished = false;
     self->m_encoded_packet_buffer = m_encoded_packet_buffer;
     self->m_encoded_packet_max_size = m_encoded_packet_buffer_size;
@@ -90,7 +89,15 @@ Escaper_decode_packet(Escaper* const self, uint8_t* buffer, const size_t length,
                     self->m_decoded_packet_buffer_index = 0;
                     self->m_parse_state = Escaper_State_Wait;
                 } else {
-                    self->m_decoded_packet_buffer[self->m_decoded_packet_buffer_index] = buffer[i];
+                    if(buffer[i] == ESC_START_BYTE) {
+                        self->m_decoded_packet_buffer[self->m_decoded_packet_buffer_index] = START_BYTE;
+                    } else if(buffer[i] == ESC_ESCAPE_BYTE) {
+                        self->m_decoded_packet_buffer[self->m_decoded_packet_buffer_index] = ESCAPE_BYTE;
+                    } else if(buffer[i] == ESC_STOP_BYTE) {
+                        self->m_decoded_packet_buffer[self->m_decoded_packet_buffer_index] = STOP_BYTE;
+                    } else {
+                        self->m_decoded_packet_buffer[self->m_decoded_packet_buffer_index] = buffer[i];
+                    }
                     ++self->m_decoded_packet_buffer_index;
                     self->m_parse_state = Escaper_State_Data_Byte;
                 }
@@ -106,7 +113,6 @@ void
 Escaper_start_encoder(Escaper* const self)
 {
     self->m_encode_finished = false;
-    self->m_escape = false;
     self->m_encode_started = false;
 }
 
@@ -122,23 +128,24 @@ Escaper_encode_packet(Escaper* const self, const uint8_t* const data, const size
     }
 
     while(*index < length) {
-        if(self->m_escape) {
-            self->m_encoded_packet_buffer[encoded_packet_buffer_index] = data[*index];
-            ++encoded_packet_buffer_index;
-            ++*index;
-            self->m_escape = false;
-        } else if(data[*index] == START_BYTE) {
+        if(data[*index] == START_BYTE) {
             self->m_encoded_packet_buffer[encoded_packet_buffer_index] = ESCAPE_BYTE;
             ++encoded_packet_buffer_index;
-            self->m_escape = true;
+            self->m_encoded_packet_buffer[encoded_packet_buffer_index] = ESC_START_BYTE;
+            ++encoded_packet_buffer_index;
+            ++*index;
         } else if(data[*index] == ESCAPE_BYTE) {
             self->m_encoded_packet_buffer[encoded_packet_buffer_index] = ESCAPE_BYTE;
             ++encoded_packet_buffer_index;
-            self->m_escape = true;
+            self->m_encoded_packet_buffer[encoded_packet_buffer_index] = ESC_ESCAPE_BYTE;
+            ++encoded_packet_buffer_index;
+            ++*index;
         } else if(data[*index] == STOP_BYTE) {
             self->m_encoded_packet_buffer[encoded_packet_buffer_index] = ESCAPE_BYTE;
             ++encoded_packet_buffer_index;
-            self->m_escape = true;
+            self->m_encoded_packet_buffer[encoded_packet_buffer_index] = ESC_STOP_BYTE;
+            ++encoded_packet_buffer_index;
+            ++*index;
         } else {
             self->m_encoded_packet_buffer[encoded_packet_buffer_index] = data[*index];
             ++encoded_packet_buffer_index;
