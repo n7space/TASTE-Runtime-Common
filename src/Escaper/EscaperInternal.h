@@ -23,8 +23,12 @@
 #ifndef ESCAPER_INTERNAL_H
 #define ESCAPER_INTERNAL_H
 
-#define START_BYTE (uint8_t)0x00
-#define STOP_BYTE (uint8_t)0xFF
-#define ESCAPE_BYTE (uint8_t)0xFE
+#define START_BYTE (uint8_t)0xB0
+#define STOP_BYTE (uint8_t)0xC0
+#define ESCAPE_BYTE (uint8_t)0xDA
+
+#define ESC_START_BYTE (uint8_t)0xDB
+#define ESC_STOP_BYTE (uint8_t)0xDC
+#define ESC_ESCAPE_BYTE (uint8_t)0xDD
 
 #endif

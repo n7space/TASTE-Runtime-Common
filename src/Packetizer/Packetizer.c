@@ -26,6 +26,10 @@
 #include <stdio.h>
 #include <string.h>
 
+#ifdef FORCE_APIDS
+#include <apids_translator.h>
+#endif
+
 #include "Crc16.h"
 #include "PacketizerInternal.h"
 #include "SpacePacketInternal.h"
@@ -49,8 +53,13 @@ Packetizer_packetize(Packetizer* const self,
     (void)source;
     (void)dataOffset;
 
+    uint16_t rawDestination = destination;
+#ifdef FORCE_APIDS
+    rawDestination = get_apid_by_destination(rawDestination);
+#endif
+    assert(rawDestination <= SPACE_PACKET_MAX_APID);
+
     assert(self->packetSequenceCount <= SPACE_PACKET_MAX_PACKET_SEQUENCE_COUNT);
-    assert(destination <= SPACE_PACKET_MAX_APID);
     assert(packetPointer != NULL);
     assert(dataOffset == SPACE_PACKET_PRIMARY_HEADER_SIZE);
 #ifdef STANDARD_SPACE_PACKET
@@ -60,7 +69,7 @@ Packetizer_packetize(Packetizer* const self,
 
     memset(packetPointer, 0, SPACE_PACKET_PRIMARY_HEADER_SIZE);
 
-    writePacketId(packetPointer, packetType, destination);
+    writePacketId(packetPointer, packetType, rawDestination);
     writePacketSequenceControl(packetPointer, self);
     writePacketDataLength(packetPointer, dataSize);
     writeCrc(packetPointer, dataSize);
@@ -138,8 +147,13 @@ Packetizer_depacketize(const Packetizer* const self,
     }
 
     // Save the results
-    *destination = packetPointer[1]
-                   | (packetPointer[0] & SPACE_PACKET_APID_HIGH_BITS_MASK) << (8u - SPACE_PACKET_APID_HIGH_BITS_OFFSET);
+    uint16_t rawDestination = packetPointer[1]
+                              | (packetPointer[0] & SPACE_PACKET_APID_HIGH_BITS_MASK) << (8u - SPACE_PACKET_APID_HIGH_BITS_OFFSET);
+#ifdef FORCE_APIDS
+    rawDestination = get_destination_by_apid(rawDestination);
+#endif
+    *destination = rawDestination;
+
     *dataOffset = SPACE_PACKET_PRIMARY_HEADER_SIZE;
     *dataSize = receivedDataSize;
 
