@@ -55,9 +55,9 @@ TEST_GROUP(Escaper)
                     break;
                 case ESCAPE_BYTE:
                     switch(escaper->m_encoded_packet_buffer[j + 1]) {
-                        case START_BYTE:
-                        case STOP_BYTE:
-                        case ESCAPE_BYTE:
+                        case ESC_START_BYTE:
+                        case ESC_STOP_BYTE:
+                        case ESC_ESCAPE_BYTE:
                             j++;
                             break;
                         default:
