@@ -30,7 +30,7 @@
 #include <apids_translator.h>
 #endif
 
-#include "Crc16.h"
+#include "IsoChecksum.h"
 #include "PacketizerInternal.h"
 #include "SpacePacketInternal.h"
 
@@ -80,7 +80,7 @@ Packetizer_packetize(Packetizer* const self,
         self->packetSequenceCount = 0; // Counter should wrap to zero
     }
 
-    return SPACE_PACKET_PRIMARY_HEADER_SIZE + dataSize + SPACE_PACKET_ERROR_CONTROL_SIZE;
+    return SPACE_PACKET_PRIMARY_HEADER_SIZE + dataSize;
 }
 
 bool
@@ -117,7 +117,8 @@ Packetizer_depacketize(const Packetizer* const self,
 
     // Get and check data size
     const size_t receivedDataSize = readPacketDataLength(packetPointer);
-    if(packetSize != SPACE_PACKET_PRIMARY_HEADER_SIZE + receivedDataSize + SPACE_PACKET_ERROR_CONTROL_SIZE) {
+    // Do not add SPACE_PACKET_ERROR_CONTROL_SIZE here, becouse checksum is a part of payload
+    if(packetSize != SPACE_PACKET_PRIMARY_HEADER_SIZE + receivedDataSize) {
         if(errorCode != NULL) {
             *errorCode = Packetizer_ErrorCode_IncorrectPacketSize;
         }
@@ -125,13 +126,13 @@ Packetizer_depacketize(const Packetizer* const self,
     }
 
     // Check if CRC matches
-    uint16_t receivedCrc = packetPointer[SPACE_PACKET_PRIMARY_HEADER_SIZE + receivedDataSize + 1]
-                           | (packetPointer[SPACE_PACKET_PRIMARY_HEADER_SIZE + receivedDataSize] << 8);
-    uint16_t expectedCrc = calculateCrc16(packetPointer, packetSize - SPACE_PACKET_ERROR_CONTROL_SIZE);
+    uint16_t receivedIsoChecksum = packetPointer[SPACE_PACKET_PRIMARY_HEADER_SIZE + receivedDataSize - 1]
+                                   | (packetPointer[SPACE_PACKET_PRIMARY_HEADER_SIZE + receivedDataSize - 2] << 8);
+    uint16_t expectedIsoChecksum = IsoChecksum_calculate(packetPointer, packetSize - SPACE_PACKET_ERROR_CONTROL_SIZE);
 
-    if(receivedCrc != expectedCrc) {
+    if(receivedIsoChecksum != expectedIsoChecksum) {
         if(errorCode != NULL) {
-            *errorCode = Packetizer_ErrorCode_IncorrectCrc16;
+            *errorCode = Packetizer_ErrorCode_IncorrectIsoChecksum;
         }
         return false;
     }
@@ -147,8 +148,7 @@ Packetizer_depacketize(const Packetizer* const self,
     }
 
     // Save the results
-    uint16_t rawDestination = packetPointer[1]
-                              | (packetPointer[0] & SPACE_PACKET_APID_HIGH_BITS_MASK) << (8u - SPACE_PACKET_APID_HIGH_BITS_OFFSET);
+    uint16_t rawDestination = packetPointer[1] | (packetPointer[0] & SPACE_PACKET_APID_HIGH_BITS_MASK) << 8u;
 #ifdef FORCE_APIDS
     rawDestination = get_destination_by_apid(rawDestination);
 #endif
@@ -170,8 +170,7 @@ writePacketId(uint8_t* const packetPointer, const Packetizer_PacketType packetTy
     packetPointer[0] |= 1 << SPACE_PACKET_SECONDARY_HEADER_FLAG_OFFSET;
 
     // 6th bit - Application process ID (11 bits) - BIG ENDIAN
-    packetPointer[0] |=
-            (destination & PACKETIZER_DESTINATION_HIGH_BITS_MASK) >> (8u - SPACE_PACKET_APID_HIGH_BITS_OFFSET);
+    packetPointer[0] |= (destination & PACKETIZER_DESTINATION_HIGH_BITS_MASK) >> 8u;
     packetPointer[1] |= destination & 0xFF;
 }
 
@@ -183,8 +182,7 @@ writePacketSequenceControl(uint8_t* const packetPointer, const Packetizer* const
     packetPointer[2] |= 1 << SPACE_PACKET_SEQUENCE_FLAGS_SECOND_OFFSET;
 
     // 3rd bit - Packet sequence count (14 bits)
-    packetPointer[2] |= (packetizer->packetSequenceCount & PACKETIZER_PACKET_SEQUENCE_CONTROL_HIGH_BITS_MASK)
-                        >> (8u - SPACE_PACKET_SEQUENCE_CONTROL_HIGH_BITS_OFFSET);
+    packetPointer[2] |= (packetizer->packetSequenceCount & PACKETIZER_PACKET_SEQUENCE_CONTROL_HIGH_BITS_MASK) >> 8u;
     packetPointer[3] |= packetizer->packetSequenceCount & 0xFF;
 }
 
@@ -212,10 +210,11 @@ writePacketDataLength(uint8_t* const packetPointer, const size_t dataSize)
 void
 writeCrc(uint8_t* const packetPointer, const size_t dataSize)
 {
-    uint16_t crc = calculateCrc16(packetPointer, SPACE_PACKET_PRIMARY_HEADER_SIZE + dataSize);
+    const size_t crcInputSize = SPACE_PACKET_PRIMARY_HEADER_SIZE + dataSize - SPACE_PACKET_ERROR_CONTROL_SIZE;
+    uint16_t isoChecksum = IsoChecksum_calculate(packetPointer, crcInputSize);
 
-    packetPointer[SPACE_PACKET_PRIMARY_HEADER_SIZE + dataSize] = (crc >> 8) & 0xFF;
-    packetPointer[SPACE_PACKET_PRIMARY_HEADER_SIZE + dataSize + 1] = crc & 0xFF;
+    packetPointer[crcInputSize] = (isoChecksum >> 8) & 0xFF;
+    packetPointer[crcInputSize + 1] = isoChecksum & 0xFF;
 }
 
 size_t

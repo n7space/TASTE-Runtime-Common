@@ -4,7 +4,7 @@
 
 extern "C"
 {
-#include "Crc16.h"
+#include "IsoChecksum.h"
 #include "Packetizer.h"
 #include "PacketizerInternal.h"
 #include "SpacePacketInternal.h"
@@ -12,8 +12,8 @@ extern "C"
 
 TEST_GROUP(Packetizer)
 {
-    static constexpr size_t dataSize = 514;
-    static constexpr size_t packetSize = SPACE_PACKET_PRIMARY_HEADER_SIZE + dataSize + SPACE_PACKET_ERROR_CONTROL_SIZE;
+    static constexpr size_t dataSize = 514 + SPACE_PACKET_ERROR_CONTROL_SIZE;
+    static constexpr size_t packetSize = SPACE_PACKET_PRIMARY_HEADER_SIZE + dataSize;
     uint8_t packetData[packetSize];
 
     void setup() { memset(packetData, 0, packetSize); }
@@ -35,14 +35,14 @@ TEST(Packetizer, PacketizeTelemetry)
                                            dataSize);
 
     CHECK_EQUAL(packetSize, resultSize);
-    CHECK_EQUAL(0b01010000, packetData[0]);
+    CHECK_EQUAL(0b00001010, packetData[0]);
     CHECK_EQUAL(0b10101010, packetData[1]);
-    CHECK_EQUAL(0b00001111, packetData[2]);
+    CHECK_EQUAL(0b11000011, packetData[2]);
     CHECK_EQUAL(0b00011000, packetData[3]);
     CHECK_EQUAL(0b00000010, packetData[4]);
-    CHECK_EQUAL(0b00000001, packetData[5]);
+    CHECK_EQUAL(0b00000011, packetData[5]);
 
-    uint16_t expectedCrc = calculateCrc16(packetData, packetSize - SPACE_PACKET_ERROR_CONTROL_SIZE);
+    uint16_t expectedCrc = IsoChecksum_calculate(packetData, packetSize - SPACE_PACKET_ERROR_CONTROL_SIZE);
 
     CHECK_EQUAL((expectedCrc >> 8u) & 0xFF, packetData[packetSize - 2]);
     CHECK_EQUAL(expectedCrc & 0xFF, packetData[packetSize - 1]);
@@ -64,14 +64,14 @@ TEST(Packetizer, PacketizeTelecommand)
                                            dataSize);
 
     CHECK_EQUAL(packetSize, resultSize);
-    CHECK_EQUAL(0b10111000, packetData[0]);
+    CHECK_EQUAL(0b00011101, packetData[0]);
     CHECK_EQUAL(0b01010101, packetData[1]);
-    CHECK_EQUAL(0b00001111, packetData[2]);
+    CHECK_EQUAL(0b11000011, packetData[2]);
     CHECK_EQUAL(0b00011001, packetData[3]);
     CHECK_EQUAL(0b00000010, packetData[4]);
-    CHECK_EQUAL(0b00000001, packetData[5]);
+    CHECK_EQUAL(0b00000011, packetData[5]);
 
-    uint16_t expectedCrc = calculateCrc16(packetData, packetSize - SPACE_PACKET_ERROR_CONTROL_SIZE);
+    uint16_t expectedCrc = IsoChecksum_calculate(packetData, packetSize - SPACE_PACKET_ERROR_CONTROL_SIZE);
 
     CHECK_EQUAL((expectedCrc >> 8u) & 0xFF, packetData[packetSize - 2]);
     CHECK_EQUAL(expectedCrc & 0xFF, packetData[packetSize - 1]);
@@ -81,12 +81,12 @@ TEST(Packetizer, DepacketizeTelemetry)
 {
     Packetizer packetizer = { 8 };
 
-    packetData[0] = 0b10110000;
+    packetData[0] = 0b00001101;
     packetData[1] = 0b00000101;
     packetData[4] = 0b00000010;
-    packetData[5] = 0b00000001;
+    packetData[5] = 0b00000011;
 
-    uint16_t crc = calculateCrc16(packetData, packetSize - SPACE_PACKET_ERROR_CONTROL_SIZE);
+    uint16_t crc = IsoChecksum_calculate(packetData, packetSize - SPACE_PACKET_ERROR_CONTROL_SIZE);
     packetData[packetSize - 2] = (crc >> 8u) & 0xFF;
     packetData[packetSize - 1] = crc & 0xFF;
 
@@ -117,12 +117,12 @@ TEST(Packetizer, DepacketizeTelecommand)
 {
     Packetizer packetizer = { 7 };
 
-    packetData[0] = 0b11011000;
+    packetData[0] = 0b00011110;
     packetData[1] = 0b00000110;
     packetData[4] = 0b00000010;
-    packetData[5] = 0b00000001;
+    packetData[5] = 0b00000011;
 
-    uint16_t crc = calculateCrc16(packetData, packetSize - SPACE_PACKET_ERROR_CONTROL_SIZE);
+    uint16_t crc = IsoChecksum_calculate(packetData, packetSize - SPACE_PACKET_ERROR_CONTROL_SIZE);
     packetData[packetSize - 2] = (crc >> 8u) & 0xFF;
     packetData[packetSize - 1] = crc & 0xFF;
 
@@ -168,14 +168,14 @@ TEST(PacketizerInternal, ApidStandard)
 {
     writePacketId(packetData, Packetizer_PacketType_Telecommand, 685);
 
-    CHECK_EQUAL(0b01011000, packetData[0]);
+    CHECK_EQUAL(0b00011010, packetData[0]);
     CHECK_EQUAL(0b10101101, packetData[1]);
 }
 
 TEST(PacketizerInternal, ApidMax)
 {
     writePacketId(packetData, Packetizer_PacketType_Telecommand, SPACE_PACKET_MAX_APID);
-    CHECK_EQUAL(0b11111000, packetData[0]);
+    CHECK_EQUAL(0b00011111, packetData[0]);
     CHECK_EQUAL(0b11111111, packetData[1]);
 }
 
@@ -184,7 +184,7 @@ TEST(PacketizerInternal, SequenceCounterMin)
     Packetizer packetizer = { 0 };
     writePacketSequenceControl(packetData, &packetizer);
 
-    CHECK_EQUAL(0b00000011, packetData[2]);
+    CHECK_EQUAL(0b11000000, packetData[2]);
     CHECK_EQUAL(0b00000000, packetData[3]);
 }
 
@@ -193,7 +193,7 @@ TEST(PacketizerInternal, SequenceCounterStandard)
     Packetizer packetizer = { 718 };
     writePacketSequenceControl(packetData, &packetizer);
 
-    CHECK_EQUAL(0b00001011, packetData[2]);
+    CHECK_EQUAL(0b11000010, packetData[2]);
     CHECK_EQUAL(0b11001110, packetData[3]);
 }
 

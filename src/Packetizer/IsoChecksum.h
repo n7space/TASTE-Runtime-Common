@@ -20,20 +20,21 @@
  * limitations under the License.
  */
 
-#ifndef SPACE_PACKET_INTERNAL_H
-#define SPACE_PACKET_INTERNAL_H
+#ifndef PACKETIZER_ISOCHECKSUM_H
+#define PACKETIZER_ISOCHECKSUM_H
 
-#define SPACE_PACKET_VERSION_NUMBER_MASK 0x07
-#define SPACE_PACKET_TYPE_MASK 0x10
-#define SPACE_PACKET_APID_HIGH_BITS_MASK 0x07
-#define SPACE_PACKET_SECONDARY_HEADER_FLAG_MASK 0x16
-#define SPACE_PACKET_SEQUENCE_FLAGS_FIRST_MASK 0x01
-#define SPACE_PACKET_SEQUENCE_FLAGS_SECOND_MASK 0x02
+#include <stddef.h>
+#include <stdint.h>
 
-#define SPACE_PACKET_VERSION_NUMBER_OFFSET 0u
-#define SPACE_PACKET_TYPE_OFFSET 4u
-#define SPACE_PACKET_SECONDARY_HEADER_FLAG_OFFSET 3u
-#define SPACE_PACKET_SEQUENCE_FLAGS_FIRST_OFFSET 7u
-#define SPACE_PACKET_SEQUENCE_FLAGS_SECOND_OFFSET 6u
+/**
+ * @brief   Calculates ISO checksum for given data block.
+ *          Checksum is calculated according to as ECSS-E-70-41A Annex A.
+ *
+ * @param[in] data     Pointer to start of data block. Can't be NULL.
+ * @param[in] length   Data block length in bytes.
+ *
+ * @return  Calculated checksum.
+ */
+uint16_t IsoChecksum_calculate(const uint8_t* const data, const size_t length);
 
-#endif // SPACE_PACKET_INTERNAL_H
+#endif // PACKETIZER_ISOCHECKSUM_H
