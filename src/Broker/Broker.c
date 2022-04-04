@@ -54,7 +54,7 @@ Broker_deliver_request(const enum RemoteInterface interface, const uint8_t* cons
 #elif defined BROKER_SEND_TELEMETRY
     const Packetizer_PacketType packet_type = Packetizer_PacketType_Telemetry;
 #else
-    const Packetizer_PacketType packet_type = Packetizer_PacketType_Telemetry;
+    const Packetizer_PacketType packet_type = Packetizer_PacketType_Telecommand;
 #endif
 
     const size_t packet_size = Packetizer_packetize(&packetizer_data,
@@ -63,7 +63,7 @@ Broker_deliver_request(const enum RemoteInterface interface, const uint8_t* cons
                                                     (uint16_t)interface,
                                                     packetizer_buffer,
                                                     SPACE_PACKET_PRIMARY_HEADER_SIZE,
-                                                    length);
+                                                    length + SPACE_PACKET_ERROR_CONTROL_SIZE);
 
     const enum SystemBus bus_id = port_to_bus_map[interface];
     void* driver_private_data = bus_to_driver_private_data[bus_id];
