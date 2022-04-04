@@ -85,7 +85,7 @@ Broker_receive_packet(uint8_t* const data, const size_t length)
 
 #if defined BROKER_EXPECT_TELECOMMAND
     const Packetizer_PacketType packet_type = Packetizer_PacketType_Telecommand;
-#elif defined BROKER_EXPECT_TELEMETRT
+#elif defined BROKER_EXPECT_TELEMETRY
     const Packetizer_PacketType packet_type = Packetizer_PacketType_Telemetry;
 #else
     const Packetizer_PacketType packet_type = Packetizer_PacketType_Telemetry;
