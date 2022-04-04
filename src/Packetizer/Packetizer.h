@@ -46,10 +46,9 @@ typedef enum
 /// @brief  Enumeration listing possible error codes.
 typedef enum
 {
-    Packetizer_ErrorCode_IncorrectCrc16 = 1,      ///< Mismatching CRC16 during depacketization
+    Packetizer_ErrorCode_IncorrectChecksum = 1,   ///< Mismatching checksum during depacketization
     Packetizer_ErrorCode_IncorrectPacketType = 2, ///< Mismatching packet type during depacketization
-    Packetizer_ErrorCode_IncorrectPacketSize = 3, ///< Mismatching packet size during depacketization
-    Packetizer_ErrorCode_IncorrectIsoChecksum = 4 ///< Mismatching ISO checksum during depacketization
+    Packetizer_ErrorCode_IncorrectPacketSize = 3  ///< Mismatching packet size during depacketization
 } Packetizer_ErrorCode;
 
 /// @brief  Structure representing Packetizer

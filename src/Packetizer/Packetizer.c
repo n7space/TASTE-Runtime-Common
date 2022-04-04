@@ -126,13 +126,17 @@ Packetizer_depacketize(const Packetizer* const self,
     }
 
     // Check if CRC matches
-    uint16_t receivedIsoChecksum = packetPointer[SPACE_PACKET_PRIMARY_HEADER_SIZE + receivedDataSize - 1]
-                                   | (packetPointer[SPACE_PACKET_PRIMARY_HEADER_SIZE + receivedDataSize - 2] << 8);
-    uint16_t expectedIsoChecksum = IsoChecksum_calculate(packetPointer, packetSize - SPACE_PACKET_ERROR_CONTROL_SIZE);
+    uint16_t receivedChecksum = packetPointer[SPACE_PACKET_PRIMARY_HEADER_SIZE + receivedDataSize - 1]
+                                | (packetPointer[SPACE_PACKET_PRIMARY_HEADER_SIZE + receivedDataSize - 2] << 8);
+#ifdef PACKETIZER_USE_CRC16_CHECKSUM
+    uint16_t expectedChecksum = calculateCrc16(packetPointer, packetSize - SPACE_PACKET_ERROR_CONTROL_SIZE);
+#else    
+    uint16_t expectedChecksum = IsoChecksum_calculate(packetPointer, packetSize - SPACE_PACKET_ERROR_CONTROL_SIZE);
+#endif
 
-    if(receivedIsoChecksum != expectedIsoChecksum) {
+    if(receivedChecksum != expectedChecksum) {
         if(errorCode != NULL) {
-            *errorCode = Packetizer_ErrorCode_IncorrectIsoChecksum;
+            *errorCode = Packetizer_ErrorCode_IncorrectChecksum;
         }
         return false;
     }
@@ -210,11 +214,16 @@ writePacketDataLength(uint8_t* const packetPointer, const size_t dataSize)
 void
 writeCrc(uint8_t* const packetPointer, const size_t dataSize)
 {
-    const size_t crcInputSize = SPACE_PACKET_PRIMARY_HEADER_SIZE + dataSize - SPACE_PACKET_ERROR_CONTROL_SIZE;
-    uint16_t isoChecksum = IsoChecksum_calculate(packetPointer, crcInputSize);
+    const size_t checksumInputSize = SPACE_PACKET_PRIMARY_HEADER_SIZE + dataSize - SPACE_PACKET_ERROR_CONTROL_SIZE;
 
-    packetPointer[crcInputSize] = (isoChecksum >> 8) & 0xFF;
-    packetPointer[crcInputSize + 1] = isoChecksum & 0xFF;
+#ifdef PACKETIZER_USE_CRC16_CHECKSUM
+    uint16_t checksum = calculateCrc16(packetPointer, checksumInputSize);
+#else
+    uint16_t checksum = IsoChecksum_calculate(packetPointer, checksumInputSize);
+#endif
+
+    packetPointer[checksumInputSize] = (checksum >> 8) & 0xFF;
+    packetPointer[checksumInputSize + 1] = checksum & 0xFF;
 }
 
 size_t
