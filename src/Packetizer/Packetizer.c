@@ -55,7 +55,7 @@ Packetizer_packetize(Packetizer* const self,
 
     uint16_t rawDestination = destination;
 #ifdef FORCE_APIDS
-    rawDestination = get_apid_by_destination(rawDestination);
+    rawDestination = translate_apid_to_send(rawDestination);
 #endif
     assert(rawDestination <= SPACE_PACKET_MAX_APID);
 
@@ -154,7 +154,7 @@ Packetizer_depacketize(const Packetizer* const self,
     // Save the results
     uint16_t rawDestination = packetPointer[1] | (packetPointer[0] & SPACE_PACKET_APID_HIGH_BITS_MASK) << 8u;
 #ifdef FORCE_APIDS
-    rawDestination = get_destination_by_apid(rawDestination);
+    rawDestination = translate_received_apid(rawDestination);
 #endif
     *destination = rawDestination;
 
