@@ -53,19 +53,21 @@ Packetizer_packetize(Packetizer* const self,
     (void)source;
     (void)dataOffset;
 
-    uint16_t rawDestination = destination;
-#ifdef FORCE_APIDS
-    rawDestination = translate_apid_to_send(rawDestination);
-#endif
-    assert(rawDestination <= SPACE_PACKET_MAX_APID);
-
     assert(self->packetSequenceCount <= SPACE_PACKET_MAX_PACKET_SEQUENCE_COUNT);
+    assert(destination <= SPACE_PACKET_MAX_APID);
     assert(packetPointer != NULL);
     assert(dataOffset == SPACE_PACKET_PRIMARY_HEADER_SIZE);
 #ifdef STANDARD_SPACE_PACKET
     assert(dataSize >= 1);
 #endif
     assert(dataSize < SPACE_PACKET_MAX_PACKET_DATA_SIZE);
+
+#ifdef FORCE_APIDS
+    const uint16_t rawDestination = translate_apid_to_send(rawDestination);
+#else
+    const uint16_t rawDestination = destination;
+#endif
+    assert(rawDestination <= SPACE_PACKET_MAX_APID);
 
     memset(packetPointer, 0, SPACE_PACKET_PRIMARY_HEADER_SIZE);
 
@@ -117,7 +119,7 @@ Packetizer_depacketize(const Packetizer* const self,
 
     // Get and check data size
     const size_t receivedDataSize = readPacketDataLength(packetPointer);
-    // Do not add SPACE_PACKET_ERROR_CONTROL_SIZE here, becouse checksum is a part of payload
+    // Do not add SPACE_PACKET_ERROR_CONTROL_SIZE here, because checksum is a part of payload
     if(packetSize != SPACE_PACKET_PRIMARY_HEADER_SIZE + receivedDataSize) {
         if(errorCode != NULL) {
             *errorCode = Packetizer_ErrorCode_IncorrectPacketSize;
@@ -126,12 +128,13 @@ Packetizer_depacketize(const Packetizer* const self,
     }
 
     // Check if CRC matches
-    uint16_t receivedChecksum = packetPointer[SPACE_PACKET_PRIMARY_HEADER_SIZE + receivedDataSize - 1]
-                                | (packetPointer[SPACE_PACKET_PRIMARY_HEADER_SIZE + receivedDataSize - 2] << 8);
+    const uint16_t receivedChecksum = packetPointer[SPACE_PACKET_PRIMARY_HEADER_SIZE + receivedDataSize - 1]
+                                      | (packetPointer[SPACE_PACKET_PRIMARY_HEADER_SIZE + receivedDataSize - 2] << 8);
 #ifdef PACKETIZER_USE_CRC16_CHECKSUM
-    uint16_t expectedChecksum = calculateCrc16(packetPointer, packetSize - SPACE_PACKET_ERROR_CONTROL_SIZE);
+    const uint16_t expectedChecksum = calculateCrc16(packetPointer, packetSize - SPACE_PACKET_ERROR_CONTROL_SIZE);
 #else    
-    uint16_t expectedChecksum = IsoChecksum_calculate(packetPointer, packetSize - SPACE_PACKET_ERROR_CONTROL_SIZE);
+    const uint16_t expectedChecksum =
+            IsoChecksum_calculate(packetPointer, packetSize - SPACE_PACKET_ERROR_CONTROL_SIZE);
 #endif
 
     if(receivedChecksum != expectedChecksum) {
@@ -152,11 +155,10 @@ Packetizer_depacketize(const Packetizer* const self,
     }
 
     // Save the results
-    uint16_t rawDestination = packetPointer[1] | (packetPointer[0] & SPACE_PACKET_APID_HIGH_BITS_MASK) << 8u;
+    *destination = packetPointer[1] | (packetPointer[0] & SPACE_PACKET_APID_HIGH_BITS_MASK) << 8u;
 #ifdef FORCE_APIDS
-    rawDestination = translate_received_apid(rawDestination);
+    *destination = translate_received_apid(*destination);
 #endif
-    *destination = rawDestination;
 
     *dataOffset = SPACE_PACKET_PRIMARY_HEADER_SIZE;
     *dataSize = receivedDataSize;
@@ -217,9 +219,9 @@ writeCrc(uint8_t* const packetPointer, const size_t dataSize)
     const size_t checksumInputSize = SPACE_PACKET_PRIMARY_HEADER_SIZE + dataSize - SPACE_PACKET_ERROR_CONTROL_SIZE;
 
 #ifdef PACKETIZER_USE_CRC16_CHECKSUM
-    uint16_t checksum = calculateCrc16(packetPointer, checksumInputSize);
+    const uint16_t checksum = calculateCrc16(packetPointer, checksumInputSize);
 #else
-    uint16_t checksum = IsoChecksum_calculate(packetPointer, checksumInputSize);
+    const uint16_t checksum = IsoChecksum_calculate(packetPointer, checksumInputSize);
 #endif
 
     packetPointer[checksumInputSize] = (checksum >> 8) & 0xFF;

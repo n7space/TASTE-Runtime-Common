@@ -54,7 +54,7 @@ Broker_deliver_request(const enum RemoteInterface interface, const uint8_t* cons
 #elif defined BROKER_SEND_TELEMETRY
     const Packetizer_PacketType packet_type = Packetizer_PacketType_Telemetry;
 #else
-    const Packetizer_PacketType packet_type = Packetizer_PacketType_Telecommand;
+    const Packetizer_PacketType packet_type = Packetizer_PacketType_Telemetry;
 #endif
 
     const size_t packet_size = Packetizer_packetize(&packetizer_data,

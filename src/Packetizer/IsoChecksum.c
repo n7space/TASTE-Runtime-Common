@@ -1,7 +1,7 @@
 /**@file
  * This file is part of the TASTE Runtime Common.
  *
- * @copyright 2021 N7 Space Sp. z o.o.
+ * @copyright 2022 N7 Space Sp. z o.o.
  *
  * TASTE Runtime Common was developed under a programme of,
  * and funded by, the European Space Agency (the "ESA").
@@ -24,22 +24,23 @@
 
 #define MAKE_UINT16(hi, lo) (uint16_t)(((hi) << 8u) | (lo))
 #define REDUCE(x) (((x)&0xFFu) + ((x) >> 8u))
+#define CHUNK_SIZE 20u
 
 static uint16_t
-fletcher16(const uint8_t* const data, const size_t bytes)
+fletcher16(const uint8_t* const data, const size_t length)
 {
     uint32_t sum1 = 0xffu;
     uint32_t sum2 = 0xffu;
-    size_t bytesToProcess = bytes;
+    size_t dataLength = length;
     const uint8_t* it = data;
 
-    while(bytesToProcess > 0u) {
-        size_t tlen = (bytesToProcess > 20u) ? 20u : bytesToProcess;
-        bytesToProcess -= tlen;
+    while(dataLength > 0u) {
+        size_t chunkLength = (dataLength > CHUNK_SIZE) ? CHUNK_SIZE : dataLength;
+        dataLength -= chunkLength;
         do {
             sum1 += *it++;
             sum2 += sum1;
-        } while(--tlen > 0);
+        } while(--chunkLength > 0);
         sum1 = REDUCE(sum1);
         sum2 = REDUCE(sum2);
     }
@@ -50,10 +51,10 @@ fletcher16(const uint8_t* const data, const size_t bytes)
 uint16_t
 IsoChecksum_calculate(const uint8_t* const data, const size_t length)
 {
-    const uint16_t csum = fletcher16(data, length);
+    const uint16_t sum = fletcher16(data, length);
 
-    const uint32_t f0 = csum & 0xFFu;
-    const uint32_t f1 = (csum >> 8u) & 0xFFu;
+    const uint32_t f0 = sum & 0xFFu;
+    const uint32_t f1 = (sum >> 8u) & 0xFFu;
 
     const uint32_t c0 = 0xFFu - ((f0 + f1) % 0xFFu);
     const uint32_t c1 = 0xFFu - ((f0 + c0) % 0xFFu);
