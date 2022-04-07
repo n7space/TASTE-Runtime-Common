@@ -63,7 +63,7 @@ Packetizer_packetize(Packetizer* const self,
     assert(dataSize < SPACE_PACKET_MAX_PACKET_DATA_SIZE);
 
 #ifdef FORCE_APIDS
-    const uint16_t rawDestination = translate_apid_to_send(rawDestination);
+    const uint16_t rawDestination = translate_apid_to_send(destination);
 #else
     const uint16_t rawDestination = destination;
 #endif
