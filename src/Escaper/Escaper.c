@@ -25,6 +25,30 @@
 
 #include <assert.h>
 
+static void
+decode_escape_byte(Escaper* const self, const uint8_t byte)
+{
+    if(self->m_decoded_packet_buffer_index >= self->m_decoded_packet_max_size) {
+        // buffer overflow prevented
+        // the current packet cannot be delivered
+        // reset escaper to search for new START_BYTE
+        self->m_decoded_packet_buffer_index = 0;
+        self->m_parse_state = Escaper_State_Wait;
+    } else {
+        if(byte == ESC_START_BYTE) {
+            self->m_decoded_packet_buffer[self->m_decoded_packet_buffer_index] = START_BYTE;
+        } else if(byte == ESC_ESCAPE_BYTE) {
+            self->m_decoded_packet_buffer[self->m_decoded_packet_buffer_index] = ESCAPE_BYTE;
+        } else if(byte == ESC_STOP_BYTE) {
+            self->m_decoded_packet_buffer[self->m_decoded_packet_buffer_index] = STOP_BYTE;
+        } else {
+            self->m_decoded_packet_buffer[self->m_decoded_packet_buffer_index] = byte;
+        }
+        ++self->m_decoded_packet_buffer_index;
+        self->m_parse_state = Escaper_State_Data_Byte;
+    }
+}
+
 void
 Escaper_init(Escaper* const self,
              uint8_t* m_encoded_packet_buffer,
@@ -46,30 +70,6 @@ void
 Escaper_start_decoder(Escaper* const self)
 {
     self->m_parse_state = Escaper_State_Wait;
-}
-
-void
-Escaper_decode_escape_byte(Escaper* const self, const uint8_t byte)
-{
-    if(self->m_decoded_packet_buffer_index >= self->m_decoded_packet_max_size) {
-        // buffer overflow prevented
-        // the current packet cannot be delivered
-        // reset escaper to search for new START_BYTE
-        self->m_decoded_packet_buffer_index = 0;
-        self->m_parse_state = Escaper_State_Wait;
-    } else {
-        if(byte == ESC_START_BYTE) {
-            self->m_decoded_packet_buffer[self->m_decoded_packet_buffer_index] = START_BYTE;
-        } else if(byte == ESC_ESCAPE_BYTE) {
-            self->m_decoded_packet_buffer[self->m_decoded_packet_buffer_index] = ESCAPE_BYTE;
-        } else if(byte == ESC_STOP_BYTE) {
-            self->m_decoded_packet_buffer[self->m_decoded_packet_buffer_index] = STOP_BYTE;
-        } else {
-            self->m_decoded_packet_buffer[self->m_decoded_packet_buffer_index] = byte;
-        }
-        ++self->m_decoded_packet_buffer_index;
-        self->m_parse_state = Escaper_State_Data_Byte;
-    }
 }
 
 void
@@ -106,7 +106,7 @@ Escaper_decode_packet(Escaper* const self, uint8_t* buffer, const size_t length,
                 }
                 break;
             case Escaper_State_Escape_Byte:
-                Escaper_decode_escape_byte(self, buffer[i]);
+                decode_escape_byte(self, buffer[i]);
                 break;
             default:
                 assert(false && "Unknown parser state");
