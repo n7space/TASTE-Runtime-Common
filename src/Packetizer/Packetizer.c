@@ -82,7 +82,7 @@ Packetizer_packetize(Packetizer* const self,
         self->packetSequenceCount = 0; // Counter should wrap to zero
     }
 
-    return SPACE_PACKET_PRIMARY_HEADER_SIZE + dataSize;
+    return SPACE_PACKET_PRIMARY_HEADER_SIZE + dataSize + SPACE_PACKET_ERROR_CONTROL_SIZE;
 }
 
 bool
@@ -161,7 +161,7 @@ Packetizer_depacketize(const Packetizer* const self,
 #endif
 
     *dataOffset = SPACE_PACKET_PRIMARY_HEADER_SIZE;
-    *dataSize = receivedDataSize;
+    *dataSize = receivedDataSize - SPACE_PACKET_ERROR_CONTROL_SIZE;
 
     return true;
 }
@@ -195,15 +195,16 @@ writePacketSequenceControl(uint8_t* const packetPointer, const Packetizer* const
 void
 writePacketDataLength(uint8_t* const packetPointer, const size_t dataSize)
 {
+    const size_t payloadSize = dataSize + SPACE_PACKET_ERROR_CONTROL_SIZE;
 #ifdef STANDARD_SPACE_PACKET
-    packetPointer[4] = ((dataSize - 1) >> 8) & 0xFF;
-    packetPointer[5] = (dataSize - 1) & 0xFF;
+    packetPointer[4] = ((payloadSize - 1) >> 8) & 0xFF;
+    packetPointer[5] = (payloadSize - 1) & 0xFF;
 #else
-    if(dataSize != 0) {
-        packetPointer[4] = ((dataSize - 1) >> 24) & 0xFF;
-        packetPointer[5] = ((dataSize - 1) >> 16) & 0xFF;
-        packetPointer[6] = ((dataSize - 1) >> 8) & 0xFF;
-        packetPointer[7] = (dataSize - 1) & 0xFF;
+    if(payloadSize != 0) {
+        packetPointer[4] = ((payloadSize - 1) >> 24) & 0xFF;
+        packetPointer[5] = ((payloadSize - 1) >> 16) & 0xFF;
+        packetPointer[6] = ((payloadSize - 1) >> 8) & 0xFF;
+        packetPointer[7] = (payloadSize - 1) & 0xFF;
     } else {
         packetPointer[4] = 0xFF;
         packetPointer[5] = 0xFF;
@@ -216,7 +217,7 @@ writePacketDataLength(uint8_t* const packetPointer, const size_t dataSize)
 void
 writeCrc(uint8_t* const packetPointer, const size_t dataSize)
 {
-    const size_t checksumInputSize = SPACE_PACKET_PRIMARY_HEADER_SIZE + dataSize - SPACE_PACKET_ERROR_CONTROL_SIZE;
+    const size_t checksumInputSize = SPACE_PACKET_PRIMARY_HEADER_SIZE + dataSize;
 
 #ifdef PACKETIZER_USE_CRC16_CHECKSUM
     const uint16_t checksum = calculateCrc16(packetPointer, checksumInputSize);
