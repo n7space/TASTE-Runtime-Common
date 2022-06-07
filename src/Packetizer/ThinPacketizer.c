@@ -30,6 +30,9 @@
 
 #define THIN_PACKET_PRIMARY_HEADER_SIZE 4u
 
+uint16_t
+readPacketId(const uint8_t* const packetPointer);
+
 void
 Packetizer_init(Packetizer* const self)
 {
@@ -53,6 +56,7 @@ Packetizer_packetize(Packetizer* const self,
     assert(destination <= SPACE_PACKET_MAX_APID);
     assert(packetPointer != NULL);
     assert(dataOffset == THIN_PACKET_PRIMARY_HEADER_SIZE);
+    assert(dataSize >= 1);
     assert(dataSize < SPACE_PACKET_MAX_PACKET_DATA_SIZE);
 
     memset(packetPointer, 0, THIN_PACKET_PRIMARY_HEADER_SIZE);
@@ -99,7 +103,7 @@ Packetizer_depacketize(const Packetizer* const self,
     }
 
     // Save the results
-    *destination = (packetPointer[0] << 8u) | packetPointer[1];
+    *destination = readPacketId(packetPointer);
     *dataOffset = THIN_PACKET_PRIMARY_HEADER_SIZE;
     *dataSize = receivedDataSize;
 
@@ -111,6 +115,12 @@ writePacketId(uint8_t* const packetPointer, const Packetizer_PacketType packetTy
 {
     packetPointer[0] |= (destination >> 8u) & 0xFF;
     packetPointer[1] |= destination & 0xFF;
+}
+
+uint16_t
+readPacketId(const uint8_t* const packetPointer)
+{
+    return (uint16_t)(packetPointer[0] << 8u) | packetPointer[1];
 }
 
 void
