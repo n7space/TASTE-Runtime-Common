@@ -40,6 +40,13 @@ enum SystemBus
     BUS_INVALID_ID,
 };
 
+enum PacketizerCfg {
+    PACKETIZER_DEFAULT,
+    PACKETIZER_CCSDS,
+    PACKETIZER_THIN,
+    PACKETIZER_MAX_ID,
+};
+
 #define SYSTEM_BUSES_NUMBER (0 + 1)
 
 extern enum SystemBus port_to_bus_map[];

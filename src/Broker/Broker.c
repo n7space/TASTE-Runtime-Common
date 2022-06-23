@@ -26,21 +26,27 @@
 #include <stdint.h>
 
 #include <Packetizer.h>
+#include <ThinPacketizer.h>
+#include <DriverHelper.h>
 
 static Packetizer packetizer_data = { 0 };
+static enum PacketizerCfg selected_packetizer;
 
 __attribute__((section(".sdramMemorySection"))) static uint8_t packetizer_buffer[BROKER_BUFFER_SIZE];
 extern driver_send_function bus_to_driver_send_function[SYSTEM_BUSES_NUMBER];
 extern void* bus_to_driver_private_data[SYSTEM_BUSES_NUMBER];
 extern deliver_function interface_to_deliver_function[INTERFACE_MAX_ID];
+extern PacketizerFunctions packetizers[PACKETIZER_MAX_ID];
 
 extern void Broker_acquire_lock();
 extern void Broker_release_lock();
 
 void
-Broker_initialize()
+Broker_initialize(const enum SystemBus bus_id)
 {
-    Packetizer_init(&packetizer_data);
+    selected_packetizer = get_packetizer_configuration(bus_id);
+    packetizer_init_function packetizer_init = packetizers[selected_packetizer].init;
+    packetizer_init(&packetizer_data);
 }
 
 void
@@ -57,7 +63,8 @@ Broker_deliver_request(const enum RemoteInterface interface, const uint8_t* cons
     const Packetizer_PacketType packet_type = Packetizer_PacketType_Telemetry;
 #endif
 
-    const size_t packet_size = Packetizer_packetize(&packetizer_data,
+    packetizer_packetize_function packetizer_packetize = packetizers[selected_packetizer].packetize;
+    const size_t packet_size = packetizer_packetize(&packetizer_data,
                                                     packet_type,
                                                     0,
                                                     (uint16_t)interface,
@@ -91,7 +98,8 @@ Broker_receive_packet(uint8_t* const data, const size_t length)
     const Packetizer_PacketType packet_type = Packetizer_PacketType_Telemetry;
 #endif
 
-    const bool success = Packetizer_depacketize(
+    packetizer_depacketize_function packetizer_depacketize = packetizers[selected_packetizer].depacketize;
+    const bool success = packetizer_depacketize(
             &packetizer_data, packet_type, data, length, &source, &destination, &data_offset, &data_size, &error_code);
     if(!success) {
         Broker_release_lock();

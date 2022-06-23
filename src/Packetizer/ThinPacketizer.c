@@ -20,7 +20,7 @@
  * limitations under the License.
  */
 
-#include "Packetizer.h"
+#include "ThinPacketizer.h"
 
 #include <assert.h>
 #include <string.h>
@@ -30,22 +30,25 @@
 
 #define THIN_PACKET_PRIMARY_HEADER_SIZE 4u
 
-uint16_t
-readPacketId(const uint8_t* const packetPointer);
+
+void thinWritePacketId(uint8_t* const packetPointer, const Packetizer_PacketType packetType, const uint16_t source);
+uint16_t thinReadPacketId(const uint8_t* const packetPointer);
+void thinWritePacketDataLength(uint8_t* const packetPointer, const size_t dataSize);
+size_t thinReadPacketDataLength(const uint8_t* const packetPointer);
 
 void
-Packetizer_init(Packetizer* const self)
+ThinPacketizer_init(Packetizer* const self)
 {
 }
 
 size_t
-Packetizer_packetize(Packetizer* const self,
-                     const Packetizer_PacketType packetType,
-                     const uint16_t source,
-                     const uint16_t destination,
-                     uint8_t* const packetPointer,
-                     const size_t dataOffset,
-                     const size_t dataSize)
+ThinPacketizer_packetize(Packetizer* const self,
+                        const Packetizer_PacketType packetType,
+                        const uint16_t source,
+                        const uint16_t destination,
+                        uint8_t* const packetPointer,
+                        const size_t dataOffset,
+                        const size_t dataSize)
 {
     // Unused in this implementation
     (void)self;
@@ -61,22 +64,22 @@ Packetizer_packetize(Packetizer* const self,
 
     memset(packetPointer, 0, THIN_PACKET_PRIMARY_HEADER_SIZE);
 
-    writePacketId(packetPointer, packetType, destination);
-    writePacketDataLength(packetPointer, dataSize);
+    thinWritePacketId(packetPointer, packetType, destination);
+    thinWritePacketDataLength(packetPointer, dataSize);
 
     return THIN_PACKET_PRIMARY_HEADER_SIZE + dataSize;
 }
 
 bool
-Packetizer_depacketize(const Packetizer* const self,
-                       const Packetizer_PacketType packetType,
-                       const uint8_t* const packetPointer,
-                       const size_t packetSize,
-                       uint16_t* const source,
-                       uint16_t* const destination,
-                       size_t* const dataOffset,
-                       size_t* const dataSize,
-                       int32_t* const errorCode)
+ThinPacketizer_depacketize(const Packetizer* const self,
+                           const Packetizer_PacketType packetType,
+                           const uint8_t* const packetPointer,
+                           const size_t packetSize,
+                           uint16_t* const source,
+                           uint16_t* const destination,
+                           size_t* const dataOffset,
+                           size_t* const dataSize,
+                           int32_t* const errorCode)
 {
     // Unused in this implementation
     (void)self;
@@ -94,7 +97,7 @@ Packetizer_depacketize(const Packetizer* const self,
     }
 
     // Get and check data size
-    const size_t receivedDataSize = readPacketDataLength(packetPointer);
+    const size_t receivedDataSize = thinReadPacketDataLength(packetPointer);
     if(packetSize != THIN_PACKET_PRIMARY_HEADER_SIZE + receivedDataSize) {
         if(errorCode != NULL) {
             *errorCode = Packetizer_ErrorCode_IncorrectPacketSize;
@@ -103,7 +106,7 @@ Packetizer_depacketize(const Packetizer* const self,
     }
 
     // Save the results
-    *destination = readPacketId(packetPointer);
+    *destination = thinReadPacketId(packetPointer);
     *dataOffset = THIN_PACKET_PRIMARY_HEADER_SIZE;
     *dataSize = receivedDataSize;
 
@@ -111,27 +114,27 @@ Packetizer_depacketize(const Packetizer* const self,
 }
 
 void
-writePacketId(uint8_t* const packetPointer, const Packetizer_PacketType packetType, const uint16_t destination)
+thinWritePacketId(uint8_t* const packetPointer, const Packetizer_PacketType packetType, const uint16_t destination)
 {
     packetPointer[0] |= (destination >> 8u) & 0xFF;
     packetPointer[1] |= destination & 0xFF;
 }
 
 uint16_t
-readPacketId(const uint8_t* const packetPointer)
+thinReadPacketId(const uint8_t* const packetPointer)
 {
     return (uint16_t)(packetPointer[0] << 8u) | packetPointer[1];
 }
 
 void
-writePacketDataLength(uint8_t* const packetPointer, const size_t dataSize)
+thinWritePacketDataLength(uint8_t* const packetPointer, const size_t dataSize)
 {
     packetPointer[2] = ((dataSize - 1) >> 8) & 0xFF;
     packetPointer[3] = (dataSize - 1) & 0xFF;
 }
 
 size_t
-readPacketDataLength(const uint8_t* const packetPointer)
+thinReadPacketDataLength(const uint8_t* const packetPointer)
 {
     return ((size_t)(packetPointer[2] << 8u) | packetPointer[3]) + 1;
 }

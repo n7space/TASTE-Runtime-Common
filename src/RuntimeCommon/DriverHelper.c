@@ -47,3 +47,13 @@ get_remote_device_configuration(const enum SystemDevice device_id)
 
     return (void*)0;
 }
+
+enum PacketizerCfg
+get_packetizer_configuration(const enum SystemDevice device_id)
+{
+    if((int)device_id > SYSTEM_DEVICE_NUMBER) {
+        return PACKETIZER_DEFAULT;
+    }
+
+    return (enum PacketizerCfg)packetizer_configurations[(int)device_id];
+}

@@ -55,8 +55,10 @@
 /** @brief Initialize Broker
  *
  * Broker shall be initialized before starting system's threads.
+ * 
+ * @param[in]    bus_id         Identifier of the bus
  */
-void Broker_initialize(void);
+void Broker_initialize(const enum SystemBus bus_id);
 
 /** @brief Deliver message to remote interface
  *

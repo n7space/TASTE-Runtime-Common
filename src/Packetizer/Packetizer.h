@@ -116,4 +116,30 @@ bool Packetizer_depacketize(const Packetizer* const self,
                             size_t* const dataSize,
                             int32_t* const errorCode);
 
+typedef void (*packetizer_init_function)(Packetizer* const self);
+
+typedef size_t (*packetizer_packetize_function)(Packetizer* const self,
+                                               const Packetizer_PacketType packetType,
+                                               const uint16_t source,
+                                               const uint16_t destination,
+                                               uint8_t* const packetPointer,
+                                               const size_t dataOffset,
+                                               const size_t dataSize);
+
+typedef bool (*packetizer_depacketize_function)(const Packetizer* const self,
+                                                const Packetizer_PacketType packetType,
+                                                const uint8_t* const packetPointer,
+                                                const size_t packetSize,
+                                                uint16_t* const source,
+                                                uint16_t* const destination,
+                                                size_t* const dataOffset,
+                                                size_t* const dataSize,
+                                                int32_t* const errorCode);
+
+typedef struct {
+    packetizer_init_function init;
+    packetizer_packetize_function packetize;
+    packetizer_depacketize_function depacketize;
+} PacketizerFunctions;
+
 #endif // PACKETIZER_H
