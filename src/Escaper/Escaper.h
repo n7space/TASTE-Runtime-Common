@@ -33,6 +33,8 @@
 #include <stdbool.h>
 #include <stddef.h>
 
+#include <system_spec.h>
+
 /// @brief Enumeration listing possible parser states
 typedef enum
 {
@@ -57,10 +59,11 @@ typedef struct
 
 /** @brief Function pointer to function responsible for packet reception
  *
+ * @param[in]   Name of bus used in communication
  * @param[in]   Pointer to received packet data buffer
  * @param[in]   Size of the received packet data buffer
  */
-typedef void (*Receive_packet_fn)(uint8_t* const, const size_t);
+typedef void (*Receive_packet_fn)(enum SystemBus, uint8_t* const, const size_t);
 
 /** @brief Initialize structure representing escaper
  *
@@ -91,11 +94,13 @@ void Escaper_start_decoder(Escaper* const self);
  * decode received data.
  *
  * @param[in]   self            Pointer to a structure representing Escaper
+ * @param[in]   bus_id          Name of the bus used in communication
  * @param[in]   buffer          Pointer to a buffer that holds received data
  * @param[in]   length          Length of received data buffer
  * @param[in]   receivePacket   Pointer to a function that handles packet reception
  */
 void Escaper_decode_packet(Escaper* const self,
+                           enum SystemBus bus_id,
                            uint8_t* buffer,
                            const size_t length,
                            Receive_packet_fn receivePacketFn);

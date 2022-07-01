@@ -57,6 +57,6 @@ const void* get_remote_device_configuration(const enum SystemDevice device_id);
  *
  * @param[in]    device_id     Identifier of device.
  */
-enum PacketizerCfg get_packetizer_configuration(const enum SystemDevice device_id);
+enum PacketizerCfg get_device_packetizer_cfg(const enum SystemDevice device_id);
 
 #endif

@@ -49,7 +49,7 @@ get_remote_device_configuration(const enum SystemDevice device_id)
 }
 
 enum PacketizerCfg
-get_packetizer_configuration(const enum SystemDevice device_id)
+get_device_packetizer_cfg(const enum SystemDevice device_id)
 {
     if((int)device_id > SYSTEM_DEVICE_NUMBER) {
         return PACKETIZER_DEFAULT;

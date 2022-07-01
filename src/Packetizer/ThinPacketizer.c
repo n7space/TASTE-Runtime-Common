@@ -28,9 +28,6 @@
 #include "PacketizerInternal.h"
 #include "SpacePacketInternal.h"
 
-#define THIN_PACKET_PRIMARY_HEADER_SIZE 4u
-
-
 void thinWritePacketId(uint8_t* const packetPointer, const Packetizer_PacketType packetType, const uint16_t source);
 uint16_t thinReadPacketId(const uint8_t* const packetPointer);
 void thinWritePacketDataLength(uint8_t* const packetPointer, const size_t dataSize);

@@ -29,12 +29,12 @@
 #include <ThinPacketizer.h>
 #include <DriverHelper.h>
 
-static Packetizer packetizer_data = { 0 };
-static enum PacketizerCfg selected_packetizer;
+static Packetizer packetizers_data[SYSTEM_BUSES_NUMBER] = { 0 };
 
 __attribute__((section(".sdramMemorySection"))) static uint8_t packetizer_buffer[BROKER_BUFFER_SIZE];
 extern driver_send_function bus_to_driver_send_function[SYSTEM_BUSES_NUMBER];
 extern void* bus_to_driver_private_data[SYSTEM_BUSES_NUMBER];
+extern enum PacketizerCfg bus_to_packetizer_cfg[SYSTEM_BUSES_NUMBER];
 extern deliver_function interface_to_deliver_function[INTERFACE_MAX_ID];
 extern PacketizerFunctions packetizers[PACKETIZER_MAX_ID];
 
@@ -42,18 +42,24 @@ extern void Broker_acquire_lock();
 extern void Broker_release_lock();
 
 void
-Broker_initialize(const enum SystemBus bus_id)
+Broker_initialize(enum SystemBus valid_buses[SYSTEM_BUSES_NUMBER])
 {
-    selected_packetizer = get_packetizer_configuration(bus_id);
-    packetizer_init_function packetizer_init = packetizers[selected_packetizer].init;
-    packetizer_init(&packetizer_data);
+    for(int i = 0; i < SYSTEM_BUSES_NUMBER; ++i) {
+        enum SystemBus bus_id = valid_buses[i];
+        if (bus_id == BUS_INVALID_ID) {
+            break;
+        }
+        
+        enum PacketizerCfg packetizer_name = bus_to_packetizer_cfg[bus_id];
+        packetizer_init_function packetizer_init = packetizers[packetizer_name].init;
+        packetizer_init(&packetizers_data[bus_id]);
+    }
 }
 
 void
 Broker_deliver_request(const enum RemoteInterface interface, const uint8_t* const data, const size_t length)
 {
     Broker_acquire_lock();
-    memcpy(packetizer_buffer + SPACE_PACKET_PRIMARY_HEADER_SIZE, data, length);
 
 #if defined BROKER_SEND_TELECOMMAND
     const Packetizer_PacketType packet_type = Packetizer_PacketType_Telecommand;
@@ -63,16 +69,25 @@ Broker_deliver_request(const enum RemoteInterface interface, const uint8_t* cons
     const Packetizer_PacketType packet_type = Packetizer_PacketType_Telemetry;
 #endif
 
-    packetizer_packetize_function packetizer_packetize = packetizers[selected_packetizer].packetize;
-    const size_t packet_size = packetizer_packetize(&packetizer_data,
+    const enum SystemBus bus_id = port_to_bus_map[interface];
+    enum PacketizerCfg packetizer_name = bus_to_packetizer_cfg[bus_id];
+
+    unsigned header_size = SPACE_PACKET_PRIMARY_HEADER_SIZE;
+    if(packetizer_name == PACKETIZER_THIN) {
+        header_size = THIN_PACKET_PRIMARY_HEADER_SIZE;
+    }
+
+    memcpy(packetizer_buffer + header_size, data, length);
+
+    packetizer_packetize_function packetizer_packetize = packetizers[packetizer_name].packetize;
+    const size_t packet_size = packetizer_packetize(&packetizers_data[bus_id],
                                                     packet_type,
                                                     0,
                                                     (uint16_t)interface,
                                                     packetizer_buffer,
-                                                    SPACE_PACKET_PRIMARY_HEADER_SIZE,
+                                                    header_size,
                                                     length);
 
-    const enum SystemBus bus_id = port_to_bus_map[interface];
     void* driver_private_data = bus_to_driver_private_data[bus_id];
     driver_send_function send_function = bus_to_driver_send_function[bus_id];
     send_function(driver_private_data, packetizer_buffer, packet_size);
@@ -81,7 +96,7 @@ Broker_deliver_request(const enum RemoteInterface interface, const uint8_t* cons
 }
 
 void
-Broker_receive_packet(uint8_t* const data, const size_t length)
+Broker_receive_packet(enum SystemBus bus_id, uint8_t* const data, const size_t length)
 {
     Broker_acquire_lock();
     uint16_t source;
@@ -92,15 +107,16 @@ Broker_receive_packet(uint8_t* const data, const size_t length)
 
 #if defined BROKER_EXPECT_TELECOMMAND
     const Packetizer_PacketType packet_type = Packetizer_PacketType_Telecommand;
-#elif defined BROKER_EXPECT_TELEMETRT
+#elif defined BROKER_EXPECT_TELEMETRY
     const Packetizer_PacketType packet_type = Packetizer_PacketType_Telemetry;
 #else
     const Packetizer_PacketType packet_type = Packetizer_PacketType_Telemetry;
 #endif
 
-    packetizer_depacketize_function packetizer_depacketize = packetizers[selected_packetizer].depacketize;
+    enum PacketizerCfg packetizer_name = bus_to_packetizer_cfg[bus_id];
+    packetizer_depacketize_function packetizer_depacketize = packetizers[packetizer_name].depacketize;
     const bool success = packetizer_depacketize(
-            &packetizer_data, packet_type, data, length, &source, &destination, &data_offset, &data_size, &error_code);
+            &packetizers_data[bus_id], packet_type, data, length, &source, &destination, &data_offset, &data_size, &error_code);
     if(!success) {
         Broker_release_lock();
         return;
