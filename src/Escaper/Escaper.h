@@ -94,7 +94,7 @@ void Escaper_start_decoder(Escaper* const self);
  * decode received data.
  *
  * @param[in]   self            Pointer to a structure representing Escaper
- * @param[in]   bus_id          Name of the bus used in communication
+ * @param[in]   bus_id          Identifier of the bus used in communication
  * @param[in]   buffer          Pointer to a buffer that holds received data
  * @param[in]   length          Length of received data buffer
  * @param[in]   receivePacket   Pointer to a function that handles packet reception

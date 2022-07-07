@@ -56,7 +56,7 @@
  *
  * Broker shall be initialized before starting system's threads.
  * 
- * @param[in]    valid_buses   An array of used buses in current broker.
+ * @param[in]    valid_buses   An array of busses used in the broker instance
  */
 void Broker_initialize(enum SystemBus valid_buses[SYSTEM_BUSES_NUMBER]);
 
@@ -76,7 +76,7 @@ void Broker_deliver_request(const enum RemoteInterface interface, const uint8_t*
  * This function shall be used to deliver a message (sporadic interface call)
  * from remote partition. This function is used by device drivers.
  *
- * @param[in]    bus_id         Name of bus used in communication
+ * @param[in]    bus_id         Identifier of the bus used in communication
  * @param[in]    data           Pointer to an array with the data
  * @param[in]    length         Size of the data
  */

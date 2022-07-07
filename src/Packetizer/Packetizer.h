@@ -116,8 +116,24 @@ bool Packetizer_depacketize(const Packetizer* const self,
                             size_t* const dataSize,
                             int32_t* const errorCode);
 
+/** @brief Function pointer to function responsible for initiolizing packetizer
+ *
+ * @param[in]   self    Pointer to a structure representing Packetizer
+ */
 typedef void (*packetizer_init_function)(Packetizer* const self);
 
+/** @brief Function pointer to function responsible for packetize packet
+ *
+ * @param[in,out]   self            Pointer to a structure representing Packetizer
+ * @param[in]       packetType      Type of packet that should be created
+ * @param[in]       source          Source application ID
+ * @param[in]       destination     Destination application ID
+ * @param[in,out]   packetPointer   Pointer to an array with the data
+ * @param[in]       dataOffset      Offset to where data starts
+ * @param[in]       dataSize        Size of the data
+ *
+ * @returns Packet size.
+ */
 typedef size_t (*packetizer_packetize_function)(Packetizer* const self,
                                                const Packetizer_PacketType packetType,
                                                const uint16_t source,
@@ -126,6 +142,20 @@ typedef size_t (*packetizer_packetize_function)(Packetizer* const self,
                                                const size_t dataOffset,
                                                const size_t dataSize);
 
+/** @brief Function pointer to function responsible for depacketize packet
+ *
+ * @param[in]   self            Pointer to a structure representing Packetizer
+ * @param[in]   packetType      Expected packet type
+ * @param[in]   packetPointer   Pointer to an array with the packet data
+ * @param[in]   packetSize      Size of the packet data
+ * @param[out]  source          Source application ID
+ * @param[out]  destination     Destination application ID
+ * @param[out]  dataOffset      Offset to where data starts
+ * @param[out]  dataSize        Size of the data
+ * @param[out]  errorCode       Error code if depacketization failed
+ *
+ * @returns  True is depacketization succeeded, false otherwise.
+ */
 typedef bool (*packetizer_depacketize_function)(const Packetizer* const self,
                                                 const Packetizer_PacketType packetType,
                                                 const uint8_t* const packetPointer,
@@ -137,6 +167,7 @@ typedef bool (*packetizer_depacketize_function)(const Packetizer* const self,
                                                 int32_t* const errorCode);
 
 typedef struct {
+    unsigned headerSize;
     packetizer_init_function init;
     packetizer_packetize_function packetize;
     packetizer_depacketize_function depacketize;

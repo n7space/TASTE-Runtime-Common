@@ -30,28 +30,47 @@
 #include <DriverHelper.h>
 
 static Packetizer packetizers_data[SYSTEM_BUSES_NUMBER] = { 0 };
+static PacketizerFunctions packetizers_functions[PACKETIZER_MAX_ID];
 
 __attribute__((section(".sdramMemorySection"))) static uint8_t packetizer_buffer[BROKER_BUFFER_SIZE];
 extern driver_send_function bus_to_driver_send_function[SYSTEM_BUSES_NUMBER];
 extern void* bus_to_driver_private_data[SYSTEM_BUSES_NUMBER];
 extern enum PacketizerCfg bus_to_packetizer_cfg[SYSTEM_BUSES_NUMBER];
 extern deliver_function interface_to_deliver_function[INTERFACE_MAX_ID];
-extern PacketizerFunctions packetizers[PACKETIZER_MAX_ID];
 
 extern void Broker_acquire_lock();
 extern void Broker_release_lock();
 
 void
+Broker_initialize_packetizers_functions()
+{
+    packetizers_functions[PACKETIZER_DEFAULT].headerSize = SPACE_PACKET_PRIMARY_HEADER_SIZE;
+    packetizers_functions[PACKETIZER_DEFAULT].init = &Packetizer_init;
+    packetizers_functions[PACKETIZER_DEFAULT].packetize = &Packetizer_packetize;
+    packetizers_functions[PACKETIZER_DEFAULT].depacketize = &Packetizer_depacketize;
+    packetizers_functions[PACKETIZER_CCSDS].headerSize = SPACE_PACKET_PRIMARY_HEADER_SIZE;
+    packetizers_functions[PACKETIZER_CCSDS].init = &Packetizer_init;
+    packetizers_functions[PACKETIZER_CCSDS].packetize = &Packetizer_packetize;
+    packetizers_functions[PACKETIZER_CCSDS].depacketize = &Packetizer_depacketize;
+    packetizers_functions[PACKETIZER_THIN].headerSize = THIN_PACKET_PRIMARY_HEADER_SIZE;
+    packetizers_functions[PACKETIZER_THIN].init = &ThinPacketizer_init;
+    packetizers_functions[PACKETIZER_THIN].packetize = &ThinPacketizer_packetize;
+    packetizers_functions[PACKETIZER_THIN].depacketize = &ThinPacketizer_depacketize;
+}
+
+void
 Broker_initialize(enum SystemBus valid_buses[SYSTEM_BUSES_NUMBER])
 {
+    Broker_initialize_packetizers_functions();
+
     for(int i = 0; i < SYSTEM_BUSES_NUMBER; ++i) {
         enum SystemBus bus_id = valid_buses[i];
         if (bus_id == BUS_INVALID_ID) {
             break;
         }
         
-        enum PacketizerCfg packetizer_name = bus_to_packetizer_cfg[bus_id];
-        packetizer_init_function packetizer_init = packetizers[packetizer_name].init;
+        enum PacketizerCfg packetizer_type = bus_to_packetizer_cfg[bus_id];
+        packetizer_init_function packetizer_init = packetizers_functions[packetizer_type].init;
         packetizer_init(&packetizers_data[bus_id]);
     }
 }
@@ -70,16 +89,11 @@ Broker_deliver_request(const enum RemoteInterface interface, const uint8_t* cons
 #endif
 
     const enum SystemBus bus_id = port_to_bus_map[interface];
-    enum PacketizerCfg packetizer_name = bus_to_packetizer_cfg[bus_id];
-
-    unsigned header_size = SPACE_PACKET_PRIMARY_HEADER_SIZE;
-    if(packetizer_name == PACKETIZER_THIN) {
-        header_size = THIN_PACKET_PRIMARY_HEADER_SIZE;
-    }
-
+    enum PacketizerCfg packetizer_type = bus_to_packetizer_cfg[bus_id];
+    unsigned header_size = packetizers_functions[packetizer_type].headerSize;
     memcpy(packetizer_buffer + header_size, data, length);
 
-    packetizer_packetize_function packetizer_packetize = packetizers[packetizer_name].packetize;
+    packetizer_packetize_function packetizer_packetize = packetizers_functions[packetizer_type].packetize;
     const size_t packet_size = packetizer_packetize(&packetizers_data[bus_id],
                                                     packet_type,
                                                     0,
@@ -113,8 +127,8 @@ Broker_receive_packet(enum SystemBus bus_id, uint8_t* const data, const size_t l
     const Packetizer_PacketType packet_type = Packetizer_PacketType_Telemetry;
 #endif
 
-    enum PacketizerCfg packetizer_name = bus_to_packetizer_cfg[bus_id];
-    packetizer_depacketize_function packetizer_depacketize = packetizers[packetizer_name].depacketize;
+    enum PacketizerCfg packetizer_type = bus_to_packetizer_cfg[bus_id];
+    packetizer_depacketize_function packetizer_depacketize = packetizers_functions[packetizer_type].depacketize;
     const bool success = packetizer_depacketize(
             &packetizers_data[bus_id], packet_type, data, length, &source, &destination, &data_offset, &data_size, &error_code);
     if(!success) {
