@@ -116,7 +116,7 @@ bool Packetizer_depacketize(const Packetizer* const self,
                             size_t* const dataSize,
                             int32_t* const errorCode);
 
-/** @brief Function pointer to function responsible for initiolizing packetizer
+/** @brief Function pointer to function responsible for initializing packetizer
  *
  * @param[in]   self    Pointer to a structure representing Packetizer
  */
@@ -166,11 +166,12 @@ typedef bool (*packetizer_depacketize_function)(const Packetizer* const self,
                                                 size_t* const dataSize,
                                                 int32_t* const errorCode);
 
+/// @brief  Structure representing packetizer configuration and functions
 typedef struct {
-    unsigned headerSize;
-    packetizer_init_function init;
-    packetizer_packetize_function packetize;
-    packetizer_depacketize_function depacketize;
+    unsigned headerSize;                         ///< Size of header field in packet
+    packetizer_init_function init;               ///< Pointer to function initializing the packetizer
+    packetizer_packetize_function packetize;     ///< Pointer to packetize function
+    packetizer_depacketize_function depacketize; ///< Pointer to depacketize function
 } PacketizerFunctions;
 
 #endif // PACKETIZER_H
