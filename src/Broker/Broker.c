@@ -65,13 +65,21 @@ Broker_initialize(enum SystemBus valid_buses[SYSTEM_BUSES_NUMBER])
 
     for(int i = 0; i < SYSTEM_BUSES_NUMBER; ++i) {
         enum SystemBus bus_id = valid_buses[i];
-        if (bus_id == BUS_INVALID_ID) {
+        if(bus_id == BUS_INVALID_ID) {
+            // Input array (valid_buses) is initialized with BUS_INVALID_ID. When we put actual values into the array,
+            // they are different than BUS_INVALID_ID. Therefore, when we meet first BUS_INVALID_ID, it means that
+            // there are no more actual values in the array.
             break;
         }
-        
-        enum PacketizerCfg packetizer_type = bus_to_packetizer_cfg[bus_id];
-        packetizer_init_function packetizer_init = packetizers_functions[packetizer_type].init;
-        packetizer_init(&packetizers_data[bus_id]);
+
+        if(bus_id < SYSTEM_BUSES_NUMBER) {
+            // It is a fix for gcc's false positive warning. The index 'bus_id' is retrieved from another array and
+            // gcc is not sure if the value is outside array 'bus_to_packetizer_cfg' bounds.
+            // https://gcc.gnu.org/bugzilla/show_bug.cgi?id=85398
+            enum PacketizerCfg packetizer_type = bus_to_packetizer_cfg[bus_id];
+            packetizer_init_function packetizer_init = packetizers_functions[packetizer_type].init;
+            packetizer_init(&packetizers_data[bus_id]);
+        }
     }
 }
 
