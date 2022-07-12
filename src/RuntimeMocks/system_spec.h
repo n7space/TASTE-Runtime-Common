@@ -61,5 +61,6 @@ enum SystemDevice
 
 extern enum SystemBus device_to_bus_map[SYSTEM_DEVICE_NUMBER];
 extern void* device_configurations[SYSTEM_DEVICE_NUMBER];
+extern const unsigned packetizer_configurations[SYSTEM_DEVICE_NUMBER];
 
 #endif
