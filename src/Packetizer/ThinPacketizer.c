@@ -36,6 +36,8 @@ size_t thinReadPacketDataLength(const uint8_t* const packetPointer);
 void
 ThinPacketizer_init(Packetizer* const self)
 {
+    // Unused in this implementation
+    (void)self;
 }
 
 size_t
@@ -113,6 +115,9 @@ ThinPacketizer_depacketize(const Packetizer* const self,
 void
 thinWritePacketId(uint8_t* const packetPointer, const Packetizer_PacketType packetType, const uint16_t destination)
 {
+    // Unused in this implementation
+    (void)packetType;
+
     packetPointer[0] |= (destination >> 8u) & 0xFF;
     packetPointer[1] |= destination & 0xFF;
 }
