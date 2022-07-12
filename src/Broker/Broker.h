@@ -55,7 +55,7 @@
 /** @brief Initialize Broker
  *
  * Broker shall be initialized before starting system's threads.
- * 
+ *
  * @param[in]    valid_buses   An array of busses used in the broker instance
  */
 void Broker_initialize(enum SystemBus valid_buses[SYSTEM_BUSES_NUMBER]);

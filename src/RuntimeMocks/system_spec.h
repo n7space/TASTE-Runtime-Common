@@ -40,7 +40,8 @@ enum SystemBus
     BUS_INVALID_ID,
 };
 
-enum PacketizerCfg {
+enum PacketizerCfg
+{
     PACKETIZER_DEFAULT,
     PACKETIZER_CCSDS,
     PACKETIZER_THIN,

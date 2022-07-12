@@ -42,12 +42,12 @@ ThinPacketizer_init(Packetizer* const self)
 
 size_t
 ThinPacketizer_packetize(Packetizer* const self,
-                        const Packetizer_PacketType packetType,
-                        const uint16_t source,
-                        const uint16_t destination,
-                        uint8_t* const packetPointer,
-                        const size_t dataOffset,
-                        const size_t dataSize)
+                         const Packetizer_PacketType packetType,
+                         const uint16_t source,
+                         const uint16_t destination,
+                         uint8_t* const packetPointer,
+                         const size_t dataOffset,
+                         const size_t dataSize)
 {
     // Unused in this implementation
     (void)self;

@@ -5,6 +5,7 @@ target_sources(EscaperTests
     PRIVATE     EscaperTests.cc)
 target_link_libraries(EscaperTests
     PRIVATE     TASTE::Escaper
+                TASTE::RuntimeMocks
     PUBLIC      CppUTest)
 target_compile_definitions(EscaperTests
     PUBLIC      CPPUTEST_MEM_LEAK_DETECTION_DISABLED)

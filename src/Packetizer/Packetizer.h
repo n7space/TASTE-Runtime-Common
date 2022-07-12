@@ -135,12 +135,12 @@ typedef void (*packetizer_init_function)(Packetizer* const self);
  * @returns Packet size.
  */
 typedef size_t (*packetizer_packetize_function)(Packetizer* const self,
-                                               const Packetizer_PacketType packetType,
-                                               const uint16_t source,
-                                               const uint16_t destination,
-                                               uint8_t* const packetPointer,
-                                               const size_t dataOffset,
-                                               const size_t dataSize);
+                                                const Packetizer_PacketType packetType,
+                                                const uint16_t source,
+                                                const uint16_t destination,
+                                                uint8_t* const packetPointer,
+                                                const size_t dataOffset,
+                                                const size_t dataSize);
 
 /** @brief Function pointer to function responsible for depacketize packet
  *
@@ -167,7 +167,8 @@ typedef bool (*packetizer_depacketize_function)(const Packetizer* const self,
                                                 int32_t* const errorCode);
 
 /// @brief  Structure representing packetizer configuration and functions
-typedef struct {
+typedef struct
+{
     unsigned headerSize;                         ///< Size of header field in packet
     packetizer_init_function init;               ///< Pointer to function initializing the packetizer
     packetizer_packetize_function packetize;     ///< Pointer to packetize function
