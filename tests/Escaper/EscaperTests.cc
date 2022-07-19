@@ -38,7 +38,7 @@ TEST_GROUP(Escaper)
                 &escaper, encodedPacketBuffer, ENCODED_PACKET_MAX_SIZE, decodedPacketBuffer, DECODED_PACKET_MAX_SIZE);
     };
 
-    static void ReceivePacketFn(uint8_t* const buffer, size_t length) {}
+    static void ReceivePacketFn(enum SystemBus bus_id, uint8_t* const buffer, size_t length) {}
 
     void VerifyEncoding(const Escaper* const escaper, size_t encodedLength)
     {
@@ -152,7 +152,7 @@ TEST(Escaper, parsingNoSpecialBytes1)
     size_t encodedLength;
     encodedLength = SetupParsing(&escaper, NO_SPECIAL_CHARS1, sizeof(NO_SPECIAL_CHARS1));
     Escaper_start_decoder(&escaper);
-    Escaper_decode_packet(&escaper, escaper.m_encoded_packet_buffer, encodedLength, ReceivePacketFn);
+    Escaper_decode_packet(&escaper, BUS_INVALID_ID, escaper.m_encoded_packet_buffer, encodedLength, ReceivePacketFn);
     VerifyParsing(&escaper, NO_SPECIAL_CHARS1, sizeof(NO_SPECIAL_CHARS1));
 };
 
@@ -161,7 +161,7 @@ TEST(Escaper, parsingNoSpecialBytes2)
     size_t encodedLength;
     encodedLength = SetupParsing(&escaper, NO_SPECIAL_CHARS2, sizeof(NO_SPECIAL_CHARS2));
     Escaper_start_decoder(&escaper);
-    Escaper_decode_packet(&escaper, escaper.m_encoded_packet_buffer, encodedLength, ReceivePacketFn);
+    Escaper_decode_packet(&escaper, BUS_INVALID_ID, escaper.m_encoded_packet_buffer, encodedLength, ReceivePacketFn);
     VerifyParsing(&escaper, NO_SPECIAL_CHARS2, sizeof(NO_SPECIAL_CHARS2));
 };
 
@@ -170,7 +170,7 @@ TEST(Escaper, parsingOnlySTART_BYTES)
     size_t encodedLength;
     encodedLength = SetupParsing(&escaper, ONLY_START_BYTES, sizeof(ONLY_START_BYTES));
     Escaper_start_decoder(&escaper);
-    Escaper_decode_packet(&escaper, escaper.m_encoded_packet_buffer, encodedLength, ReceivePacketFn);
+    Escaper_decode_packet(&escaper, BUS_INVALID_ID, escaper.m_encoded_packet_buffer, encodedLength, ReceivePacketFn);
     VerifyParsing(&escaper, ONLY_START_BYTES, sizeof(ONLY_START_BYTES));
 };
 
@@ -179,7 +179,7 @@ TEST(Escaper, parsingOnlySTOP_BYTES)
     size_t encodedLength;
     encodedLength = SetupParsing(&escaper, ONLY_STOP_BYTES, sizeof(ONLY_STOP_BYTES));
     Escaper_start_decoder(&escaper);
-    Escaper_decode_packet(&escaper, escaper.m_encoded_packet_buffer, encodedLength, ReceivePacketFn);
+    Escaper_decode_packet(&escaper, BUS_INVALID_ID, escaper.m_encoded_packet_buffer, encodedLength, ReceivePacketFn);
     VerifyParsing(&escaper, ONLY_STOP_BYTES, sizeof(ONLY_STOP_BYTES));
 };
 
@@ -188,7 +188,7 @@ TEST(Escaper, parsingOnlyEscape_BYTES)
     size_t encodedLength;
     encodedLength = SetupParsing(&escaper, ONLY_ESCAPE_BYTES, sizeof(ONLY_ESCAPE_BYTES));
     Escaper_start_decoder(&escaper);
-    Escaper_decode_packet(&escaper, escaper.m_encoded_packet_buffer, encodedLength, ReceivePacketFn);
+    Escaper_decode_packet(&escaper, BUS_INVALID_ID, escaper.m_encoded_packet_buffer, encodedLength, ReceivePacketFn);
     VerifyParsing(&escaper, ONLY_ESCAPE_BYTES, sizeof(ONLY_ESCAPE_BYTES));
 };
 
@@ -197,7 +197,7 @@ TEST(Escaper, parsingByteArray1)
     size_t encodedLength;
     encodedLength = SetupParsing(&escaper, TEST_ARRAY_1, sizeof(TEST_ARRAY_1));
     Escaper_start_decoder(&escaper);
-    Escaper_decode_packet(&escaper, escaper.m_encoded_packet_buffer, encodedLength, ReceivePacketFn);
+    Escaper_decode_packet(&escaper, BUS_INVALID_ID, escaper.m_encoded_packet_buffer, encodedLength, ReceivePacketFn);
     VerifyParsing(&escaper, TEST_ARRAY_1, sizeof(TEST_ARRAY_1));
 };
 
@@ -206,6 +206,6 @@ TEST(Escaper, parsingByteArray2)
     size_t encodedLength;
     encodedLength = SetupParsing(&escaper, TEST_ARRAY_2, sizeof(TEST_ARRAY_2));
     Escaper_start_decoder(&escaper);
-    Escaper_decode_packet(&escaper, escaper.m_encoded_packet_buffer, encodedLength, ReceivePacketFn);
+    Escaper_decode_packet(&escaper, BUS_INVALID_ID, escaper.m_encoded_packet_buffer, encodedLength, ReceivePacketFn);
     VerifyParsing(&escaper, TEST_ARRAY_2, sizeof(TEST_ARRAY_2));
 };

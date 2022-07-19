@@ -40,6 +40,14 @@ enum SystemBus
     BUS_INVALID_ID,
 };
 
+enum PacketizerCfg
+{
+    PACKETIZER_DEFAULT,
+    PACKETIZER_CCSDS,
+    PACKETIZER_THIN,
+    PACKETIZER_MAX_ID,
+};
+
 #define SYSTEM_BUSES_NUMBER (0 + 1)
 
 extern enum SystemBus port_to_bus_map[];
@@ -54,5 +62,6 @@ enum SystemDevice
 
 extern enum SystemBus device_to_bus_map[SYSTEM_DEVICE_NUMBER];
 extern void* device_configurations[SYSTEM_DEVICE_NUMBER];
+extern const unsigned packetizer_configurations[SYSTEM_DEVICE_NUMBER];
 
 #endif

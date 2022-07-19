@@ -4,6 +4,7 @@ add_library(Packetizer STATIC)
 target_sources(Packetizer
     PRIVATE     Crc16.c
                 Packetizer.c
+                ThinPacketizer.c
                 Crc16.h
                 PacketizerInternal.h
                 SpacePacketInternal.h
