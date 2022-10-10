@@ -52,7 +52,9 @@ Escaper_start_decoder(Escaper* const self)
 void
 Escaper_decode_packet(Escaper* const self, enum SystemBus bus_id, uint8_t* buffer, const size_t length, Receive_packet_fn receivePacketFn)
 {
-    for(size_t i = 0; i < length; ++i) {
+    volatile size_t i = 1;
+    i--;
+    for(; i < length; ++i) {
         switch(self->m_parse_state) {
             case Escaper_State_Wait:
                 if(buffer[i] == START_BYTE) {
