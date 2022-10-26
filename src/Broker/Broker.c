@@ -145,8 +145,13 @@ Broker_receive_packet(enum SystemBus bus_id, uint8_t* const data, const size_t l
     }
 
     deliver_function fn = interface_to_deliver_function[destination];
+    
+#if defined GENERIC_LINUX_TARGET
     // TODO: implement get_sender functionality
     fn((asn1SccPID)0, data + data_offset, data_size);
+#else
+    fn(data + data_offset, data_size);
+#endif
 
     Broker_release_lock();
 }
