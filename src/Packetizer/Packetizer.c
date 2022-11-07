@@ -237,6 +237,11 @@ writeSenderPid(uint8_t* const packetPointer, const size_t dataSize, const uint16
 #ifndef STANDARD_SPACE_PACKET
     packetPointer[SPACE_PACKET_PRIMARY_HEADER_SIZE + dataSize] = (senderPid >> 8) & 0xFF;
     packetPointer[SPACE_PACKET_PRIMARY_HEADER_SIZE + dataSize + 1] = senderPid & 0xFF;
+#else
+    // Unused in this implementation
+    (void)packetPointer;
+    (void)dataSize;
+    (void)senderPid;
 #endif
 }
 
