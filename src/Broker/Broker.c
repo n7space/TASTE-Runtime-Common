@@ -24,7 +24,6 @@
 
 #include <string.h>
 #include <stdint.h>
-#include <stdio.h>
 
 #include <Packetizer.h>
 #include <ThinPacketizer.h>
