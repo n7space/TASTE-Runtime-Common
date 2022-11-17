@@ -34,6 +34,9 @@
 /// @brief  Size of the packet CRC, in bytes
 #define SPACE_PACKET_ERROR_CONTROL_SIZE 2u
 
+/// @brief  Size of the packet sender PID, in bytes
+#define SPACE_PACKET_SENDER_PID_SIZE 2u
+
 #ifdef STANDARD_SPACE_PACKET
 /// @brief  Max size of the packet data, in bytes
 #define SPACE_PACKET_MAX_PACKET_DATA_SIZE 65536u // 2^16

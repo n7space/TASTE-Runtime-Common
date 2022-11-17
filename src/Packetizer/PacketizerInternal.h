@@ -30,6 +30,7 @@ void writePacketId(uint8_t* const packetPointer, const Packetizer_PacketType pac
 void writePacketSequenceControl(uint8_t* const packetPointer, const Packetizer* const packetizer);
 void writePacketDataLength(uint8_t* const packetPointer, const size_t dataSize);
 void writeCrc(uint8_t* const packetPointer, const size_t dataSize);
+void writeSenderPid(uint8_t* const packetPointer, const size_t dataSize, const uint16_t senderPid);
 size_t readPacketDataLength(const uint8_t* const packetPointer);
 
 #endif // PACKETIZER_INTERNAL_H

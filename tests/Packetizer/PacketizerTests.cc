@@ -90,6 +90,7 @@ TEST(Packetizer, DepacketizeTelemetry)
     packetData[packetSize - 2] = (crc >> 8u) & 0xFF;
     packetData[packetSize - 1] = crc & 0xFF;
 
+    uint16_t receivedSenderPid = 0;
     uint16_t receivedDestination = 0;
     size_t receivedDataOffset = 0;
     size_t receivedDataSize = 0;
@@ -99,7 +100,7 @@ TEST(Packetizer, DepacketizeTelemetry)
                                           Packetizer_PacketType_Telemetry,
                                           packetData,
                                           packetSize,
-                                          NULL,
+                                          &receivedSenderPid,
                                           &receivedDestination,
                                           &receivedDataOffset,
                                           &receivedDataSize,
@@ -108,6 +109,7 @@ TEST(Packetizer, DepacketizeTelemetry)
     CHECK_EQUAL(0, receivedErrorCode);
     CHECK(success);
 
+    CHECK_EQUAL(0, receivedSenderPid);
     CHECK_EQUAL(0x0505, receivedDestination);
     CHECK_EQUAL(SPACE_PACKET_PRIMARY_HEADER_SIZE, receivedDataOffset);
     CHECK_EQUAL(dataSize, receivedDataSize);
@@ -126,6 +128,7 @@ TEST(Packetizer, DepacketizeTelecommand)
     packetData[packetSize - 2] = (crc >> 8u) & 0xFF;
     packetData[packetSize - 1] = crc & 0xFF;
 
+    uint16_t receivedSenderPid = 0;
     uint16_t receivedDestination = 0;
     size_t receivedDataOffset = 0;
     size_t receivedDataSize = 0;
@@ -135,7 +138,7 @@ TEST(Packetizer, DepacketizeTelecommand)
                                           Packetizer_PacketType_Telecommand,
                                           packetData,
                                           packetSize,
-                                          NULL,
+                                          &receivedSenderPid,
                                           &receivedDestination,
                                           &receivedDataOffset,
                                           &receivedDataSize,
@@ -144,6 +147,7 @@ TEST(Packetizer, DepacketizeTelecommand)
     CHECK_EQUAL(0, receivedErrorCode);
     CHECK(success);
 
+    CHECK_EQUAL(0, receivedSenderPid);
     CHECK_EQUAL(0x606, receivedDestination);
     CHECK_EQUAL(SPACE_PACKET_PRIMARY_HEADER_SIZE, receivedDataOffset);
     CHECK_EQUAL(dataSize, receivedDataSize);

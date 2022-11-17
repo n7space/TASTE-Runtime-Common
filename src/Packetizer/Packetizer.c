@@ -46,7 +46,6 @@ Packetizer_packetize(Packetizer* const self,
                      const size_t dataSize)
 {
     // Unused in this implementation
-    (void)source;
     (void)dataOffset;
 
     assert(self->packetSequenceCount <= SPACE_PACKET_MAX_PACKET_SEQUENCE_COUNT);
@@ -63,6 +62,7 @@ Packetizer_packetize(Packetizer* const self,
     writePacketId(packetPointer, packetType, destination);
     writePacketSequenceControl(packetPointer, self);
     writePacketDataLength(packetPointer, dataSize);
+    writeSenderPid(packetPointer, dataSize, source);
     writeCrc(packetPointer, dataSize);
 
     // Increase sequence counter, it should wrap to zero after 2^14-1
@@ -71,7 +71,10 @@ Packetizer_packetize(Packetizer* const self,
         self->packetSequenceCount = 0; // Counter should wrap to zero
     }
 
+#ifdef STANDARD_SPACE_PACKET
     return SPACE_PACKET_PRIMARY_HEADER_SIZE + dataSize + SPACE_PACKET_ERROR_CONTROL_SIZE;
+#endif
+    return SPACE_PACKET_PRIMARY_HEADER_SIZE + dataSize + SPACE_PACKET_SENDER_PID_SIZE + SPACE_PACKET_ERROR_CONTROL_SIZE;
 }
 
 bool
@@ -87,7 +90,6 @@ Packetizer_depacketize(const Packetizer* const self,
 {
     // Unused in this implementation
     (void)self;
-    (void)source;
 
     assert(packetPointer != NULL);
     assert(dataOffset != NULL);
@@ -100,25 +102,44 @@ Packetizer_depacketize(const Packetizer* const self,
         return false;
     }
 #else
-    if(packetSize < SPACE_PACKET_PRIMARY_HEADER_SIZE + SPACE_PACKET_ERROR_CONTROL_SIZE) {
-        // the packet is smaller than expected (header + checksum)
+    if(packetSize < SPACE_PACKET_PRIMARY_HEADER_SIZE + SPACE_PACKET_SENDER_PID_SIZE + SPACE_PACKET_ERROR_CONTROL_SIZE) {
+        // the packet is smaller than expected (header + sender pid + checksum)
         return false;
     }
 #endif
 
     // Get and check data size
     const size_t receivedDataSize = readPacketDataLength(packetPointer);
+#ifdef STANDARD_SPACE_PACKET
     if(packetSize != SPACE_PACKET_PRIMARY_HEADER_SIZE + receivedDataSize + SPACE_PACKET_ERROR_CONTROL_SIZE) {
+#else
+    if(packetSize != SPACE_PACKET_PRIMARY_HEADER_SIZE + receivedDataSize + SPACE_PACKET_SENDER_PID_SIZE +
+        SPACE_PACKET_ERROR_CONTROL_SIZE) {
+#endif
         if(errorCode != NULL) {
             *errorCode = Packetizer_ErrorCode_IncorrectPacketSize;
         }
         return false;
     }
 
+    // Get sender PID
+#ifdef STANDARD_SPACE_PACKET
+    uint16_t senderPid = 0;
+#else
+    uint16_t senderPid = packetPointer[SPACE_PACKET_PRIMARY_HEADER_SIZE + receivedDataSize + 1]
+                           | (packetPointer[SPACE_PACKET_PRIMARY_HEADER_SIZE + receivedDataSize] << 8);
+#endif
+
     // Check if CRC matches
+#ifdef STANDARD_SPACE_PACKET
     uint16_t receivedCrc = packetPointer[SPACE_PACKET_PRIMARY_HEADER_SIZE + receivedDataSize + 1]
                            | (packetPointer[SPACE_PACKET_PRIMARY_HEADER_SIZE + receivedDataSize] << 8);
     uint16_t expectedCrc = calculateCrc16(packetPointer, packetSize - SPACE_PACKET_ERROR_CONTROL_SIZE);
+#else
+    uint16_t receivedCrc = packetPointer[SPACE_PACKET_PRIMARY_HEADER_SIZE + receivedDataSize + SPACE_PACKET_SENDER_PID_SIZE + 1]
+                           | (packetPointer[SPACE_PACKET_PRIMARY_HEADER_SIZE + receivedDataSize + SPACE_PACKET_SENDER_PID_SIZE] << 8);
+    uint16_t expectedCrc = calculateCrc16(packetPointer, packetSize - SPACE_PACKET_SENDER_PID_SIZE - SPACE_PACKET_ERROR_CONTROL_SIZE);
+#endif
 
     if(receivedCrc != expectedCrc) {
         if(errorCode != NULL) {
@@ -142,6 +163,7 @@ Packetizer_depacketize(const Packetizer* const self,
                    | (packetPointer[0] & SPACE_PACKET_APID_HIGH_BITS_MASK) << (8u - SPACE_PACKET_APID_HIGH_BITS_OFFSET);
     *dataOffset = SPACE_PACKET_PRIMARY_HEADER_SIZE;
     *dataSize = receivedDataSize;
+    *source = senderPid;
 
     return true;
 }
@@ -200,8 +222,27 @@ writeCrc(uint8_t* const packetPointer, const size_t dataSize)
 {
     uint16_t crc = calculateCrc16(packetPointer, SPACE_PACKET_PRIMARY_HEADER_SIZE + dataSize);
 
+#ifdef STANDARD_SPACE_PACKET
     packetPointer[SPACE_PACKET_PRIMARY_HEADER_SIZE + dataSize] = (crc >> 8) & 0xFF;
     packetPointer[SPACE_PACKET_PRIMARY_HEADER_SIZE + dataSize + 1] = crc & 0xFF;
+#else
+    packetPointer[SPACE_PACKET_PRIMARY_HEADER_SIZE + dataSize + SPACE_PACKET_SENDER_PID_SIZE] = (crc >> 8) & 0xFF;
+    packetPointer[SPACE_PACKET_PRIMARY_HEADER_SIZE + dataSize + SPACE_PACKET_SENDER_PID_SIZE + 1] = crc & 0xFF;
+#endif
+}
+
+void
+writeSenderPid(uint8_t* const packetPointer, const size_t dataSize, const uint16_t senderPid)
+{
+#ifndef STANDARD_SPACE_PACKET
+    packetPointer[SPACE_PACKET_PRIMARY_HEADER_SIZE + dataSize] = (senderPid >> 8) & 0xFF;
+    packetPointer[SPACE_PACKET_PRIMARY_HEADER_SIZE + dataSize + 1] = senderPid & 0xFF;
+#else
+    // Unused in this implementation
+    (void)packetPointer;
+    (void)dataSize;
+    (void)senderPid;
+#endif
 }
 
 size_t
