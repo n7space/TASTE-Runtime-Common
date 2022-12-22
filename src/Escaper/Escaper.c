@@ -50,7 +50,11 @@ Escaper_start_decoder(Escaper* const self)
 }
 
 void
-Escaper_decode_packet(Escaper* const self, enum SystemBus bus_id, uint8_t* buffer, const size_t length, Receive_packet_fn receivePacketFn)
+Escaper_decode_packet(Escaper* const self,
+                      enum SystemBus bus_id,
+                      uint8_t* buffer,
+                      const size_t length,
+                      Receive_packet_fn receivePacketFn)
 {
     for(size_t i = 0; i < length; ++i) {
         switch(self->m_parse_state) {

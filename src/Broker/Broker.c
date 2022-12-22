@@ -84,11 +84,13 @@ Broker_initialize(enum SystemBus valid_buses[SYSTEM_BUSES_NUMBER])
 }
 
 #if defined GENERIC_LINUX_TARGET || defined RTEMS6_TARGET
-void 
-Broker_deliver_request(const enum RemoteInterface interface, const asn1SccPID senderPid, 
-                            const uint8_t* const data, const size_t length)
+void
+Broker_deliver_request(const enum RemoteInterface interface,
+                       const asn1SccPID senderPid,
+                       const uint8_t* const data,
+                       const size_t length)
 #else
-void 
+void
 Broker_deliver_request(const enum RemoteInterface interface, const uint8_t* const data, const size_t length)
 #endif
 {
@@ -118,13 +120,8 @@ Broker_deliver_request(const enum RemoteInterface interface, const uint8_t* cons
                                                     header_size,
                                                     length);
 #else
-    const size_t packet_size = packetizer_packetize(&packetizers_data[bus_id],
-                                                    packet_type,
-                                                    0,
-                                                    (uint16_t)interface,
-                                                    packetizer_buffer,
-                                                    header_size,
-                                                    length);
+    const size_t packet_size = packetizer_packetize(
+            &packetizers_data[bus_id], packet_type, 0, (uint16_t)interface, packetizer_buffer, header_size, length);
 #endif
 
     void* driver_private_data = bus_to_driver_private_data[bus_id];
@@ -154,15 +151,22 @@ Broker_receive_packet(enum SystemBus bus_id, uint8_t* const data, const size_t l
 
     enum PacketizerCfg packetizer_type = bus_to_packetizer_cfg[bus_id];
     packetizer_depacketize_function packetizer_depacketize = packetizers_functions[packetizer_type].depacketize;
-    const bool success = packetizer_depacketize(
-            &packetizers_data[bus_id], packet_type, data, length, &source, &destination, &data_offset, &data_size, &error_code);
+    const bool success = packetizer_depacketize(&packetizers_data[bus_id],
+                                                packet_type,
+                                                data,
+                                                length,
+                                                &source,
+                                                &destination,
+                                                &data_offset,
+                                                &data_size,
+                                                &error_code);
     if(!success) {
         Broker_release_lock();
         return;
     }
 
     deliver_function fn = interface_to_deliver_function[destination];
-    
+
 #if defined GENERIC_LINUX_TARGET || defined RTEMS6_TARGET
     fn((asn1SccPID)source, data + data_offset, data_size);
 #else

@@ -55,8 +55,8 @@
     (SPACE_PACKET_PRIMARY_HEADER_SIZE + GENERIC_PARTITION_BUFFER_SIZE + SPACE_PACKET_ERROR_CONTROL_SIZE)
 #else
 #define BROKER_BUFFER_SIZE                                                                                             \
-    (SPACE_PACKET_PRIMARY_HEADER_SIZE + GENERIC_PARTITION_BUFFER_SIZE + SPACE_PACKET_SENDER_PID_SIZE +                 \
-     SPACE_PACKET_ERROR_CONTROL_SIZE)
+    (SPACE_PACKET_PRIMARY_HEADER_SIZE + GENERIC_PARTITION_BUFFER_SIZE + SPACE_PACKET_SENDER_PID_SIZE                   \
+     + SPACE_PACKET_ERROR_CONTROL_SIZE)
 #endif
 
 /** @brief Initialize Broker
@@ -78,8 +78,10 @@ void Broker_initialize(enum SystemBus valid_buses[SYSTEM_BUSES_NUMBER]);
  * @param[in]    length         Size of the data
  */
 #if defined GENERIC_LINUX_TARGET || defined RTEMS6_TARGET
-void Broker_deliver_request(const enum RemoteInterface interface, const asn1SccPID senderPid, 
-                            const uint8_t* const data, const size_t length);
+void Broker_deliver_request(const enum RemoteInterface interface,
+                            const asn1SccPID senderPid,
+                            const uint8_t* const data,
+                            const size_t length);
 #else
 void Broker_deliver_request(const enum RemoteInterface interface, const uint8_t* const data, const size_t length);
 #endif
