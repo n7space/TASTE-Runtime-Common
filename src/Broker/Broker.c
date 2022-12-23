@@ -27,6 +27,7 @@
 
 #include <Packetizer.h>
 #include <ThinPacketizer.h>
+#include <CCSDSPacketizer.h>
 #include <DriverHelper.h>
 
 static Packetizer packetizers_data[SYSTEM_BUSES_NUMBER] = { 0 };
@@ -49,9 +50,9 @@ Broker_initialize_packetizers_functions()
     packetizers_functions[PACKETIZER_DEFAULT].packetize = &Packetizer_packetize;
     packetizers_functions[PACKETIZER_DEFAULT].depacketize = &Packetizer_depacketize;
     packetizers_functions[PACKETIZER_CCSDS].headerSize = SPACE_PACKET_PRIMARY_HEADER_SIZE;
-    packetizers_functions[PACKETIZER_CCSDS].init = &Packetizer_init;
-    packetizers_functions[PACKETIZER_CCSDS].packetize = &Packetizer_packetize;
-    packetizers_functions[PACKETIZER_CCSDS].depacketize = &Packetizer_depacketize;
+    packetizers_functions[PACKETIZER_CCSDS].init = &CCSDS_Packetizer_init;
+    packetizers_functions[PACKETIZER_CCSDS].packetize = &CCSDS_Packetizer_packetize;
+    packetizers_functions[PACKETIZER_CCSDS].depacketize = &CCSDS_Packetizer_depacketize;
     packetizers_functions[PACKETIZER_THIN].headerSize = THIN_PACKET_PRIMARY_HEADER_SIZE;
     packetizers_functions[PACKETIZER_THIN].init = &ThinPacketizer_init;
     packetizers_functions[PACKETIZER_THIN].packetize = &ThinPacketizer_packetize;
@@ -118,10 +119,15 @@ Broker_deliver_request(const enum RemoteInterface interface, const uint8_t* cons
                                                     (uint16_t)interface,
                                                     packetizer_buffer,
                                                     header_size,
-                                                    length);
+                                                    length + SPACE_PACKET_ERROR_CONTROL_SIZE);
 #else
-    const size_t packet_size = packetizer_packetize(
-            &packetizers_data[bus_id], packet_type, 0, (uint16_t)interface, packetizer_buffer, header_size, length);
+    const size_t packet_size = packetizer_packetize(&packetizers_data[bus_id],
+                                                    packet_type,
+                                                    0,
+                                                    (uint16_t)interface,
+                                                    packetizer_buffer,
+                                                    header_size,
+                                                    length + SPACE_PACKET_ERROR_CONTROL_SIZE);
 #endif
 
     void* driver_private_data = bus_to_driver_private_data[bus_id];

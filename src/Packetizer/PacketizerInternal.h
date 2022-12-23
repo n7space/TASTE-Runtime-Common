@@ -33,4 +33,10 @@ void writeCrc(uint8_t* const packetPointer, const size_t dataSize);
 void writeSenderPid(uint8_t* const packetPointer, const size_t dataSize, const uint16_t senderPid);
 size_t readPacketDataLength(const uint8_t* const packetPointer);
 
+void writeCCSDSPacketId(uint8_t* const, const Packetizer_PacketType, const uint16_t);
+void writeCCSDSPacketSequenceControl(uint8_t* const, const Packetizer* const);
+void writeCCSDSPacketDataLength(uint8_t* const, const size_t);
+void writeChecksum(uint8_t* const, const size_t);
+size_t readCCSDSPacketDataLength(const uint8_t* const);
+
 #endif // PACKETIZER_INTERNAL_H
