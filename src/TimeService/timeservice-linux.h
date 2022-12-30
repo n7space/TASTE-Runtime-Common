@@ -1,3 +1,6 @@
+#ifndef TIMESERVICE_LINUX_H
+#define TIMESERVICE_LINUX_H
+
 #include "timeservice-utils.h"
 
 #include <time.h>
@@ -5,13 +8,14 @@
 #include <unistd.h>
 #include <string.h>
 
-#define INIT_TIMERS()
 #define ADJUST_ENDIANESS(x)
 
-uint64_t get_clock()
+static uint64_t get_time()
 {
    struct timespec time_spec;
    clock_gettime(CLOCK_REALTIME, &time_spec);
-   uint64_t nanoseconds = timespec_to_nanoseconds(&time_spec);
+   uint64_t nanoseconds = time_spec.tv_sec * NS_PER_SECOND + time_spec.tv_nsec;
    return nanoseconds;
 }
+
+#endif

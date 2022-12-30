@@ -26,19 +26,19 @@ typedef enum {
     STARTED = 2
 } ClockStatusEnum;
 
-static int cmp_memory(const unsigned char *str1, const unsigned char *str2, int len)
+static int cmp_memory(const unsigned char *string_1, const unsigned char *string_2, int length)
 {
     int charCompareStatus = 0;
-    while (len > 0)
+    while (length > 0)
     {
-        if (*str1 != *str2)
+        if (*string_1 != *string_2)
         {
-            charCompareStatus = (*str1 > *str2) ? 1 : -1;
+            charCompareStatus = (*string_1 > *string_2) ? 1 : -1;
             break;
         }
-        len--;
-        str1++;
-        str2++;
+        length--;
+        string_1++;
+        string_2++;
     }
     return charCompareStatus;
 }

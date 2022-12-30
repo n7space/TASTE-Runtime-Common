@@ -1,0 +1,6 @@
+{
+    "files.associations": {
+        "timeservice-linux.h": "c",
+        "timeservice-api.h": "c"
+    }
+}
