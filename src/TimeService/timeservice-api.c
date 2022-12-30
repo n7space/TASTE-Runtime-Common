@@ -12,7 +12,7 @@ void nanoseconds_to_cuc_timestamp(uint64_t nanoseconds, CUCTimestamp *timestamp)
 
    CUCTimestamp *timestamp_struct = (CUCTimestamp *)timestamp;
 
-   for (int i = 0; i < sizeof(timestamp_struct->tField); i++)
+   for (size_t i = 0; i < sizeof(timestamp_struct->tField); i++)
    {
       timestamp_struct->tField[i] = time[sizeof(timestamp_struct->tField) - 1 - i];
    }
@@ -56,17 +56,17 @@ void TimeService_ClockStatus(ClockStatusEnum *status)
 {
    *status = STOPPED;
 
-   uint64_t starting_time = get_clock();
+   uint64_t start_time = get_clock();
    delay(10000);
    uint64_t finish_time = get_clock();
 
-   if (finish_time != starting_time)
+   if (finish_time != start_time)
    {
       *status = STARTED;
    }
 }
 
-void TimeService_CucTimestamp(const uint64_t *nanoseconds, uint64_t *timestamp)
+void TimeService_CucTimestamp(const uint64_t *nanoseconds, CUCTimestamp *timestamp)
 {
     nanoseconds_to_cuc_timestamp(*nanoseconds, timestamp);
 }

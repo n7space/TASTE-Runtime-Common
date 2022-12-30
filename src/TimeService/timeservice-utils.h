@@ -26,11 +26,6 @@ typedef enum {
     STARTED = 2
 } ClockStatusEnum;
 
-static uint64_t timespec_to_nanoseconds(struct timespec *time)
-{
-   return time->tv_sec * NS_PER_SECOND + time->tv_nsec;
-}
-
 static int cmp_memory(const unsigned char *str1, const unsigned char *str2, int len)
 {
     int charCompareStatus = 0;
