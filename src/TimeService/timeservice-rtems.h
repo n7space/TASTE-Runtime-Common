@@ -6,6 +6,15 @@
 #define TICKS_PER_SECOND 1000000
 #define SCALER_VALUE 5
 
+static uint64_t get_time()
+{
+   uint64_t ticks = UINT64_MAX - ((uint64_t)(Timer_Apbctrl1_getCounterValue(&timer_2) + 1) << 32
+         | Timer_Apbctrl1_getCounterValue(&timer_1));
+   long double ticks_per_nanosecond = (long double)TICKS_PER_SECOND / NS_PER_SECOND;
+   uint64_t nanoseconds = ticks / ticks_per_nanosecond;
+   return nanoseconds;
+}
+
 static uint64_t swap_bytes(uint64_t x)
 {
   uint64_t result;
@@ -21,16 +30,9 @@ static uint64_t swap_bytes(uint64_t x)
   return result;
 }
 
-static uint64_t get_time()
+static uint64_t adjust_endianess(uint64_t x)
 {
-   uint64_t ticks = UINT64_MAX - ((uint64_t)(Timer_Apbctrl1_getCounterValue(&timer_2) + 1) << 32
-         | Timer_Apbctrl1_getCounterValue(&timer_1));
-   long double ticks_per_nanosecond = (long double)TICKS_PER_SECOND / NS_PER_SECOND;
-   uint64_t nanoseconds = ticks / ticks_per_nanosecond;
-   return nanoseconds;
+    return swap_bytes(x);
 }
-
-#define ADJUST_ENDIANESS(x) \
-   x = swap_bytes(x)
 
 #endif

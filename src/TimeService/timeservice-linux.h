@@ -8,14 +8,17 @@
 #include <unistd.h>
 #include <string.h>
 
-#define ADJUST_ENDIANESS(x)
-
 static uint64_t get_time()
 {
    struct timespec time_spec;
    clock_gettime(CLOCK_REALTIME, &time_spec);
    uint64_t nanoseconds = time_spec.tv_sec * NS_PER_SECOND + time_spec.tv_nsec;
    return nanoseconds;
+}
+
+static uint64_t adjust_endianess(uint64_t x)
+{
+    return x;
 }
 
 #endif

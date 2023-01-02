@@ -3,6 +3,7 @@ project(TimeService VERSION 1.0.0 LANGUAGES C)
 add_library(TimeService STATIC)
 target_sources(TimeService
     PRIVATE     timeservice-utils.h
+                timeservice-dummy.h
                 timeservice-linux.h
                 timeservice-rtems.h
                 timeservice-api.c
