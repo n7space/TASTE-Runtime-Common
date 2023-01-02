@@ -20,25 +20,25 @@ void timeservice_startup(void)
 
 void timeservice_PI_CfsTimestampCmp(const asn1SccCfsTimestamp *t1, const asn1SccCfsTimestamp *t2, asn1SccComparisonResult *result)
 {
-   TimeService_CfsTimestampCmp(&time_service, t1, t2, result);
+   *result = TimeService_CfsTimestampCmp(&time_service, t1, t2);
 }
 
 void timeservice_PI_ClockStatus(asn1SccClockStatusEnum *status)
 {
-   TimeService_ClockStatus(&time_service, status);
+   *status = TimeService_ClockStatus(&time_service);
 }
 
 void timeservice_PI_CucTimestampCmp(const asn1SccCucTimestamp *t1, const asn1SccCucTimestamp *t2, asn1SccComparisonResult *result)
 {
-   TimeService_CucTimestampCmp(&time_service, t1, t2, result);
+   *result = TimeService_CucTimestampCmp(&time_service, t1, t2);
 }
 
 void timeservice_PI_ObetTime(asn1SccULongInteger *nanoseconds)
 {
-   TimeService_ObetTime(&time_service, nanoseconds);
+   *nanoseconds = TimeService_ObetTime(&time_service);
 }
 
 void timeservice_PI_CucTimestamp(const asn1SccULongInteger *nanoseconds, asn1SccCucTimestamp *timestamp)
 {
-   TimeService_CucTimestamp(&time_service, nanoseconds, timestamp);
+   TimeService_CucTimestamp(&time_service, *nanoseconds, timestamp);
 }

@@ -20,18 +20,18 @@ typedef struct
 void TimeService_Startup(TimeService *const self);
 
 
-void TimeService_CfsTimestampCmp(TimeService *const self, const CfsTimestamp *timestamp1, const CfsTimestamp *timestamp2, int *result);
+int TimeService_CfsTimestampCmp(TimeService *const self, const CfsTimestamp *timestamp1, const CfsTimestamp *timestamp2);
 
 
-void TimeService_ClockStatus(TimeService *const self, ClockStatusEnum *status);
+ClockStatusEnum TimeService_ClockStatus(TimeService *const self);
 
 
-void TimeService_CucTimestamp(TimeService *const self, const uint64_t *nanoseconds, CUCTimestamp *timestamp);
+void TimeService_CucTimestamp(TimeService *const self, const uint64_t nanoseconds, CUCTimestamp *timestamp);
 
 
-void TimeService_CucTimestampCmp(TimeService *const self, const CUCTimestamp *timestamp1, const CUCTimestamp *timestamp2, int *result);
+int TimeService_CucTimestampCmp(TimeService *const self, const CUCTimestamp *timestamp1, const CUCTimestamp *timestamp2);
 
 
-void TimeService_ObetTime(TimeService *const self, uint64_t *nanoseconds);
+uint64_t TimeService_ObetTime(TimeService *const self);
 
 #endif
