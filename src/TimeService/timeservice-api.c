@@ -52,6 +52,7 @@ int TimeService_CfsTimestampCmp(TimeService *const self, const CfsTimestamp *tim
             return 0;
         }
     }
+    return 0;
 }
 
 
