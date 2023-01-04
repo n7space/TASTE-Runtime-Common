@@ -34,18 +34,18 @@ TEST(CCSDSPacketizer, CCSDSPacketizeTelemetry)
                                                  SPACE_PACKET_PRIMARY_HEADER_SIZE,
                                                  dataSize);
 
-    CHECK_EQUAL(packetSize, resultSize);
+    CHECK_EQUAL(packetSize, resultSize - SPACE_PACKET_ERROR_CONTROL_SIZE);
     CHECK_EQUAL(0b00001010, packetData[0]);
     CHECK_EQUAL(0b10101010, packetData[1]);
     CHECK_EQUAL(0b11000011, packetData[2]);
     CHECK_EQUAL(0b00011000, packetData[3]);
     CHECK_EQUAL(0b00000010, packetData[4]);
-    CHECK_EQUAL(0b00000011, packetData[5]);
+    CHECK_EQUAL(0b00000101, packetData[5]);
 
-    uint16_t expectedCrc = IsoChecksum_calculate(packetData, packetSize - SPACE_PACKET_ERROR_CONTROL_SIZE);
+    uint16_t expectedCrc = IsoChecksum_calculate(packetData, packetSize);
 
-    CHECK_EQUAL((expectedCrc >> 8u) & 0xFF, packetData[packetSize - 2]);
-    CHECK_EQUAL(expectedCrc & 0xFF, packetData[packetSize - 1]);
+    CHECK_EQUAL((expectedCrc >> 8u) & 0xFF, packetData[packetSize]);
+    CHECK_EQUAL(expectedCrc & 0xFF, packetData[packetSize + 1]);
 }
 
 TEST(CCSDSPacketizer, CCSDSPacketizeTelecommand)
@@ -63,18 +63,18 @@ TEST(CCSDSPacketizer, CCSDSPacketizeTelecommand)
                                                  SPACE_PACKET_PRIMARY_HEADER_SIZE,
                                                  dataSize);
 
-    CHECK_EQUAL(packetSize, resultSize);
+    CHECK_EQUAL(packetSize, resultSize - SPACE_PACKET_ERROR_CONTROL_SIZE);
     CHECK_EQUAL(0b00011101, packetData[0]);
     CHECK_EQUAL(0b01010101, packetData[1]);
     CHECK_EQUAL(0b11000011, packetData[2]);
     CHECK_EQUAL(0b00011001, packetData[3]);
     CHECK_EQUAL(0b00000010, packetData[4]);
-    CHECK_EQUAL(0b00000011, packetData[5]);
+    CHECK_EQUAL(0b00000101, packetData[5]);
 
-    uint16_t expectedCrc = IsoChecksum_calculate(packetData, packetSize - SPACE_PACKET_ERROR_CONTROL_SIZE);
+    uint16_t expectedCrc = IsoChecksum_calculate(packetData, packetSize);
 
-    CHECK_EQUAL((expectedCrc >> 8u) & 0xFF, packetData[packetSize - 2]);
-    CHECK_EQUAL(expectedCrc & 0xFF, packetData[packetSize - 1]);
+    CHECK_EQUAL((expectedCrc >> 8u) & 0xFF, packetData[packetSize]);
+    CHECK_EQUAL(expectedCrc & 0xFF, packetData[packetSize + 1]);
 }
 
 TEST(CCSDSPacketizer, CCSDSDepacketizeTelemetry)
@@ -110,7 +110,7 @@ TEST(CCSDSPacketizer, CCSDSDepacketizeTelemetry)
 
     CHECK_EQUAL(0x0505, receivedDestination);
     CHECK_EQUAL(SPACE_PACKET_PRIMARY_HEADER_SIZE, receivedDataOffset);
-    CHECK_EQUAL(dataSize, receivedDataSize);
+    CHECK_EQUAL(dataSize, receivedDataSize + SPACE_PACKET_ERROR_CONTROL_SIZE);
 }
 
 TEST(CCSDSPacketizer, CCSDSDepacketizeTelecommand)
@@ -146,7 +146,7 @@ TEST(CCSDSPacketizer, CCSDSDepacketizeTelecommand)
 
     CHECK_EQUAL(0x606, receivedDestination);
     CHECK_EQUAL(SPACE_PACKET_PRIMARY_HEADER_SIZE, receivedDataOffset);
-    CHECK_EQUAL(dataSize, receivedDataSize);
+    CHECK_EQUAL(dataSize, receivedDataSize + SPACE_PACKET_ERROR_CONTROL_SIZE);
 }
 
 TEST_GROUP(CCSDSPacketizerInternal)
@@ -211,7 +211,7 @@ TEST(CCSDSPacketizerInternal, CCSDSDataSizeMin)
     writeCCSDSPacketDataLength(packetData, 1);
 
     CHECK_EQUAL(0b00000000, packetData[4]);
-    CHECK_EQUAL(0b00000000, packetData[5]);
+    CHECK_EQUAL(0b00000010, packetData[5]);
 }
 
 TEST(CCSDSPacketizerInternal, CCSDSDataSizeStandard)
@@ -219,13 +219,13 @@ TEST(CCSDSPacketizerInternal, CCSDSDataSizeStandard)
     writeCCSDSPacketDataLength(packetData, 43606);
 
     CHECK_EQUAL(0b10101010, packetData[4]);
-    CHECK_EQUAL(0b01010101, packetData[5]);
+    CHECK_EQUAL(0b01010111, packetData[5]);
 }
 
 TEST(CCSDSPacketizerInternal, CCSDSDataSizeMax)
 {
     writeCCSDSPacketDataLength(packetData, SPACE_PACKET_MAX_PACKET_DATA_SIZE);
 
-    CHECK_EQUAL(0b11111111, packetData[4]);
-    CHECK_EQUAL(0b11111111, packetData[5]);
+    CHECK_EQUAL(0b00000000, packetData[4]);
+    CHECK_EQUAL(0b00000001, packetData[5]);
 }

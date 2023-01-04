@@ -26,10 +26,6 @@
 #include <stdio.h>
 #include <string.h>
 
-#ifdef FORCE_APIDS
-#include <apids_translator.h>
-#endif
-
 #include "IsoChecksum.h"
 #include "PacketizerInternal.h"
 #include "SpacePacketInternal.h"
@@ -57,23 +53,16 @@ CCSDS_Packetizer_packetize(Packetizer* const self,
     assert(destination <= SPACE_PACKET_MAX_APID);
     assert(packetPointer != NULL);
     assert(dataOffset == SPACE_PACKET_PRIMARY_HEADER_SIZE);
-#ifdef STANDARD_SPACE_PACKET
     assert(dataSize >= 1);
-#endif
     assert(dataSize < SPACE_PACKET_MAX_PACKET_DATA_SIZE);
-
-#ifdef FORCE_APIDS
-    const uint16_t rawDestination = translate_apid_to_send(destination);
-#else
     const uint16_t rawDestination = destination;
-#endif
     assert(rawDestination <= SPACE_PACKET_MAX_APID);
 
     memset(packetPointer, 0, SPACE_PACKET_PRIMARY_HEADER_SIZE);
 
     writeCCSDSPacketId(packetPointer, packetType, rawDestination);
     writeCCSDSPacketSequenceControl(packetPointer, self);
-    writePacketDataLength(packetPointer, dataSize);
+    writeCCSDSPacketDataLength(packetPointer, dataSize);
     writeChecksum(packetPointer, dataSize);
 
     // Increase sequence counter, it should wrap to zero after 2^14-1
@@ -82,6 +71,7 @@ CCSDS_Packetizer_packetize(Packetizer* const self,
         self->packetSequenceCount = 0; // Counter should wrap to zero
     }
 
+    // Add SPACE_PACKET_ERROR_CONTROL_SIZE here, because checksum is a part of payload
     return SPACE_PACKET_PRIMARY_HEADER_SIZE + dataSize + SPACE_PACKET_ERROR_CONTROL_SIZE;
 }
 
@@ -105,21 +95,13 @@ CCSDS_Packetizer_depacketize(const Packetizer* const self,
     assert(dataSize != NULL);
     assert(destination != NULL);
 
-#ifdef STANDARD_SPACE_PACKET
     if(packetSize <= SPACE_PACKET_PRIMARY_HEADER_SIZE + SPACE_PACKET_ERROR_CONTROL_SIZE) {
         // the packet is smaller than expected (header + 1 byte of payload + checksum)
         return false;
     }
-#else
-    if(packetSize < SPACE_PACKET_PRIMARY_HEADER_SIZE + SPACE_PACKET_ERROR_CONTROL_SIZE) {
-        // the packet is smaller than expected (header + checksum)
-        return false;
-    }
-#endif
 
     // Get and check data size
     const size_t receivedDataSize = readCCSDSPacketDataLength(packetPointer);
-    // Do not add SPACE_PACKET_ERROR_CONTROL_SIZE here, because checksum is a part of payload
     if(packetSize != SPACE_PACKET_PRIMARY_HEADER_SIZE + receivedDataSize) {
         if(errorCode != NULL) {
             *errorCode = CCSDS_Packetizer_ErrorCode_IncorrectPacketSize;
@@ -153,10 +135,6 @@ CCSDS_Packetizer_depacketize(const Packetizer* const self,
 
     // Save the results
     *destination = packetPointer[1] | (packetPointer[0] & CCSDS_SPACE_PACKET_APID_HIGH_BITS_MASK) << 8u;
-#ifdef FORCE_APIDS
-    *destination = translate_received_apid(*destination);
-#endif
-
     *dataOffset = SPACE_PACKET_PRIMARY_HEADER_SIZE;
     *dataSize = receivedDataSize - SPACE_PACKET_ERROR_CONTROL_SIZE;
 
@@ -193,22 +171,8 @@ void
 writeCCSDSPacketDataLength(uint8_t* const packetPointer, const size_t dataSize)
 {
     const size_t payloadSize = dataSize + SPACE_PACKET_ERROR_CONTROL_SIZE;
-#ifdef STANDARD_SPACE_PACKET
     packetPointer[4] = ((payloadSize - 1) >> 8) & 0xFF;
     packetPointer[5] = (payloadSize - 1) & 0xFF;
-#else
-    if(payloadSize != 0) {
-        packetPointer[4] = ((payloadSize - 1) >> 24) & 0xFF;
-        packetPointer[5] = ((payloadSize - 1) >> 16) & 0xFF;
-        packetPointer[6] = ((payloadSize - 1) >> 8) & 0xFF;
-        packetPointer[7] = (payloadSize - 1) & 0xFF;
-    } else {
-        packetPointer[4] = 0xFF;
-        packetPointer[5] = 0xFF;
-        packetPointer[6] = 0xFF;
-        packetPointer[7] = 0xFF;
-    }
-#endif
 }
 
 void
@@ -224,15 +188,5 @@ writeChecksum(uint8_t* const packetPointer, const size_t dataSize)
 size_t
 readCCSDSPacketDataLength(const uint8_t* const packetPointer)
 {
-#ifdef STANDARD_SPACE_PACKET
     return ((size_t)(packetPointer[4] << 8u) | packetPointer[5]) + 1;
-#else
-    const uint32_t packetSize =
-            ((size_t)(packetPointer[4] << 24u) | packetPointer[5] << 16u | packetPointer[6] << 8u | packetPointer[7]);
-    const uint32_t zeroPacketSize = 0xffffffff;
-    if(packetSize == zeroPacketSize) {
-        return 0;
-    }
-    return (size_t)packetSize + 1;
-#endif
 }

@@ -119,15 +119,10 @@ Broker_deliver_request(const enum RemoteInterface interface, const uint8_t* cons
                                                     (uint16_t)interface,
                                                     packetizer_buffer,
                                                     header_size,
-                                                    length + SPACE_PACKET_ERROR_CONTROL_SIZE);
+                                                    length);
 #else
-    const size_t packet_size = packetizer_packetize(&packetizers_data[bus_id],
-                                                    packet_type,
-                                                    0,
-                                                    (uint16_t)interface,
-                                                    packetizer_buffer,
-                                                    header_size,
-                                                    length + SPACE_PACKET_ERROR_CONTROL_SIZE);
+    const size_t packet_size = packetizer_packetize(
+            &packetizers_data[bus_id], packet_type, 0, (uint16_t)interface, packetizer_buffer, header_size, length);
 #endif
 
     void* driver_private_data = bus_to_driver_private_data[bus_id];
