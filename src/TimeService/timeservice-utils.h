@@ -4,6 +4,9 @@
 #include <time.h>
 #include <stdint.h>
 
+#define true 1
+#define false 0
+
 #define NS_PER_SECOND (1000000000)
 
 #define CUC_TIME_ARRAY_SIZE 7
@@ -22,8 +25,7 @@ typedef struct CfsTimestamp
 
 typedef enum {
     UNAVAILABLE = 0,
-    STOPPED = 1,
-    STARTED = 2
+    AVAILABLE = 1
 } ClockStatusEnum;
 
 static int cmp_memory(const unsigned char *string_1, const unsigned char *string_2, int length)
@@ -41,11 +43,6 @@ static int cmp_memory(const unsigned char *string_1, const unsigned char *string
         string_2++;
     }
     return charCompareStatus;
-}
-
-static void delay(uint64_t loop_cycles)
-{
-    for (volatile uint64_t i = 0; i < loop_cycles; i++);
 }
 
 #endif

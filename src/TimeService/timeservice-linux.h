@@ -21,4 +21,9 @@ static uint64_t adjust_endianess(uint64_t x)
     return x;
 }
 
+static int check_clock_available()
+{
+    return true;
+}
+
 #endif

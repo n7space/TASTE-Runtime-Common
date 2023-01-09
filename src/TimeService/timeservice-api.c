@@ -61,17 +61,11 @@ ClockStatusEnum TimeService_ClockStatus(TimeService *const self)
     // Unused in this implementation
     (void)self;
 
-    ClockStatusEnum status = STOPPED;
-
-    uint64_t start_time = get_time();
-    delay(10000);
-    uint64_t finish_time = get_time();
-
-    if (finish_time != start_time)
-    {
-        status = STARTED;
+    if (check_clock_available()) {
+        return AVAILABLE;
+    } else {
+        return UNAVAILABLE;
     }
-    return status;
 }
 
 void TimeService_CucTimestamp(TimeService *const self, uint64_t nanoseconds, CUCTimestamp *timestamp)

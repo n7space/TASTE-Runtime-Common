@@ -35,4 +35,12 @@ static uint64_t adjust_endianess(uint64_t x)
     return swap_bytes(x);
 }
 
+static int check_clock_available()
+{
+    if (Timer_Apbctrl1_getCounterValue(&timer_1) && Timer_Apbctrl1_getCounterValue(&timer_2)) {
+      return true;
+    }
+    return false;
+}
+
 #endif
