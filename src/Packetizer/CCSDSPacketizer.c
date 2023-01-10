@@ -58,11 +58,14 @@ CCSDS_Packetizer_packetize(Packetizer* const self,
     const uint16_t rawDestination = destination;
     assert(rawDestination <= SPACE_PACKET_MAX_APID);
 
+    // Add SPACE_PACKET_ERROR_CONTROL_SIZE here, because checksum is a part of payload
+    const size_t dataSizeWithErr = dataSize + SPACE_PACKET_ERROR_CONTROL_SIZE;
+
     memset(packetPointer, 0, SPACE_PACKET_PRIMARY_HEADER_SIZE);
 
     writeCCSDSPacketId(packetPointer, packetType, rawDestination);
     writeCCSDSPacketSequenceControl(packetPointer, self);
-    writeCCSDSPacketDataLength(packetPointer, dataSize);
+    writeCCSDSPacketDataLength(packetPointer, dataSizeWithErr);
     writeChecksum(packetPointer, dataSize);
 
     // Increase sequence counter, it should wrap to zero after 2^14-1
@@ -71,8 +74,8 @@ CCSDS_Packetizer_packetize(Packetizer* const self,
         self->packetSequenceCount = 0; // Counter should wrap to zero
     }
 
-    // Add SPACE_PACKET_ERROR_CONTROL_SIZE here, because checksum is a part of payload
-    return SPACE_PACKET_PRIMARY_HEADER_SIZE + dataSize + SPACE_PACKET_ERROR_CONTROL_SIZE;
+    // return full packetSize (header + dataSizeWithErr(dataSize + SPACE_PACKET_ERROR_CONTROL_SIZE))
+    return SPACE_PACKET_PRIMARY_HEADER_SIZE + dataSizeWithErr;
 }
 
 bool
@@ -170,9 +173,8 @@ writeCCSDSPacketSequenceControl(uint8_t* const packetPointer, const Packetizer* 
 void
 writeCCSDSPacketDataLength(uint8_t* const packetPointer, const size_t dataSize)
 {
-    const size_t payloadSize = dataSize + SPACE_PACKET_ERROR_CONTROL_SIZE;
-    packetPointer[4] = ((payloadSize - 1) >> 8) & 0xFF;
-    packetPointer[5] = (payloadSize - 1) & 0xFF;
+    packetPointer[4] = ((dataSize - 1) >> 8) & 0xFF;
+    packetPointer[5] = (dataSize - 1) & 0xFF;
 }
 
 void
