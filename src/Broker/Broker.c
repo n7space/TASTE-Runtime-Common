@@ -50,9 +50,13 @@ Broker_initialize_packetizers_functions()
     packetizers_functions[PACKETIZER_DEFAULT].packetize = &Packetizer_packetize;
     packetizers_functions[PACKETIZER_DEFAULT].depacketize = &Packetizer_depacketize;
     packetizers_functions[PACKETIZER_CCSDS].headerSize = SPACE_PACKET_PRIMARY_HEADER_SIZE;
-    packetizers_functions[PACKETIZER_CCSDS].init = &CCSDS_Packetizer_init;
-    packetizers_functions[PACKETIZER_CCSDS].packetize = &CCSDS_Packetizer_packetize;
-    packetizers_functions[PACKETIZER_CCSDS].depacketize = &CCSDS_Packetizer_depacketize;
+    packetizers_functions[PACKETIZER_CCSDS].init = &Packetizer_init;
+    packetizers_functions[PACKETIZER_CCSDS].packetize = &Packetizer_packetize;
+    packetizers_functions[PACKETIZER_CCSDS].depacketize = &Packetizer_depacketize;
+    packetizers_functions[PACKETIZER_STRICT_CCSDS].headerSize = SPACE_PACKET_PRIMARY_HEADER_SIZE;
+    packetizers_functions[PACKETIZER_STRICT_CCSDS].init = &CCSDS_Packetizer_init;
+    packetizers_functions[PACKETIZER_STRICT_CCSDS].packetize = &CCSDS_Packetizer_packetize;
+    packetizers_functions[PACKETIZER_STRICT_CCSDS].depacketize = &CCSDS_Packetizer_depacketize;
     packetizers_functions[PACKETIZER_THIN].headerSize = THIN_PACKET_PRIMARY_HEADER_SIZE;
     packetizers_functions[PACKETIZER_THIN].init = &ThinPacketizer_init;
     packetizers_functions[PACKETIZER_THIN].packetize = &ThinPacketizer_packetize;
