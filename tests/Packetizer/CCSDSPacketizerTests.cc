@@ -149,6 +149,48 @@ TEST(CCSDSPacketizer, CCSDSDepacketizeTelecommand)
     CHECK_EQUAL(dataSize, receivedDataSize);
 }
 
+TEST(CCSDSPacketizer, CCSDSPacketizeDepacketizeTelecommand)
+{
+    const uint16_t destination = 1365;
+    const uint16_t sequenceCount = 793;
+    Packetizer packetizer = { sequenceCount };
+
+    auto packetizeResultSize = CCSDS_Packetizer_packetize(&packetizer,
+                                                          Packetizer_PacketType_Telecommand,
+                                                          0,
+                                                          destination,
+                                                          packetData,
+                                                          SPACE_PACKET_PRIMARY_HEADER_SIZE,
+                                                          dataSize);
+
+    uint16_t receivedDestination = 0;
+    size_t receivedDataOffset = 0;
+    size_t receivedDataSize = 0;
+    int32_t receivedErrorCode = 0;
+
+    auto depacketizeSuccess = CCSDS_Packetizer_depacketize(&packetizer,
+                                                           Packetizer_PacketType_Telecommand,
+                                                           packetData,
+                                                           packetSize,
+                                                           NULL,
+                                                           &receivedDestination,
+                                                           &receivedDataOffset,
+                                                           &receivedDataSize,
+                                                           &receivedErrorCode);
+
+    CHECK(depacketizeSuccess);
+    CHECK_EQUAL(packetSize, packetizeResultSize);
+    CHECK_EQUAL(SPACE_PACKET_PRIMARY_HEADER_SIZE, receivedDataOffset);
+    CHECK_EQUAL(0, receivedErrorCode);
+    CHECK_EQUAL(dataSize, receivedDataSize);
+    CHECK_EQUAL(destination, receivedDestination);
+
+    uint16_t expectedCrc = IsoChecksum_calculate(packetData, packetSize - SPACE_PACKET_ERROR_CONTROL_SIZE);
+
+    CHECK_EQUAL((expectedCrc >> 8u) & 0xFF, packetData[packetSize - 2]);
+    CHECK_EQUAL(expectedCrc & 0xFF, packetData[packetSize - 1]);
+}
+
 TEST_GROUP(CCSDSPacketizerInternal)
 {
     uint8_t packetData[SPACE_PACKET_PRIMARY_HEADER_SIZE];
