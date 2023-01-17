@@ -9,7 +9,8 @@ target_link_libraries(RunAllTests
     PRIVATE     common_build_options
                 CppUTest
                 PacketizerTests
-                EscaperTests)
+                EscaperTests
+				BrokerTests)
 
 set_target_properties(RunAllTests PROPERTIES
     RUNTIME_OUTPUT_DIRECTORY ${TESTS_OUTPUT_PATH})
@@ -20,3 +21,4 @@ add_test(RunAllTests ${TESTS_OUTPUT_PATH}/RunAllTests)
 
 add_subdirectory(Packetizer)
 add_subdirectory(Escaper)
+add_subdirectory(Broker)

@@ -23,7 +23,6 @@
 #include "Packetizer.h"
 
 #include <assert.h>
-#include <stdio.h>
 #include <string.h>
 
 #include "Crc16.h"
@@ -99,11 +98,17 @@ Packetizer_depacketize(const Packetizer* const self,
 #ifdef STANDARD_SPACE_PACKET
     if(packetSize <= SPACE_PACKET_PRIMARY_HEADER_SIZE + SPACE_PACKET_ERROR_CONTROL_SIZE) {
         // the packet is smaller than expected (header + 1 byte of payload + checksum)
+        if(errorCode != NULL) {
+            *errorCode = Packetizer_ErrorCode_PacketTooSmall;
+        }
         return false;
     }
 #else
     if(packetSize < SPACE_PACKET_PRIMARY_HEADER_SIZE + SPACE_PACKET_SENDER_PID_SIZE + SPACE_PACKET_ERROR_CONTROL_SIZE) {
         // the packet is smaller than expected (header + sender pid + checksum)
+        if(errorCode != NULL) {
+            *errorCode = Packetizer_ErrorCode_PacketTooSmall;
+        }
         return false;
     }
 #endif

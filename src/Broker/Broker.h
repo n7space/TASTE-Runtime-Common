@@ -35,6 +35,7 @@
  *
  * The Runtime shall provide following global variables:
  * - driver_send_function bus_to_driver_send_function[SYSTEM_BUSES_NUMBER];
+ * - enum PacketizerCfg bus_to_packetizer_cfg[SYSTEM_BUSES_NUMBER];
  * - void* bus_to_driver_private_data[SYSTEM_BUSES_NUMBER];
  * - deliver_function interface_to_deliver_function[INTERFACE_MAX_ID];
  *
@@ -66,6 +67,7 @@ typedef enum
     Broker_ErrorType_IncorrectCrc16,
     Broker_ErrorType_IncorrectPacketType,
     Broker_ErrorType_IncorrectPacketSize,
+    Broker_ErrorType_PacketTooSmall,
 } Broker_ErrorType;
 
 /** @brief Broker error detected callback.

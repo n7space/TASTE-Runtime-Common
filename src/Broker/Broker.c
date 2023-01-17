@@ -54,6 +54,9 @@ Broker_packetizer_error_to_broker_error(int32_t packetizer_error)
     if(packetizer_error == Packetizer_ErrorCode_IncorrectPacketSize) {
         return Broker_ErrorType_IncorrectPacketSize;
     }
+    if(packetizer_error == Packetizer_ErrorCode_PacketTooSmall) {
+        return Broker_ErrorType_PacketTooSmall;
+    }
     return Broker_ErrorType_UnknownError;
 }
 
