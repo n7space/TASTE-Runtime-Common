@@ -179,7 +179,7 @@ Broker_receive_packet(enum SystemBus bus_id, uint8_t* const data, const size_t l
     if(!success) {
         if(broker_error_callback != NULL) {
             Broker_ErrorType broker_error = Broker_packetizer_error_to_broker_error(error_code);
-            broker_error_callback(broker_error);
+            broker_error_callback(broker_error, data, length);
         }
         Broker_release_lock();
         return;
@@ -197,7 +197,7 @@ Broker_receive_packet(enum SystemBus bus_id, uint8_t* const data, const size_t l
 }
 
 void
-Broker_reigster_error_callback(broker_error_detected callback)
+Broker_register_error_callback(broker_error_detected callback)
 {
     broker_error_callback = callback;
 }

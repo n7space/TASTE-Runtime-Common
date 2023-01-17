@@ -59,6 +59,7 @@
      + SPACE_PACKET_ERROR_CONTROL_SIZE)
 #endif
 
+/// @brief All possible broker errors enumerated
 typedef enum
 {
     Broker_ErrorType_UnknownError,
@@ -66,6 +67,12 @@ typedef enum
     Broker_ErrorType_IncorrectPacketType,
     Broker_ErrorType_IncorrectPacketSize,
 } Broker_ErrorType;
+
+/** @brief Broker error detected callback.
+ *
+ * Callback called by broker when the error is detected.
+ */
+typedef void (*broker_error_detected)(const Broker_ErrorType, uint8_t* const, const size_t);
 
 /** @brief Initialize Broker
  *
@@ -105,9 +112,15 @@ void Broker_deliver_request(const enum RemoteInterface interface, const uint8_t*
  */
 void Broker_receive_packet(enum SystemBus bus_id, uint8_t* const data, const size_t length);
 
-typedef void (*broker_error_detected)(const Broker_ErrorType);
-
-void Broker_reigster_error_callback(broker_error_detected callback);
+/** @brief Register broker error callback
+ *
+ * This function registers callback, which will be called by broker in case of errors.
+ * If this function is called more than once, then the latest call overwrites callback
+ * from previous call.
+ *
+ * @param callback pointer to the callback function
+ */
+void Broker_register_error_callback(broker_error_detected callback);
 
 /** @brief The signature of driver deliver function
  *
