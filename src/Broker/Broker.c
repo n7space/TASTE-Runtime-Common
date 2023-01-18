@@ -31,6 +31,7 @@
 
 static Packetizer packetizers_data[SYSTEM_BUSES_NUMBER] = { 0 };
 static PacketizerFunctions packetizers_functions[PACKETIZER_MAX_ID];
+static broker_error_detected broker_error_callback = NULL;
 
 __attribute__((section(".sdramMemorySection"))) static uint8_t packetizer_buffer[BROKER_BUFFER_SIZE];
 extern driver_send_function bus_to_driver_send_function[SYSTEM_BUSES_NUMBER];
@@ -40,6 +41,24 @@ extern deliver_function interface_to_deliver_function[INTERFACE_MAX_ID];
 
 extern void Broker_acquire_lock();
 extern void Broker_release_lock();
+
+static Broker_ErrorType
+Broker_packetizer_error_to_broker_error(int32_t packetizer_error)
+{
+    if(packetizer_error == Packetizer_ErrorCode_IncorrectCrc16) {
+        return Broker_ErrorType_IncorrectCrc16;
+    }
+    if(packetizer_error == Packetizer_ErrorCode_IncorrectPacketType) {
+        return Broker_ErrorType_IncorrectPacketType;
+    }
+    if(packetizer_error == Packetizer_ErrorCode_IncorrectPacketSize) {
+        return Broker_ErrorType_IncorrectPacketSize;
+    }
+    if(packetizer_error == Packetizer_ErrorCode_PacketTooSmall) {
+        return Broker_ErrorType_PacketTooSmall;
+    }
+    return Broker_ErrorType_UnknownError;
+}
 
 void
 Broker_initialize_packetizers_functions()
@@ -84,11 +103,13 @@ Broker_initialize(enum SystemBus valid_buses[SYSTEM_BUSES_NUMBER])
 }
 
 #if defined GENERIC_LINUX_TARGET || defined RTEMS6_TARGET
-void 
-Broker_deliver_request(const enum RemoteInterface interface, const asn1SccPID senderPid, 
-                            const uint8_t* const data, const size_t length)
+void
+Broker_deliver_request(const enum RemoteInterface interface,
+                       const asn1SccPID senderPid,
+                       const uint8_t* const data,
+                       const size_t length)
 #else
-void 
+void
 Broker_deliver_request(const enum RemoteInterface interface, const uint8_t* const data, const size_t length)
 #endif
 {
@@ -118,13 +139,8 @@ Broker_deliver_request(const enum RemoteInterface interface, const uint8_t* cons
                                                     header_size,
                                                     length);
 #else
-    const size_t packet_size = packetizer_packetize(&packetizers_data[bus_id],
-                                                    packet_type,
-                                                    0,
-                                                    (uint16_t)interface,
-                                                    packetizer_buffer,
-                                                    header_size,
-                                                    length);
+    const size_t packet_size = packetizer_packetize(
+            &packetizers_data[bus_id], packet_type, 0, (uint16_t)interface, packetizer_buffer, header_size, length);
 #endif
 
     void* driver_private_data = bus_to_driver_private_data[bus_id];
@@ -154,15 +170,26 @@ Broker_receive_packet(enum SystemBus bus_id, uint8_t* const data, const size_t l
 
     enum PacketizerCfg packetizer_type = bus_to_packetizer_cfg[bus_id];
     packetizer_depacketize_function packetizer_depacketize = packetizers_functions[packetizer_type].depacketize;
-    const bool success = packetizer_depacketize(
-            &packetizers_data[bus_id], packet_type, data, length, &source, &destination, &data_offset, &data_size, &error_code);
+    const bool success = packetizer_depacketize(&packetizers_data[bus_id],
+                                                packet_type,
+                                                data,
+                                                length,
+                                                &source,
+                                                &destination,
+                                                &data_offset,
+                                                &data_size,
+                                                &error_code);
     if(!success) {
+        if(broker_error_callback != NULL) {
+            Broker_ErrorType broker_error = Broker_packetizer_error_to_broker_error(error_code);
+            broker_error_callback(broker_error, data, length);
+        }
         Broker_release_lock();
         return;
     }
 
     deliver_function fn = interface_to_deliver_function[destination];
-    
+
 #if defined GENERIC_LINUX_TARGET || defined RTEMS6_TARGET
     fn((asn1SccPID)source, data + data_offset, data_size);
 #else
@@ -170,4 +197,10 @@ Broker_receive_packet(enum SystemBus bus_id, uint8_t* const data, const size_t l
 #endif
 
     Broker_release_lock();
+}
+
+void
+Broker_register_error_callback(broker_error_detected callback)
+{
+    broker_error_callback = callback;
 }

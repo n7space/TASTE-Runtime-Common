@@ -23,7 +23,6 @@
 #include "Packetizer.h"
 
 #include <assert.h>
-#include <stdio.h>
 #include <string.h>
 
 #include "Crc16.h"
@@ -99,11 +98,17 @@ Packetizer_depacketize(const Packetizer* const self,
 #ifdef STANDARD_SPACE_PACKET
     if(packetSize <= SPACE_PACKET_PRIMARY_HEADER_SIZE + SPACE_PACKET_ERROR_CONTROL_SIZE) {
         // the packet is smaller than expected (header + 1 byte of payload + checksum)
+        if(errorCode != NULL) {
+            *errorCode = Packetizer_ErrorCode_PacketTooSmall;
+        }
         return false;
     }
 #else
     if(packetSize < SPACE_PACKET_PRIMARY_HEADER_SIZE + SPACE_PACKET_SENDER_PID_SIZE + SPACE_PACKET_ERROR_CONTROL_SIZE) {
         // the packet is smaller than expected (header + sender pid + checksum)
+        if(errorCode != NULL) {
+            *errorCode = Packetizer_ErrorCode_PacketTooSmall;
+        }
         return false;
     }
 #endif
@@ -113,8 +118,9 @@ Packetizer_depacketize(const Packetizer* const self,
 #ifdef STANDARD_SPACE_PACKET
     if(packetSize != SPACE_PACKET_PRIMARY_HEADER_SIZE + receivedDataSize + SPACE_PACKET_ERROR_CONTROL_SIZE) {
 #else
-    if(packetSize != SPACE_PACKET_PRIMARY_HEADER_SIZE + receivedDataSize + SPACE_PACKET_SENDER_PID_SIZE +
-        SPACE_PACKET_ERROR_CONTROL_SIZE) {
+    if(packetSize
+       != SPACE_PACKET_PRIMARY_HEADER_SIZE + receivedDataSize + SPACE_PACKET_SENDER_PID_SIZE
+                  + SPACE_PACKET_ERROR_CONTROL_SIZE) {
 #endif
         if(errorCode != NULL) {
             *errorCode = Packetizer_ErrorCode_IncorrectPacketSize;
@@ -127,7 +133,7 @@ Packetizer_depacketize(const Packetizer* const self,
     uint16_t senderPid = 0;
 #else
     uint16_t senderPid = packetPointer[SPACE_PACKET_PRIMARY_HEADER_SIZE + receivedDataSize + 1]
-                           | (packetPointer[SPACE_PACKET_PRIMARY_HEADER_SIZE + receivedDataSize] << 8);
+                         | (packetPointer[SPACE_PACKET_PRIMARY_HEADER_SIZE + receivedDataSize] << 8);
 #endif
 
     // Check if CRC matches
@@ -136,9 +142,11 @@ Packetizer_depacketize(const Packetizer* const self,
                            | (packetPointer[SPACE_PACKET_PRIMARY_HEADER_SIZE + receivedDataSize] << 8);
     uint16_t expectedCrc = calculateCrc16(packetPointer, packetSize - SPACE_PACKET_ERROR_CONTROL_SIZE);
 #else
-    uint16_t receivedCrc = packetPointer[SPACE_PACKET_PRIMARY_HEADER_SIZE + receivedDataSize + SPACE_PACKET_SENDER_PID_SIZE + 1]
-                           | (packetPointer[SPACE_PACKET_PRIMARY_HEADER_SIZE + receivedDataSize + SPACE_PACKET_SENDER_PID_SIZE] << 8);
-    uint16_t expectedCrc = calculateCrc16(packetPointer, packetSize - SPACE_PACKET_SENDER_PID_SIZE - SPACE_PACKET_ERROR_CONTROL_SIZE);
+    uint16_t receivedCrc =
+            packetPointer[SPACE_PACKET_PRIMARY_HEADER_SIZE + receivedDataSize + SPACE_PACKET_SENDER_PID_SIZE + 1]
+            | (packetPointer[SPACE_PACKET_PRIMARY_HEADER_SIZE + receivedDataSize + SPACE_PACKET_SENDER_PID_SIZE] << 8);
+    uint16_t expectedCrc =
+            calculateCrc16(packetPointer, packetSize - SPACE_PACKET_SENDER_PID_SIZE - SPACE_PACKET_ERROR_CONTROL_SIZE);
 #endif
 
     if(receivedCrc != expectedCrc) {
