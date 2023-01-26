@@ -102,7 +102,7 @@ Broker_initialize(enum SystemBus valid_buses[SYSTEM_BUSES_NUMBER])
     }
 }
 
-#if defined GENERIC_LINUX_TARGET || defined RTEMS6_TARGET
+#if defined GENERIC_LINUX_TARGET || defined RTEMS6_TARGET || defined SAMV71_TARGET
 void
 Broker_deliver_request(const enum RemoteInterface interface,
                        const asn1SccPID senderPid,
@@ -130,7 +130,7 @@ Broker_deliver_request(const enum RemoteInterface interface, const uint8_t* cons
 
     packetizer_packetize_function packetizer_packetize = packetizers_functions[packetizer_type].packetize;
 
-#if defined GENERIC_LINUX_TARGET || defined RTEMS6_TARGET
+#if defined GENERIC_LINUX_TARGET || defined RTEMS6_TARGET || defined SAMV71_TARGET
     const size_t packet_size = packetizer_packetize(&packetizers_data[bus_id],
                                                     packet_type,
                                                     (uint16_t)senderPid,
@@ -190,7 +190,7 @@ Broker_receive_packet(enum SystemBus bus_id, uint8_t* const data, const size_t l
 
     deliver_function fn = interface_to_deliver_function[destination];
 
-#if defined GENERIC_LINUX_TARGET || defined RTEMS6_TARGET
+#if defined GENERIC_LINUX_TARGET || defined RTEMS6_TARGET || defined SAMV71_TARGET
     fn((asn1SccPID)source, data + data_offset, data_size);
 #else
     fn(data + data_offset, data_size);
