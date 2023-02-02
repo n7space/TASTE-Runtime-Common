@@ -13,7 +13,8 @@ extern "C"
 TEST_GROUP(CCSDSPacketizer)
 {
     static constexpr size_t dataSize = 514;
-    static constexpr size_t packetSize = SPACE_PACKET_PRIMARY_HEADER_SIZE + dataSize + SPACE_PACKET_ERROR_CONTROL_SIZE;
+    static constexpr size_t packetSize =
+            CCSDS_SPACE_PACKET_PRIMARY_HEADER_SIZE + dataSize + SPACE_PACKET_ERROR_CONTROL_SIZE;
     uint8_t packetData[packetSize];
 
     void setup() { memset(packetData, 0, packetSize); }
@@ -31,7 +32,7 @@ TEST(CCSDSPacketizer, CCSDSPacketizeTelemetry)
                                                  0,
                                                  destination,
                                                  packetData,
-                                                 SPACE_PACKET_PRIMARY_HEADER_SIZE,
+                                                 CCSDS_SPACE_PACKET_PRIMARY_HEADER_SIZE,
                                                  dataSize);
 
     CHECK_EQUAL(packetSize, resultSize);
@@ -60,7 +61,7 @@ TEST(CCSDSPacketizer, CCSDSPacketizeTelecommand)
                                                  0,
                                                  destination,
                                                  packetData,
-                                                 SPACE_PACKET_PRIMARY_HEADER_SIZE,
+                                                 CCSDS_SPACE_PACKET_PRIMARY_HEADER_SIZE,
                                                  dataSize);
 
     CHECK_EQUAL(packetSize, resultSize);
@@ -109,7 +110,7 @@ TEST(CCSDSPacketizer, CCSDSDepacketizeTelemetry)
     CHECK(success);
 
     CHECK_EQUAL(0x0505, receivedDestination);
-    CHECK_EQUAL(SPACE_PACKET_PRIMARY_HEADER_SIZE, receivedDataOffset);
+    CHECK_EQUAL(CCSDS_SPACE_PACKET_PRIMARY_HEADER_SIZE, receivedDataOffset);
     CHECK_EQUAL(dataSize, receivedDataSize);
 }
 
@@ -145,7 +146,7 @@ TEST(CCSDSPacketizer, CCSDSDepacketizeTelecommand)
     CHECK(success);
 
     CHECK_EQUAL(0x606, receivedDestination);
-    CHECK_EQUAL(SPACE_PACKET_PRIMARY_HEADER_SIZE, receivedDataOffset);
+    CHECK_EQUAL(CCSDS_SPACE_PACKET_PRIMARY_HEADER_SIZE, receivedDataOffset);
     CHECK_EQUAL(dataSize, receivedDataSize);
 }
 
@@ -160,7 +161,7 @@ TEST(CCSDSPacketizer, CCSDSPacketizeDepacketizeTelecommand)
                                                           0,
                                                           destination,
                                                           packetData,
-                                                          SPACE_PACKET_PRIMARY_HEADER_SIZE,
+                                                          CCSDS_SPACE_PACKET_PRIMARY_HEADER_SIZE,
                                                           dataSize);
 
     uint16_t receivedDestination = 0;
@@ -180,7 +181,7 @@ TEST(CCSDSPacketizer, CCSDSPacketizeDepacketizeTelecommand)
 
     CHECK(depacketizeSuccess);
     CHECK_EQUAL(packetSize, packetizeResultSize);
-    CHECK_EQUAL(SPACE_PACKET_PRIMARY_HEADER_SIZE, receivedDataOffset);
+    CHECK_EQUAL(CCSDS_SPACE_PACKET_PRIMARY_HEADER_SIZE, receivedDataOffset);
     CHECK_EQUAL(0, receivedErrorCode);
     CHECK_EQUAL(dataSize, receivedDataSize);
     CHECK_EQUAL(destination, receivedDestination);
@@ -193,9 +194,9 @@ TEST(CCSDSPacketizer, CCSDSPacketizeDepacketizeTelecommand)
 
 TEST_GROUP(CCSDSPacketizerInternal)
 {
-    uint8_t packetData[SPACE_PACKET_PRIMARY_HEADER_SIZE];
+    uint8_t packetData[CCSDS_SPACE_PACKET_PRIMARY_HEADER_SIZE];
 
-    void setup() { memset(packetData, 0, SPACE_PACKET_PRIMARY_HEADER_SIZE); }
+    void setup() { memset(packetData, 0, CCSDS_SPACE_PACKET_PRIMARY_HEADER_SIZE); }
 };
 
 TEST(CCSDSPacketizerInternal, CCSDSApidMin)
@@ -266,7 +267,7 @@ TEST(CCSDSPacketizerInternal, CCSDSDataSizeStandard)
 
 TEST(CCSDSPacketizerInternal, CCSDSDataSizeMax)
 {
-    writeCCSDSPacketDataLength(packetData, SPACE_PACKET_MAX_PACKET_DATA_SIZE);
+    writeCCSDSPacketDataLength(packetData, CCSDS_SPACE_PACKET_MAX_PACKET_DATA_SIZE);
 
     CHECK_EQUAL(0b11111111, packetData[4]);
     CHECK_EQUAL(0b11111111, packetData[5]);

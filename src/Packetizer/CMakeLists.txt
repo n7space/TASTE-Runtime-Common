@@ -21,8 +21,6 @@ target_include_directories(Packetizer
 target_link_libraries(Packetizer
     PRIVATE     common_build_options)
 
-target_compile_definitions(Packetizer PUBLIC STANDARD_SPACE_PACKET=1)
-
 add_format_target(Packetizer)
 
 add_library(TASTE::Packetizer ALIAS Packetizer)

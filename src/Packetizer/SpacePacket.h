@@ -23,13 +23,10 @@
 #ifndef SPACE_PACKET_H
 #define SPACE_PACKET_H
 
-#ifdef STANDARD_SPACE_PACKET
 /// @brief  Size of the Space Packet header, in bytes
-#define SPACE_PACKET_PRIMARY_HEADER_SIZE 6u
-#else
-/// @brief  Size of the Space Packet header, in bytes
+#define THIN_SPACE_PACKET_PRIMARY_HEADER_SIZE 4u
+#define CCSDS_SPACE_PACKET_PRIMARY_HEADER_SIZE 6u
 #define SPACE_PACKET_PRIMARY_HEADER_SIZE 8u
-#endif
 
 /// @brief  Size of the packet CRC, in bytes
 #define SPACE_PACKET_ERROR_CONTROL_SIZE 2u
@@ -37,16 +34,13 @@
 /// @brief  Size of the packet sender PID, in bytes
 #define SPACE_PACKET_SENDER_PID_SIZE 2u
 
-#ifdef STANDARD_SPACE_PACKET
 /// @brief  Max size of the packet data, in bytes
-#define SPACE_PACKET_MAX_PACKET_DATA_SIZE 65536u // 2^16
-#else
-/// @brief  Max size of the packet data, in bytes
-#define SPACE_PACKET_MAX_PACKET_DATA_SIZE 4294967295u // 2^32
-#endif
+#define CCSDS_SPACE_PACKET_MAX_PACKET_DATA_SIZE 65536u // 2^16
+#define SPACE_PACKET_MAX_PACKET_DATA_SIZE 4294967295u  // 2^32
 
 /// @brief  Max value of the packed APID (destination)
 #define SPACE_PACKET_MAX_APID 2047u // 2^11-1
+
 /// @brief  Max value of the packet sequence counter
 #define SPACE_PACKET_MAX_PACKET_SEQUENCE_COUNT 16383u // 2^14-1
 

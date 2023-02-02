@@ -57,16 +57,16 @@ ThinPacketizer_packetize(Packetizer* const self,
 
     assert(destination <= SPACE_PACKET_MAX_APID);
     assert(packetPointer != NULL);
-    assert(dataOffset == THIN_PACKET_PRIMARY_HEADER_SIZE);
+    assert(dataOffset == THIN_SPACE_PACKET_PRIMARY_HEADER_SIZE);
     assert(dataSize >= 1);
     assert(dataSize < SPACE_PACKET_MAX_PACKET_DATA_SIZE);
 
-    memset(packetPointer, 0, THIN_PACKET_PRIMARY_HEADER_SIZE);
+    memset(packetPointer, 0, THIN_SPACE_PACKET_PRIMARY_HEADER_SIZE);
 
     thinWritePacketId(packetPointer, packetType, destination);
     thinWritePacketDataLength(packetPointer, dataSize);
 
-    return THIN_PACKET_PRIMARY_HEADER_SIZE + dataSize;
+    return THIN_SPACE_PACKET_PRIMARY_HEADER_SIZE + dataSize;
 }
 
 bool
@@ -90,14 +90,14 @@ ThinPacketizer_depacketize(const Packetizer* const self,
     assert(dataSize != NULL);
     assert(destination != NULL);
 
-    if(packetSize < THIN_PACKET_PRIMARY_HEADER_SIZE) {
+    if(packetSize < THIN_SPACE_PACKET_PRIMARY_HEADER_SIZE) {
         // the packet is smaller than expected (at least header)
         return false;
     }
 
     // Get and check data size
     const size_t receivedDataSize = thinReadPacketDataLength(packetPointer);
-    if(packetSize != THIN_PACKET_PRIMARY_HEADER_SIZE + receivedDataSize) {
+    if(packetSize != THIN_SPACE_PACKET_PRIMARY_HEADER_SIZE + receivedDataSize) {
         if(errorCode != NULL) {
             *errorCode = Packetizer_ErrorCode_IncorrectPacketSize;
         }
@@ -106,7 +106,7 @@ ThinPacketizer_depacketize(const Packetizer* const self,
 
     // Save the results
     *destination = thinReadPacketId(packetPointer);
-    *dataOffset = THIN_PACKET_PRIMARY_HEADER_SIZE;
+    *dataOffset = THIN_SPACE_PACKET_PRIMARY_HEADER_SIZE;
     *dataSize = receivedDataSize;
 
     return true;

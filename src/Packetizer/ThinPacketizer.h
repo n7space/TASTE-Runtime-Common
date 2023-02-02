@@ -30,8 +30,6 @@
 
 #include "Packetizer.h"
 
-#define THIN_PACKET_PRIMARY_HEADER_SIZE 4u
-
 /**
  * @brief   Initialize Packetizer struct
  *
