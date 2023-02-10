@@ -210,7 +210,7 @@ size_t
 readPacketDataLength(const uint8_t* const packetPointer)
 {
     const uint32_t packetSize =
-            ((size_t)(packetPointer[4] << 24u) | packetPointer[5] << 16u | packetPointer[6] << 8u | packetPointer[7]);
+            ((uint32_t)(packetPointer[4] << 24u) | packetPointer[5] << 16u | packetPointer[6] << 8u | packetPointer[7]);
     const uint32_t zeroPacketSize = 0xffffffff;
     if(packetSize == zeroPacketSize) {
         return 0;
