@@ -66,14 +66,14 @@ TEST(Broker, InvalidCrc)
 
     Broker_register_error_callback(&testErrorDetectedCallback);
 
-    uint8_t data[] = { 0, 0, 0, 0, 0, 1, 0, 0, 0, 0 };
+    uint8_t data[] = { 0, 0, 0, 0, 255, 255, 255, 255, 0, 0, 0, 0 };
     const size_t length = sizeof(data);
 
     mock_c()->expectOneCall("Broker_acquire_lock");
     mock_c()->expectOneCall("testErrorDetectedCallback")
             ->withIntParameters("errorType", Broker_ErrorType_IncorrectCrc16)
             ->withPointerParameters("data", data)
-            ->withIntParameters("length", 10);
+            ->withIntParameters("length", 12);
     mock_c()->expectOneCall("Broker_release_lock");
 
     Broker_receive_packet(BUS_1, data, length);
@@ -86,9 +86,7 @@ TEST(Broker, NoError)
 
     Broker_register_error_callback(&testErrorDetectedCallback);
 
-    uint8_t data[] = {
-        0, 0, 0, 0, 0, 1, 0, 0, 0x6, 0x0e,
-    };
+    uint8_t data[] = { 0, 0, 0, 0, 255, 255, 255, 255, 0, 0, 0xA8, 0xF1 };
     const size_t length = sizeof(data);
 
     mock_c()->expectOneCall("Broker_acquire_lock");
