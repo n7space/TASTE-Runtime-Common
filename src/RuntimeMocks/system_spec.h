@@ -38,6 +38,7 @@ enum SystemPartition
 enum SystemBus
 {
     BUS_INVALID_ID,
+    BUS_1,
 };
 
 enum PacketizerCfg
@@ -49,7 +50,7 @@ enum PacketizerCfg
     PACKETIZER_MAX_ID,
 };
 
-#define SYSTEM_BUSES_NUMBER (0 + 1)
+#define SYSTEM_BUSES_NUMBER (1 + 1)
 
 extern enum SystemBus port_to_bus_map[];
 extern enum RemoteInterface bus_to_port_map[];
