@@ -20,22 +20,39 @@
  * limitations under the License.
  */
 
-#ifndef THIN_PACKETIZER_H
-#define THIN_PACKETIZER_H
+#ifndef CCSDSPACKETIZER_H
+#define CCSDSPACKETIZER_H
 
 /**
- * @file    ThinPacketizer.h
- * @brief   Main header file for Space Packet thin packetizer.
+ * @file    Packetizer.h
+ * @brief   Main header file for Space Packet packetizer.
+ *
+ * Implemented as defined in CCSDS 133.0-B-2.
  */
 
+#include <stdbool.h>
+#include <stddef.h>
+#include <stdint.h>
+
+#include "SpacePacket.h"
 #include "Packetizer.h"
+
+/// @brief  Enumeration listing possible error codes.
+typedef enum
+{
+    CCSDS_Packetizer_ErrorCode_IncorrectChecksum = 1,   ///< Mismatching checksum during depacketization
+    CCSDS_Packetizer_ErrorCode_IncorrectPacketType = 2, ///< Mismatching packet type during depacketization
+    CCSDS_Packetizer_ErrorCode_IncorrectPacketSize = 3  ///< Mismatching packet size during depacketization
+} CCSDS_Packetizer_ErrorCode;
 
 /**
  * @brief   Initialize Packetizer struct
  *
+ * Initializes packet sequence count to 0
+ *
  * @param[in]   self    Pointer to a structure representing Packetizer
  */
-void ThinPacketizer_init(Packetizer* const self);
+void CCSDS_Packetizer_init(Packetizer* const self);
 
 /**
  * @brief   Packetize given data with Space Packet header and CRC.
@@ -54,13 +71,13 @@ void ThinPacketizer_init(Packetizer* const self);
  *
  * @returns Packet size.
  */
-size_t ThinPacketizer_packetize(Packetizer* const self,
-                                const Packetizer_PacketType packetType,
-                                const uint16_t source,
-                                const uint16_t destination,
-                                uint8_t* const packetPointer,
-                                const size_t dataOffset,
-                                const size_t dataSize);
+size_t CCSDS_Packetizer_packetize(Packetizer* const self,
+                                  const Packetizer_PacketType packetType,
+                                  const uint16_t source,
+                                  const uint16_t destination,
+                                  uint8_t* const packetPointer,
+                                  const size_t dataOffset,
+                                  const size_t dataSize);
 
 /**
  * @brief   Extracts data from given packet.
@@ -77,14 +94,14 @@ size_t ThinPacketizer_packetize(Packetizer* const self,
  *
  * @returns  True is depacketization succeeded, false otherwise.
  */
-bool ThinPacketizer_depacketize(const Packetizer* const self,
-                                const Packetizer_PacketType packetType,
-                                const uint8_t* const packetPointer,
-                                const size_t packetSize,
-                                uint16_t* const source,
-                                uint16_t* const destination,
-                                size_t* const dataOffset,
-                                size_t* const dataSize,
-                                int32_t* const errorCode);
+bool CCSDS_Packetizer_depacketize(const Packetizer* const self,
+                                  const Packetizer_PacketType packetType,
+                                  const uint8_t* const packetPointer,
+                                  const size_t packetSize,
+                                  uint16_t* const source,
+                                  uint16_t* const destination,
+                                  size_t* const dataOffset,
+                                  size_t* const dataSize,
+                                  int32_t* const errorCode);
 
-#endif // THIN_PACKETIZER_H
+#endif // CCSDSPACKETIZER_H

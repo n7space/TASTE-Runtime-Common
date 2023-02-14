@@ -27,6 +27,7 @@
 
 #include <Packetizer.h>
 #include <ThinPacketizer.h>
+#include <CCSDSPacketizer.h>
 #include <DriverHelper.h>
 
 static Packetizer packetizers_data[SYSTEM_BUSES_NUMBER] = { 0 };
@@ -71,7 +72,11 @@ Broker_initialize_packetizers_functions()
     packetizers_functions[PACKETIZER_CCSDS].init = &Packetizer_init;
     packetizers_functions[PACKETIZER_CCSDS].packetize = &Packetizer_packetize;
     packetizers_functions[PACKETIZER_CCSDS].depacketize = &Packetizer_depacketize;
-    packetizers_functions[PACKETIZER_THIN].headerSize = THIN_PACKET_PRIMARY_HEADER_SIZE;
+    packetizers_functions[PACKETIZER_STRICT_CCSDS].headerSize = CCSDS_SPACE_PACKET_PRIMARY_HEADER_SIZE;
+    packetizers_functions[PACKETIZER_STRICT_CCSDS].init = &CCSDS_Packetizer_init;
+    packetizers_functions[PACKETIZER_STRICT_CCSDS].packetize = &CCSDS_Packetizer_packetize;
+    packetizers_functions[PACKETIZER_STRICT_CCSDS].depacketize = &CCSDS_Packetizer_depacketize;
+    packetizers_functions[PACKETIZER_THIN].headerSize = THIN_SPACE_PACKET_PRIMARY_HEADER_SIZE;
     packetizers_functions[PACKETIZER_THIN].init = &ThinPacketizer_init;
     packetizers_functions[PACKETIZER_THIN].packetize = &ThinPacketizer_packetize;
     packetizers_functions[PACKETIZER_THIN].depacketize = &ThinPacketizer_depacketize;

@@ -2,7 +2,8 @@ project(PacketizerTests VERSION 1.0.0 LANGUAGES CXX)
 
 add_library(PacketizerTests SHARED)
 target_sources(PacketizerTests
-    PRIVATE     PacketizerTests.cc)
+    PRIVATE     PacketizerTests.cc
+                CCSDSPacketizerTests.cc)
 target_link_libraries(PacketizerTests
     PRIVATE     common_build_options
     PUBLIC      CppUTest

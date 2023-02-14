@@ -1,6 +1,7 @@
 ### C ###
 # Build directory
 build/
+.vscode
 
 # Prerequisites
 *.d

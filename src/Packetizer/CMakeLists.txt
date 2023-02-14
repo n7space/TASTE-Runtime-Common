@@ -3,12 +3,16 @@ project(Packetizer VERSION 1.0.0 LANGUAGES C)
 add_library(Packetizer STATIC)
 target_sources(Packetizer
     PRIVATE     Crc16.c
+                IsoChecksum.c
                 Packetizer.c
+                CCSDSPacketizer.c
                 ThinPacketizer.c
                 Crc16.h
+                IsoChecksum.h
                 PacketizerInternal.h
                 SpacePacketInternal.h
     PUBLIC      Packetizer.h
+                CCSDSPacketizer.h
                 SpacePacket.h)
 
 target_include_directories(Packetizer
@@ -16,8 +20,6 @@ target_include_directories(Packetizer
 
 target_link_libraries(Packetizer
     PRIVATE     common_build_options)
-
-target_compile_definitions(Packetizer PUBLIC STANDARD_SPACE_PACKET=1)
 
 add_format_target(Packetizer)
 

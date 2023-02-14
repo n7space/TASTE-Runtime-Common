@@ -51,14 +51,9 @@
 #include <dataview-uniq.h>
 
 /// @brief  Buffer size to store space packet data.
-#ifdef STANDARD_SPACE_PACKET
-#define BROKER_BUFFER_SIZE                                                                                             \
-    (SPACE_PACKET_PRIMARY_HEADER_SIZE + GENERIC_PARTITION_BUFFER_SIZE + SPACE_PACKET_ERROR_CONTROL_SIZE)
-#else
 #define BROKER_BUFFER_SIZE                                                                                             \
     (SPACE_PACKET_PRIMARY_HEADER_SIZE + GENERIC_PARTITION_BUFFER_SIZE + SPACE_PACKET_SENDER_PID_SIZE                   \
      + SPACE_PACKET_ERROR_CONTROL_SIZE)
-#endif
 
 /// @brief All possible broker errors enumerated
 typedef enum

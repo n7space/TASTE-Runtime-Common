@@ -13,7 +13,8 @@ extern "C"
 TEST_GROUP(Packetizer)
 {
     static constexpr size_t dataSize = 514;
-    static constexpr size_t packetSize = SPACE_PACKET_PRIMARY_HEADER_SIZE + dataSize + SPACE_PACKET_ERROR_CONTROL_SIZE;
+    static constexpr size_t packetSize = SPACE_PACKET_PRIMARY_HEADER_SIZE + dataSize + SPACE_PACKET_SENDER_PID_SIZE
+                                         + SPACE_PACKET_ERROR_CONTROL_SIZE;
     uint8_t packetData[packetSize];
 
     void setup() { memset(packetData, 0, packetSize); }
@@ -39,10 +40,13 @@ TEST(Packetizer, PacketizeTelemetry)
     CHECK_EQUAL(0b10101010, packetData[1]);
     CHECK_EQUAL(0b00001111, packetData[2]);
     CHECK_EQUAL(0b00011000, packetData[3]);
-    CHECK_EQUAL(0b00000010, packetData[4]);
-    CHECK_EQUAL(0b00000001, packetData[5]);
+    CHECK_EQUAL(0b00000000, packetData[4]);
+    CHECK_EQUAL(0b00000000, packetData[5]);
+    CHECK_EQUAL(0b00000010, packetData[6]);
+    CHECK_EQUAL(0b00000001, packetData[7]);
 
-    uint16_t expectedCrc = calculateCrc16(packetData, packetSize - SPACE_PACKET_ERROR_CONTROL_SIZE);
+    uint16_t expectedCrc =
+            calculateCrc16(packetData, packetSize - SPACE_PACKET_SENDER_PID_SIZE - SPACE_PACKET_ERROR_CONTROL_SIZE);
 
     CHECK_EQUAL((expectedCrc >> 8u) & 0xFF, packetData[packetSize - 2]);
     CHECK_EQUAL(expectedCrc & 0xFF, packetData[packetSize - 1]);
@@ -68,10 +72,13 @@ TEST(Packetizer, PacketizeTelecommand)
     CHECK_EQUAL(0b01010101, packetData[1]);
     CHECK_EQUAL(0b00001111, packetData[2]);
     CHECK_EQUAL(0b00011001, packetData[3]);
-    CHECK_EQUAL(0b00000010, packetData[4]);
-    CHECK_EQUAL(0b00000001, packetData[5]);
+    CHECK_EQUAL(0b00000000, packetData[4]);
+    CHECK_EQUAL(0b00000000, packetData[5]);
+    CHECK_EQUAL(0b00000010, packetData[6]);
+    CHECK_EQUAL(0b00000001, packetData[7]);
 
-    uint16_t expectedCrc = calculateCrc16(packetData, packetSize - SPACE_PACKET_ERROR_CONTROL_SIZE);
+    uint16_t expectedCrc =
+            calculateCrc16(packetData, packetSize - SPACE_PACKET_SENDER_PID_SIZE - SPACE_PACKET_ERROR_CONTROL_SIZE);
 
     CHECK_EQUAL((expectedCrc >> 8u) & 0xFF, packetData[packetSize - 2]);
     CHECK_EQUAL(expectedCrc & 0xFF, packetData[packetSize - 1]);
@@ -83,10 +90,13 @@ TEST(Packetizer, DepacketizeTelemetry)
 
     packetData[0] = 0b10110000;
     packetData[1] = 0b00000101;
-    packetData[4] = 0b00000010;
-    packetData[5] = 0b00000001;
+    packetData[4] = 0b00000000;
+    packetData[5] = 0b00000000;
+    packetData[6] = 0b00000010;
+    packetData[7] = 0b00000001;
 
-    uint16_t crc = calculateCrc16(packetData, packetSize - SPACE_PACKET_ERROR_CONTROL_SIZE);
+    uint16_t crc =
+            calculateCrc16(packetData, packetSize - SPACE_PACKET_SENDER_PID_SIZE - SPACE_PACKET_ERROR_CONTROL_SIZE);
     packetData[packetSize - 2] = (crc >> 8u) & 0xFF;
     packetData[packetSize - 1] = crc & 0xFF;
 
@@ -121,10 +131,13 @@ TEST(Packetizer, DepacketizeTelecommand)
 
     packetData[0] = 0b11011000;
     packetData[1] = 0b00000110;
-    packetData[4] = 0b00000010;
-    packetData[5] = 0b00000001;
+    packetData[4] = 0b00000000;
+    packetData[5] = 0b00000000;
+    packetData[6] = 0b00000010;
+    packetData[7] = 0b00000001;
 
-    uint16_t crc = calculateCrc16(packetData, packetSize - SPACE_PACKET_ERROR_CONTROL_SIZE);
+    uint16_t crc =
+            calculateCrc16(packetData, packetSize - SPACE_PACKET_SENDER_PID_SIZE - SPACE_PACKET_ERROR_CONTROL_SIZE);
     packetData[packetSize - 2] = (crc >> 8u) & 0xFF;
     packetData[packetSize - 1] = crc & 0xFF;
 
@@ -222,8 +235,10 @@ TEST(PacketizerInternal, DataSizeStandard)
 {
     writePacketDataLength(packetData, 43606);
 
-    CHECK_EQUAL(0b10101010, packetData[4]);
-    CHECK_EQUAL(0b01010101, packetData[5]);
+    CHECK_EQUAL(0b00000000, packetData[4]);
+    CHECK_EQUAL(0b00000000, packetData[5]);
+    CHECK_EQUAL(0b10101010, packetData[6]);
+    CHECK_EQUAL(0b01010101, packetData[7]);
 }
 
 TEST(PacketizerInternal, DataSizeMax)
