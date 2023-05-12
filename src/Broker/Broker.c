@@ -80,6 +80,10 @@ Broker_initialize_packetizers_functions()
     packetizers_functions[PACKETIZER_THIN].init = &ThinPacketizer_init;
     packetizers_functions[PACKETIZER_THIN].packetize = &ThinPacketizer_packetize;
     packetizers_functions[PACKETIZER_THIN].depacketize = &ThinPacketizer_depacketize;
+    packetizers_functions[PACKETIZER_DEVICE_PROVIDED].headerSize = SPACE_PACKET_PRIMARY_HEADER_SIZE;
+    packetizers_functions[PACKETIZER_DEVICE_PROVIDED].init = &ThinPacketizer_init;
+    packetizers_functions[PACKETIZER_DEVICE_PROVIDED].packetize = &ThinPacketizer_packetize;
+    packetizers_functions[PACKETIZER_DEVICE_PROVIDED].depacketize = &ThinPacketizer_depacketize;
 }
 
 void
@@ -138,14 +142,21 @@ Broker_deliver_request(const enum RemoteInterface interface, const uint8_t* cons
 #if defined GENERIC_LINUX_TARGET || defined RTEMS6_TARGET || defined SAMV71_TARGET
     const size_t packet_size = packetizer_packetize(&packetizers_data[bus_id],
                                                     packet_type,
+                                                    bus_id,
                                                     (uint16_t)senderPid,
                                                     (uint16_t)interface,
                                                     packetizer_buffer,
                                                     header_size,
                                                     length);
 #else
-    const size_t packet_size = packetizer_packetize(
-            &packetizers_data[bus_id], packet_type, 0, (uint16_t)interface, packetizer_buffer, header_size, length);
+    const size_t packet_size = packetizer_packetize(&packetizers_data[bus_id],
+                                                    packet_type,
+                                                    bus_id,
+                                                    0,
+                                                    (uint16_t)interface,
+                                                    packetizer_buffer,
+                                                    header_size,
+                                                    length);
 #endif
 
     void* driver_private_data = bus_to_driver_private_data[bus_id];
@@ -179,6 +190,7 @@ Broker_receive_packet(enum SystemBus bus_id, uint8_t* const data, const size_t l
                                                 packet_type,
                                                 data,
                                                 length,
+                                                bus_id,
                                                 &source,
                                                 &destination,
                                                 &data_offset,

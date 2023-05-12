@@ -43,6 +43,7 @@ ThinPacketizer_init(Packetizer* const self)
 size_t
 ThinPacketizer_packetize(Packetizer* const self,
                          const Packetizer_PacketType packetType,
+                         const enum SystemBus busId,
                          const uint16_t source,
                          const uint16_t destination,
                          uint8_t* const packetPointer,
@@ -53,6 +54,7 @@ ThinPacketizer_packetize(Packetizer* const self,
     (void)self;
     (void)packetType;
     (void)source;
+    (void)busId;
     (void)dataOffset;
 
     assert(destination <= SPACE_PACKET_MAX_APID);
@@ -74,6 +76,7 @@ ThinPacketizer_depacketize(const Packetizer* const self,
                            const Packetizer_PacketType packetType,
                            const uint8_t* const packetPointer,
                            const size_t packetSize,
+                           const enum SystemBus busId,
                            uint16_t* const source,
                            uint16_t* const destination,
                            size_t* const dataOffset,
@@ -83,6 +86,7 @@ ThinPacketizer_depacketize(const Packetizer* const self,
     // Unused in this implementation
     (void)self;
     (void)packetType;
+    (void)busId;
     (void)source;
 
     assert(packetPointer != NULL);

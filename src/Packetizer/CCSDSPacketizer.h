@@ -63,6 +63,7 @@ void CCSDS_Packetizer_init(Packetizer* const self);
  *
  * @param[in,out]   self            Pointer to a structure representing Packetizer
  * @param[in]       packetType      Type of packet that should be created
+ * @param[in]       busId           Bus ID of the device
  * @param[in]       source          Source application ID
  * @param[in]       destination     Destination application ID
  * @param[in,out]   packetPointer   Pointer to an array with the data
@@ -73,6 +74,7 @@ void CCSDS_Packetizer_init(Packetizer* const self);
  */
 size_t CCSDS_Packetizer_packetize(Packetizer* const self,
                                   const Packetizer_PacketType packetType,
+                                  const enum SystemBus busId,
                                   const uint16_t source,
                                   const uint16_t destination,
                                   uint8_t* const packetPointer,
@@ -86,6 +88,7 @@ size_t CCSDS_Packetizer_packetize(Packetizer* const self,
  * @param[in]   packetType      Expected packet type
  * @param[in]   packetPointer   Pointer to an array with the packet data
  * @param[in]   packetSize      Size of the packet data
+ * @param[in]   busId           Bus ID of the device
  * @param[out]  source          Source application ID
  * @param[out]  destination     Destination application ID
  * @param[out]  dataOffset      Offset to where data starts
@@ -98,6 +101,7 @@ bool CCSDS_Packetizer_depacketize(const Packetizer* const self,
                                   const Packetizer_PacketType packetType,
                                   const uint8_t* const packetPointer,
                                   const size_t packetSize,
+                                  const enum SystemBus busId,
                                   uint16_t* const source,
                                   uint16_t* const destination,
                                   size_t* const dataOffset,

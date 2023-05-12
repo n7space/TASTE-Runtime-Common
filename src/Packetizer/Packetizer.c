@@ -38,6 +38,7 @@ Packetizer_init(Packetizer* const self)
 size_t
 Packetizer_packetize(Packetizer* const self,
                      const Packetizer_PacketType packetType,
+                     const enum SystemBus busId,
                      const uint16_t source,
                      const uint16_t destination,
                      uint8_t* const packetPointer,
@@ -45,6 +46,7 @@ Packetizer_packetize(Packetizer* const self,
                      const size_t dataSize)
 {
     // Unused in this implementation
+    (void)busId;
     (void)dataOffset;
 
     assert(self->packetSequenceCount <= SPACE_PACKET_MAX_PACKET_SEQUENCE_COUNT);
@@ -75,6 +77,7 @@ Packetizer_depacketize(const Packetizer* const self,
                        const Packetizer_PacketType packetType,
                        const uint8_t* const packetPointer,
                        const size_t packetSize,
+                       const enum SystemBus busId,
                        uint16_t* const source,
                        uint16_t* const destination,
                        size_t* const dataOffset,
@@ -83,6 +86,7 @@ Packetizer_depacketize(const Packetizer* const self,
 {
     // Unused in this implementation
     (void)self;
+    (void)busId;
 
     assert(packetPointer != NULL);
     assert(dataOffset != NULL);
@@ -209,8 +213,9 @@ writeSenderPid(uint8_t* const packetPointer, const size_t dataSize, const uint16
 size_t
 readPacketDataLength(const uint8_t* const packetPointer)
 {
-    const uint32_t packetSize =
-            ((uint32_t)(packetPointer[4] << 24u) | packetPointer[5] << 16u | packetPointer[6] << 8u | packetPointer[7]);
+    const uint32_t packetSize = ((uint32_t)(packetPointer[4]) << 24u) | ((uint32_t)(packetPointer[5]) << 16u)
+                                | ((uint32_t)(packetPointer[6]) << 8u) | (uint32_t)(packetPointer[7]);
+
     const uint32_t zeroPacketSize = 0xffffffff;
     if(packetSize == zeroPacketSize) {
         return 0;

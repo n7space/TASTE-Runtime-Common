@@ -39,6 +39,7 @@ CCSDS_Packetizer_init(Packetizer* const self)
 size_t
 CCSDS_Packetizer_packetize(Packetizer* const self,
                            const Packetizer_PacketType packetType,
+                           const enum SystemBus busId,
                            const uint16_t source,
                            const uint16_t destination,
                            uint8_t* const packetPointer,
@@ -46,6 +47,7 @@ CCSDS_Packetizer_packetize(Packetizer* const self,
                            const size_t dataSize)
 {
     // Unused in this implementation
+    (void)busId;
     (void)source;
     (void)dataOffset;
 
@@ -83,6 +85,7 @@ CCSDS_Packetizer_depacketize(const Packetizer* const self,
                              const Packetizer_PacketType packetType,
                              const uint8_t* const packetPointer,
                              const size_t packetSize,
+                             const enum SystemBus busId,
                              uint16_t* const source,
                              uint16_t* const destination,
                              size_t* const dataOffset,
@@ -91,6 +94,7 @@ CCSDS_Packetizer_depacketize(const Packetizer* const self,
 {
     // Unused in this implementation
     (void)self;
+    (void)busId;
     (void)source;
 
     assert(packetPointer != NULL);
