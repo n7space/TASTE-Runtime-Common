@@ -22,6 +22,7 @@ TEST_GROUP(CCSDSPacketizer)
 
 TEST(CCSDSPacketizer, CCSDSPacketizeTelemetry)
 {
+    const uint16_t senderPid = 0;
     const uint16_t destination = 682;
     const uint16_t sequenceCount = 792;
 
@@ -29,7 +30,8 @@ TEST(CCSDSPacketizer, CCSDSPacketizeTelemetry)
 
     auto resultSize = CCSDS_Packetizer_packetize(&packetizer,
                                                  Packetizer_PacketType_Telemetry,
-                                                 0,
+                                                 BUS_1,
+                                                 senderPid,
                                                  destination,
                                                  packetData,
                                                  CCSDS_SPACE_PACKET_PRIMARY_HEADER_SIZE,
@@ -51,6 +53,7 @@ TEST(CCSDSPacketizer, CCSDSPacketizeTelemetry)
 
 TEST(CCSDSPacketizer, CCSDSPacketizeTelecommand)
 {
+    const uint16_t senderPid = 0;
     const uint16_t destination = 1365;
     const uint16_t sequenceCount = 793;
 
@@ -58,7 +61,8 @@ TEST(CCSDSPacketizer, CCSDSPacketizeTelecommand)
 
     auto resultSize = CCSDS_Packetizer_packetize(&packetizer,
                                                  Packetizer_PacketType_Telecommand,
-                                                 0,
+                                                 BUS_1,
+                                                 senderPid,
                                                  destination,
                                                  packetData,
                                                  CCSDS_SPACE_PACKET_PRIMARY_HEADER_SIZE,
@@ -91,6 +95,7 @@ TEST(CCSDSPacketizer, CCSDSDepacketizeTelemetry)
     packetData[packetSize - 2] = (crc >> 8u) & 0xFF;
     packetData[packetSize - 1] = crc & 0xFF;
 
+    uint16_t receivedSenderPid = 0;
     uint16_t receivedDestination = 0;
     size_t receivedDataOffset = 0;
     size_t receivedDataSize = 0;
@@ -100,7 +105,8 @@ TEST(CCSDSPacketizer, CCSDSDepacketizeTelemetry)
                                                 Packetizer_PacketType_Telemetry,
                                                 packetData,
                                                 packetSize,
-                                                NULL,
+                                                BUS_1,
+                                                &receivedSenderPid,
                                                 &receivedDestination,
                                                 &receivedDataOffset,
                                                 &receivedDataSize,
@@ -127,6 +133,7 @@ TEST(CCSDSPacketizer, CCSDSDepacketizeTelecommand)
     packetData[packetSize - 2] = (crc >> 8u) & 0xFF;
     packetData[packetSize - 1] = crc & 0xFF;
 
+    uint16_t receivedSenderPid = 0;
     uint16_t receivedDestination = 0;
     size_t receivedDataOffset = 0;
     size_t receivedDataSize = 0;
@@ -136,7 +143,8 @@ TEST(CCSDSPacketizer, CCSDSDepacketizeTelecommand)
                                                 Packetizer_PacketType_Telecommand,
                                                 packetData,
                                                 packetSize,
-                                                NULL,
+                                                BUS_1,
+                                                &receivedSenderPid,
                                                 &receivedDestination,
                                                 &receivedDataOffset,
                                                 &receivedDataSize,
@@ -154,16 +162,19 @@ TEST(CCSDSPacketizer, CCSDSPacketizeDepacketizeTelecommand)
 {
     const uint16_t destination = 1365;
     const uint16_t sequenceCount = 793;
+    const uint16_t senderPid = 0;
     Packetizer packetizer = { sequenceCount };
 
     auto packetizeResultSize = CCSDS_Packetizer_packetize(&packetizer,
                                                           Packetizer_PacketType_Telecommand,
-                                                          0,
+                                                          BUS_1,
+                                                          senderPid,
                                                           destination,
                                                           packetData,
                                                           CCSDS_SPACE_PACKET_PRIMARY_HEADER_SIZE,
                                                           dataSize);
 
+    uint16_t receivedSenderPid = 0;
     uint16_t receivedDestination = 0;
     size_t receivedDataOffset = 0;
     size_t receivedDataSize = 0;
@@ -173,7 +184,8 @@ TEST(CCSDSPacketizer, CCSDSPacketizeDepacketizeTelecommand)
                                                            Packetizer_PacketType_Telecommand,
                                                            packetData,
                                                            packetSize,
-                                                           NULL,
+                                                           BUS_1,
+                                                           &receivedSenderPid,
                                                            &receivedDestination,
                                                            &receivedDataOffset,
                                                            &receivedDataSize,

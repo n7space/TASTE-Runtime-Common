@@ -22,9 +22,9 @@ TEST_GROUP(Packetizer)
 
 TEST(Packetizer, PacketizeTelemetry)
 {
+    const uint16_t senderPid = 0;
     const uint16_t destination = 682;
     const uint16_t sequenceCount = 792;
-    const uint16_t senderPid = 0;
 
     Packetizer packetizer{ sequenceCount };
 
@@ -56,9 +56,9 @@ TEST(Packetizer, PacketizeTelemetry)
 
 TEST(Packetizer, PacketizeTelecommand)
 {
+    const uint16_t senderPid = 0;
     const uint16_t destination = 1365;
     const uint16_t sequenceCount = 793;
-    const uint16_t senderPid = 0;
 
     Packetizer packetizer = { sequenceCount };
 
