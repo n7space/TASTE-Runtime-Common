@@ -9,7 +9,8 @@ target_include_directories(RuntimeMocks
   PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 
 target_link_libraries(RuntimeMocks
-  PRIVATE common_build_options)
+  PRIVATE     common_build_options
+  PUBLIC      TASTE::Packetizer)
 
 add_format_target(RuntimeMocks)
 
