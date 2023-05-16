@@ -11,8 +11,10 @@ target_sources(Packetizer
                 IsoChecksum.h
                 PacketizerInternal.h
                 SpacePacketInternal.h
+                DeviceProvidedPacketizer.c
     PUBLIC      Packetizer.h
                 CCSDSPacketizer.h
+                DeviceProvidedPacketizer.h
                 SpacePacket.h)
 
 target_include_directories(Packetizer

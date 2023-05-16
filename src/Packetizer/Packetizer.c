@@ -30,8 +30,11 @@
 #include "SpacePacketInternal.h"
 
 void
-Packetizer_init(Packetizer* const self)
+Packetizer_init(Packetizer* const self, const enum SystemBus busId)
 {
+    // Unused in this implementation
+    (void)busId;
+
     self->packetSequenceCount = 0;
 }
 

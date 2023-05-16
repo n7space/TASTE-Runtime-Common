@@ -31,8 +31,11 @@
 #include "SpacePacketInternal.h"
 
 void
-CCSDS_Packetizer_init(Packetizer* const self)
+CCSDS_Packetizer_init(Packetizer* const self, const enum SystemBus busId)
 {
+    // Unused in this implementation
+    (void)busId;
+
     self->packetSequenceCount = 0;
 }
 

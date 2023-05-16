@@ -28,6 +28,7 @@
 #include <Packetizer.h>
 #include <ThinPacketizer.h>
 #include <CCSDSPacketizer.h>
+#include <DeviceProvidedPacketizer.h>
 #include <DriverHelper.h>
 
 static Packetizer packetizers_data[SYSTEM_BUSES_NUMBER] = { 0 };
@@ -80,10 +81,10 @@ Broker_initialize_packetizers_functions()
     packetizers_functions[PACKETIZER_THIN].init = &ThinPacketizer_init;
     packetizers_functions[PACKETIZER_THIN].packetize = &ThinPacketizer_packetize;
     packetizers_functions[PACKETIZER_THIN].depacketize = &ThinPacketizer_depacketize;
-    packetizers_functions[PACKETIZER_DEVICE_PROVIDED].headerSize = SPACE_PACKET_PRIMARY_HEADER_SIZE;
-    packetizers_functions[PACKETIZER_DEVICE_PROVIDED].init = &ThinPacketizer_init;
-    packetizers_functions[PACKETIZER_DEVICE_PROVIDED].packetize = &ThinPacketizer_packetize;
-    packetizers_functions[PACKETIZER_DEVICE_PROVIDED].depacketize = &ThinPacketizer_depacketize;
+    packetizers_functions[PACKETIZER_DEVICE_PROVIDED].headerSize = THIN_SPACE_PACKET_PRIMARY_HEADER_SIZE;
+    packetizers_functions[PACKETIZER_DEVICE_PROVIDED].init = &DeviceProvidedPacketizer_init;
+    packetizers_functions[PACKETIZER_DEVICE_PROVIDED].packetize = &DeviceProvidedPacketizer_packetize;
+    packetizers_functions[PACKETIZER_DEVICE_PROVIDED].depacketize = &DeviceProvidedPacketizer_depacketize;
 }
 
 void
@@ -106,7 +107,7 @@ Broker_initialize(enum SystemBus valid_buses[SYSTEM_BUSES_NUMBER])
             // https://gcc.gnu.org/bugzilla/show_bug.cgi?id=85398
             enum PacketizerCfg packetizer_type = bus_to_packetizer_cfg[bus_id];
             packetizer_init_function packetizer_init = packetizers_functions[packetizer_type].init;
-            packetizer_init(&packetizers_data[bus_id]);
+            packetizer_init(&packetizers_data[bus_id], bus_id);
         }
     }
 }

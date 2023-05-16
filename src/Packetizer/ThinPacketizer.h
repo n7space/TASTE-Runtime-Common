@@ -34,8 +34,10 @@
  * @brief   Initialize Packetizer struct
  *
  * @param[in]   self    Pointer to a structure representing Packetizer
+ * @param[in]   busId   Bus ID of the device
  */
-void ThinPacketizer_init(Packetizer* const self);
+void ThinPacketizer_init(Packetizer* const self,
+                         const enum SystemBus busId);
 
 /**
  * @brief   Packetize given data with Space Packet header and CRC.
