@@ -90,6 +90,7 @@ Broker_initialize_packetizers_functions()
 void
 Broker_initialize(enum SystemBus valid_buses[SYSTEM_BUSES_NUMBER])
 {
+    size_t headerSize;
     Broker_initialize_packetizers_functions();
 
     for(int i = 0; i < SYSTEM_BUSES_NUMBER; ++i) {
@@ -107,7 +108,11 @@ Broker_initialize(enum SystemBus valid_buses[SYSTEM_BUSES_NUMBER])
             // https://gcc.gnu.org/bugzilla/show_bug.cgi?id=85398
             enum PacketizerCfg packetizer_type = bus_to_packetizer_cfg[bus_id];
             packetizer_init_function packetizer_init = packetizers_functions[packetizer_type].init;
-            packetizer_init(&packetizers_data[bus_id], bus_id);
+            packetizer_init(&packetizers_data[bus_id], bus_id, &headerSize);
+
+            if(packetizer_type == PACKETIZER_DEVICE_PROVIDED) {
+                packetizers_functions[packetizer_type].headerSize = headerSize;
+            }
         }
     }
 }

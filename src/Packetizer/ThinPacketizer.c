@@ -34,11 +34,12 @@ void thinWritePacketDataLength(uint8_t* const packetPointer, const size_t dataSi
 size_t thinReadPacketDataLength(const uint8_t* const packetPointer);
 
 void
-ThinPacketizer_init(Packetizer* const self, const enum SystemBus busId)
+ThinPacketizer_init(Packetizer* const self, const enum SystemBus busId, size_t* const headerSize)
 {
     // Unused in this implementation
     (void)self;
     (void)busId;
+    (void)headerSize;
 }
 
 size_t

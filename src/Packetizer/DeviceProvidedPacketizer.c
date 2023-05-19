@@ -23,11 +23,11 @@
 #include "DeviceProvidedPacketizer.h"
 
 void
-DeviceProvidedPacketizer_init(Packetizer* const self, const enum SystemBus busId)
+DeviceProvidedPacketizer_init(Packetizer* const self, const enum SystemBus busId, size_t* const headerSize)
 {
     packetizer_init_function packetizer_init = getDeviceProvidedPacketizerInitFunction(busId);
 
-    packetizer_init(self, busId);
+    packetizer_init(self, busId, headerSize);
 }
 
 size_t

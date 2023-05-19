@@ -34,10 +34,11 @@
 /**
  * @brief   Initialize Packetizer struct
  *
- * @param[in]   self    Pointer to a structure representing Packetizer
- * @param[in]   busId   Bus ID of the device
+ * @param[in]   self         Pointer to a structure representing Packetizer
+ * @param[in]   busId        Bus ID of the device
+ * @param[out]  headerSize   Primary header size of the Packetizer
  */
-void DeviceProvidedPacketizer_init(Packetizer* const self, const enum SystemBus busId);
+void DeviceProvidedPacketizer_init(Packetizer* const self, const enum SystemBus busId, size_t* const headerSize);
 
 /**
  * @brief   Packetize given data with Space Packet header and CRC.

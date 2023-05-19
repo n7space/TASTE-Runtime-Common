@@ -64,10 +64,11 @@ typedef struct
  *
  * Initializes packet sequence count to 0
  *
- * @param[in]   self    Pointer to a structure representing Packetizer
- * @param[in]   busId   Bus ID of the device
+ * @param[in]   self         Pointer to a structure representing Packetizer
+ * @param[in]   busId        Bus ID of the device
+ * @param[out]  headerSize   Primary header size of the Packetizer
  */
-void Packetizer_init(Packetizer* const self, const enum SystemBus busId);
+void Packetizer_init(Packetizer* const self, const enum SystemBus busId, size_t* const headerSize);
 
 /**
  * @brief   Packetize given data with Space Packet header and CRC.
@@ -125,10 +126,11 @@ bool Packetizer_depacketize(const Packetizer* const self,
 
 /** @brief Function pointer to function responsible for initializing packetizer
  *
- * @param[in]   self      Pointer to a structure representing Packetizer
- * @param[in]   busId     Bus ID of the device
+ * @param[in]   self         Pointer to a structure representing Packetizer
+ * @param[in]   busId        Bus ID of the device
+ * @param[out]  headerSize   Primary header size of the Packetizer
  */
-typedef void (*packetizer_init_function)(Packetizer* const self, const enum SystemBus busId);
+typedef void (*packetizer_init_function)(Packetizer* const self, const enum SystemBus busId, size_t* const headerSize);
 
 /** @brief Function pointer to function responsible for packetize packet
  *
