@@ -42,6 +42,10 @@ DeviceProvidedPacketizer_packetize(Packetizer* const self,
 {
     packetizer_packetize_function packetizer_packetize = getDeviceProvidedPacketizerPacketizeFunction(busId);
 
+    if(packetizer_packetize == NULL) {
+        return 0;
+    }
+
     return packetizer_packetize(self, packetType, busId, source, destination, packetPointer, dataOffset, dataSize);
 }
 
@@ -58,6 +62,10 @@ DeviceProvidedPacketizer_depacketize(const Packetizer* const self,
                                      int32_t* const errorCode)
 {
     packetizer_depacketize_function packetizer_depacketize = getDeviceProvidedPacketizerDepacketizeFunction(busId);
+
+    if(packetizer_depacketize == NULL) {
+        return false;
+    }
 
     return packetizer_depacketize(
             self, packetType, packetPointer, packetSize, busId, source, destination, dataOffset, dataSize, errorCode);
