@@ -39,7 +39,8 @@ ThinPacketizer_init(Packetizer* const self, const enum SystemBus busId, size_t* 
     // Unused in this implementation
     (void)self;
     (void)busId;
-    (void)headerSize;
+
+    *headerSize = THIN_SPACE_PACKET_PRIMARY_HEADER_SIZE;
 }
 
 size_t

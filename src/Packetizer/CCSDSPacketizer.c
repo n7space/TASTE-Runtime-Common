@@ -35,8 +35,8 @@ CCSDS_Packetizer_init(Packetizer* const self, const enum SystemBus busId, size_t
 {
     // Unused in this implementation
     (void)busId;
-    (void)headerSize;
 
+    *headerSize = CCSDS_SPACE_PACKET_PRIMARY_HEADER_SIZE;
     self->packetSequenceCount = 0;
 }
 

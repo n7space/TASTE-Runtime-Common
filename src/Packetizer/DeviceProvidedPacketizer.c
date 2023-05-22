@@ -28,6 +28,8 @@ DeviceProvidedPacketizer_init(Packetizer* const self, const enum SystemBus busId
     packetizer_init_function packetizer_init = getDeviceProvidedPacketizerInitFunction(busId);
 
     packetizer_init(self, busId, headerSize);
+
+    setDeviceProvidedPacketizerHeaderSize(busId, *headerSize);
 }
 
 size_t
@@ -40,13 +42,20 @@ DeviceProvidedPacketizer_packetize(Packetizer* const self,
                                    const size_t dataOffset,
                                    const size_t dataSize)
 {
+    (void)dataOffset;
+
+    size_t headerSize = getDeviceProvidedPacketizerHeaderSize(busId);
     packetizer_packetize_function packetizer_packetize = getDeviceProvidedPacketizerPacketizeFunction(busId);
+
+    if(headerSize <= 0) {
+        return 0;
+    }
 
     if(packetizer_packetize == NULL) {
         return 0;
     }
 
-    return packetizer_packetize(self, packetType, busId, source, destination, packetPointer, dataOffset, dataSize);
+    return packetizer_packetize(self, packetType, busId, source, destination, packetPointer, headerSize, dataSize);
 }
 
 bool
