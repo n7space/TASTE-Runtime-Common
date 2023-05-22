@@ -81,7 +81,7 @@ Broker_initialize_packetizers_functions()
     packetizers_functions[PACKETIZER_THIN].init = &ThinPacketizer_init;
     packetizers_functions[PACKETIZER_THIN].packetize = &ThinPacketizer_packetize;
     packetizers_functions[PACKETIZER_THIN].depacketize = &ThinPacketizer_depacketize;
-    packetizers_functions[PACKETIZER_DEVICE_PROVIDED].headerSize = THIN_SPACE_PACKET_PRIMARY_HEADER_SIZE;
+    packetizers_functions[PACKETIZER_DEVICE_PROVIDED].headerSize = 0;
     packetizers_functions[PACKETIZER_DEVICE_PROVIDED].init = &DeviceProvidedPacketizer_init;
     packetizers_functions[PACKETIZER_DEVICE_PROVIDED].packetize = &DeviceProvidedPacketizer_packetize;
     packetizers_functions[PACKETIZER_DEVICE_PROVIDED].depacketize = &DeviceProvidedPacketizer_depacketize;
@@ -136,7 +136,14 @@ Broker_deliver_request(const enum RemoteInterface interface, const uint8_t* cons
 
     const enum SystemBus bus_id = port_to_bus_map[interface];
     enum PacketizerCfg packetizer_type = bus_to_packetizer_cfg[bus_id];
-    unsigned header_size = packetizers_functions[packetizer_type].headerSize;
+
+    unsigned header_size;
+    if(packetizer_type == PACKETIZER_DEVICE_PROVIDED) {
+        header_size = getDeviceProvidedPacketizerHeaderSize(bus_id);
+    } else {
+        header_size = packetizers_functions[packetizer_type].headerSize;
+    }
+
     memcpy(packetizer_buffer + header_size, data, length);
 
     packetizer_packetize_function packetizer_packetize = packetizers_functions[packetizer_type].packetize;
