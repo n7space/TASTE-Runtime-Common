@@ -1,7 +1,7 @@
 /**@file
  * This file is part of the TASTE Runtime Common.
  *
- * @copyright 2022 N7 Space Sp. z o.o.
+ * @copyright 2023 N7 Space Sp. z o.o.
  *
  * TASTE Runtime Common was developed under a programme of,
  * and funded by, the European Space Agency (the "ESA").
@@ -20,41 +20,25 @@
  * limitations under the License.
  */
 
-#ifndef CCSDSPACKETIZER_H
-#define CCSDSPACKETIZER_H
+#ifndef DEVICE_PROVIDED_PACKETIZER_H
+#define DEVICE_PROVIDED_PACKETIZER_H
 
 /**
- * @file    Packetizer.h
- * @brief   Main header file for Space Packet packetizer.
- *
- * Implemented as defined in CCSDS 133.0-B-2.
+ * @file    DeviceProvidedPacketizer.h
+ * @brief   Main header file for Space Packet thin packetizer.
  */
 
-#include <stdbool.h>
-#include <stddef.h>
-#include <stdint.h>
-
-#include "SpacePacket.h"
 #include "Packetizer.h"
-
-/// @brief  Enumeration listing possible error codes.
-typedef enum
-{
-    CCSDS_Packetizer_ErrorCode_IncorrectChecksum = 1,   ///< Mismatching checksum during depacketization
-    CCSDS_Packetizer_ErrorCode_IncorrectPacketType = 2, ///< Mismatching packet type during depacketization
-    CCSDS_Packetizer_ErrorCode_IncorrectPacketSize = 3  ///< Mismatching packet size during depacketization
-} CCSDS_Packetizer_ErrorCode;
+#include "device_provided_packetizer.h"
 
 /**
  * @brief   Initialize Packetizer struct
- *
- * Initializes packet sequence count to 0
  *
  * @param[in]   self         Pointer to a structure representing Packetizer
  * @param[in]   busId        Bus ID of the device
  * @param[out]  headerSize   Primary header size of the Packetizer
  */
-void CCSDS_Packetizer_init(Packetizer* const self, const enum SystemBus busId, size_t* const headerSize);
+void DeviceProvidedPacketizer_init(Packetizer* const self, const enum SystemBus busId, size_t* const headerSize);
 
 /**
  * @brief   Packetize given data with Space Packet header and CRC.
@@ -74,14 +58,14 @@ void CCSDS_Packetizer_init(Packetizer* const self, const enum SystemBus busId, s
  *
  * @returns Packet size.
  */
-size_t CCSDS_Packetizer_packetize(Packetizer* const self,
-                                  const Packetizer_PacketType packetType,
-                                  const enum SystemBus busId,
-                                  const uint16_t source,
-                                  const uint16_t destination,
-                                  uint8_t* const packetPointer,
-                                  const size_t dataOffset,
-                                  const size_t dataSize);
+size_t DeviceProvidedPacketizer_packetize(Packetizer* const self,
+                                          const Packetizer_PacketType packetType,
+                                          const enum SystemBus busId,
+                                          const uint16_t source,
+                                          const uint16_t destination,
+                                          uint8_t* const packetPointer,
+                                          const size_t dataOffset,
+                                          const size_t dataSize);
 
 /**
  * @brief   Extracts data from given packet.
@@ -99,15 +83,15 @@ size_t CCSDS_Packetizer_packetize(Packetizer* const self,
  *
  * @returns  True is depacketization succeeded, false otherwise.
  */
-bool CCSDS_Packetizer_depacketize(const Packetizer* const self,
-                                  const Packetizer_PacketType packetType,
-                                  const uint8_t* const packetPointer,
-                                  const size_t packetSize,
-                                  const enum SystemBus busId,
-                                  uint16_t* const source,
-                                  uint16_t* const destination,
-                                  size_t* const dataOffset,
-                                  size_t* const dataSize,
-                                  int32_t* const errorCode);
+bool DeviceProvidedPacketizer_depacketize(const Packetizer* const self,
+                                          const Packetizer_PacketType packetType,
+                                          const uint8_t* const packetPointer,
+                                          const size_t packetSize,
+                                          const enum SystemBus busId,
+                                          uint16_t* const source,
+                                          uint16_t* const destination,
+                                          size_t* const dataOffset,
+                                          size_t* const dataSize,
+                                          int32_t* const errorCode);
 
-#endif // CCSDSPACKETIZER_H
+#endif // DEVICE_PROVIDED_PACKETIZER_H

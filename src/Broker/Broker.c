@@ -28,6 +28,7 @@
 #include <Packetizer.h>
 #include <ThinPacketizer.h>
 #include <CCSDSPacketizer.h>
+#include <DeviceProvidedPacketizer.h>
 #include <DriverHelper.h>
 
 static Packetizer packetizers_data[SYSTEM_BUSES_NUMBER] = { 0 };
@@ -80,11 +81,16 @@ Broker_initialize_packetizers_functions()
     packetizers_functions[PACKETIZER_THIN].init = &ThinPacketizer_init;
     packetizers_functions[PACKETIZER_THIN].packetize = &ThinPacketizer_packetize;
     packetizers_functions[PACKETIZER_THIN].depacketize = &ThinPacketizer_depacketize;
+    packetizers_functions[PACKETIZER_DEVICE_PROVIDED].headerSize = 0;
+    packetizers_functions[PACKETIZER_DEVICE_PROVIDED].init = &DeviceProvidedPacketizer_init;
+    packetizers_functions[PACKETIZER_DEVICE_PROVIDED].packetize = &DeviceProvidedPacketizer_packetize;
+    packetizers_functions[PACKETIZER_DEVICE_PROVIDED].depacketize = &DeviceProvidedPacketizer_depacketize;
 }
 
 void
 Broker_initialize(enum SystemBus valid_buses[SYSTEM_BUSES_NUMBER])
 {
+    size_t headerSize;
     Broker_initialize_packetizers_functions();
 
     for(int i = 0; i < SYSTEM_BUSES_NUMBER; ++i) {
@@ -102,7 +108,7 @@ Broker_initialize(enum SystemBus valid_buses[SYSTEM_BUSES_NUMBER])
             // https://gcc.gnu.org/bugzilla/show_bug.cgi?id=85398
             enum PacketizerCfg packetizer_type = bus_to_packetizer_cfg[bus_id];
             packetizer_init_function packetizer_init = packetizers_functions[packetizer_type].init;
-            packetizer_init(&packetizers_data[bus_id]);
+            packetizer_init(&packetizers_data[bus_id], bus_id, &headerSize);
         }
     }
 }
@@ -130,7 +136,14 @@ Broker_deliver_request(const enum RemoteInterface interface, const uint8_t* cons
 
     const enum SystemBus bus_id = port_to_bus_map[interface];
     enum PacketizerCfg packetizer_type = bus_to_packetizer_cfg[bus_id];
-    unsigned header_size = packetizers_functions[packetizer_type].headerSize;
+
+    unsigned header_size;
+    if(packetizer_type == PACKETIZER_DEVICE_PROVIDED) {
+        header_size = getDeviceProvidedPacketizerHeaderSize(bus_id);
+    } else {
+        header_size = packetizers_functions[packetizer_type].headerSize;
+    }
+
     memcpy(packetizer_buffer + header_size, data, length);
 
     packetizer_packetize_function packetizer_packetize = packetizers_functions[packetizer_type].packetize;
@@ -138,14 +151,21 @@ Broker_deliver_request(const enum RemoteInterface interface, const uint8_t* cons
 #if defined GENERIC_LINUX_TARGET || defined RTEMS6_TARGET || defined SAMV71_TARGET
     const size_t packet_size = packetizer_packetize(&packetizers_data[bus_id],
                                                     packet_type,
+                                                    bus_id,
                                                     (uint16_t)senderPid,
                                                     (uint16_t)interface,
                                                     packetizer_buffer,
                                                     header_size,
                                                     length);
 #else
-    const size_t packet_size = packetizer_packetize(
-            &packetizers_data[bus_id], packet_type, 0, (uint16_t)interface, packetizer_buffer, header_size, length);
+    const size_t packet_size = packetizer_packetize(&packetizers_data[bus_id],
+                                                    packet_type,
+                                                    bus_id,
+                                                    0,
+                                                    (uint16_t)interface,
+                                                    packetizer_buffer,
+                                                    header_size,
+                                                    length);
 #endif
 
     void* driver_private_data = bus_to_driver_private_data[bus_id];
@@ -179,6 +199,7 @@ Broker_receive_packet(enum SystemBus bus_id, uint8_t* const data, const size_t l
                                                 packet_type,
                                                 data,
                                                 length,
+                                                bus_id,
                                                 &source,
                                                 &destination,
                                                 &data_offset,

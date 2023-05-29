@@ -22,6 +22,7 @@ TEST_GROUP(Packetizer)
 
 TEST(Packetizer, PacketizeTelemetry)
 {
+    const uint16_t senderPid = 0;
     const uint16_t destination = 682;
     const uint16_t sequenceCount = 792;
 
@@ -29,7 +30,8 @@ TEST(Packetizer, PacketizeTelemetry)
 
     auto resultSize = Packetizer_packetize(&packetizer,
                                            Packetizer_PacketType_Telemetry,
-                                           0,
+                                           BUS_1,
+                                           senderPid,
                                            destination,
                                            packetData,
                                            SPACE_PACKET_PRIMARY_HEADER_SIZE,
@@ -54,6 +56,7 @@ TEST(Packetizer, PacketizeTelemetry)
 
 TEST(Packetizer, PacketizeTelecommand)
 {
+    const uint16_t senderPid = 0;
     const uint16_t destination = 1365;
     const uint16_t sequenceCount = 793;
 
@@ -61,7 +64,8 @@ TEST(Packetizer, PacketizeTelecommand)
 
     auto resultSize = Packetizer_packetize(&packetizer,
                                            Packetizer_PacketType_Telecommand,
-                                           0,
+                                           BUS_1,
+                                           senderPid,
                                            destination,
                                            packetData,
                                            SPACE_PACKET_PRIMARY_HEADER_SIZE,
@@ -110,6 +114,7 @@ TEST(Packetizer, DepacketizeTelemetry)
                                           Packetizer_PacketType_Telemetry,
                                           packetData,
                                           packetSize,
+                                          BUS_1,
                                           &receivedSenderPid,
                                           &receivedDestination,
                                           &receivedDataOffset,
@@ -151,6 +156,7 @@ TEST(Packetizer, DepacketizeTelecommand)
                                           Packetizer_PacketType_Telecommand,
                                           packetData,
                                           packetSize,
+                                          BUS_1,
                                           &receivedSenderPid,
                                           &receivedDestination,
                                           &receivedDataOffset,

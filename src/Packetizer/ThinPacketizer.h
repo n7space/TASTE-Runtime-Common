@@ -33,9 +33,13 @@
 /**
  * @brief   Initialize Packetizer struct
  *
- * @param[in]   self    Pointer to a structure representing Packetizer
+ * @param[in]   self         Pointer to a structure representing Packetizer
+ * @param[in]   busId        Bus ID of the device
+ * @param[out]  headerSize   Primary header size of the Packetizer
  */
-void ThinPacketizer_init(Packetizer* const self);
+void ThinPacketizer_init(Packetizer* const self,
+                         const enum SystemBus busId,
+                         size_t* const headerSize);
 
 /**
  * @brief   Packetize given data with Space Packet header and CRC.
@@ -46,6 +50,7 @@ void ThinPacketizer_init(Packetizer* const self);
  *
  * @param[in,out]   self            Pointer to a structure representing Packetizer
  * @param[in]       packetType      Type of packet that should be created
+ * @param[in]       busId           Bus ID of the device
  * @param[in]       source          Source application ID
  * @param[in]       destination     Destination application ID
  * @param[in,out]   packetPointer   Pointer to an array with the data
@@ -56,6 +61,7 @@ void ThinPacketizer_init(Packetizer* const self);
  */
 size_t ThinPacketizer_packetize(Packetizer* const self,
                                 const Packetizer_PacketType packetType,
+                                const enum SystemBus busId,
                                 const uint16_t source,
                                 const uint16_t destination,
                                 uint8_t* const packetPointer,
@@ -69,6 +75,7 @@ size_t ThinPacketizer_packetize(Packetizer* const self,
  * @param[in]   packetType      Expected packet type
  * @param[in]   packetPointer   Pointer to an array with the packet data
  * @param[in]   packetSize      Size of the packet data
+ * @param[in]   busId           Bus ID of the device
  * @param[out]  source          Source application ID
  * @param[out]  destination     Destination application ID
  * @param[out]  dataOffset      Offset to where data starts
@@ -81,6 +88,7 @@ bool ThinPacketizer_depacketize(const Packetizer* const self,
                                 const Packetizer_PacketType packetType,
                                 const uint8_t* const packetPointer,
                                 const size_t packetSize,
+                                const enum SystemBus busId,
                                 uint16_t* const source,
                                 uint16_t* const destination,
                                 size_t* const dataOffset,

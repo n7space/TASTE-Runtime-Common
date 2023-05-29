@@ -11,15 +11,18 @@ target_sources(Packetizer
                 IsoChecksum.h
                 PacketizerInternal.h
                 SpacePacketInternal.h
+                DeviceProvidedPacketizer.c
     PUBLIC      Packetizer.h
                 CCSDSPacketizer.h
+                DeviceProvidedPacketizer.h
                 SpacePacket.h)
 
 target_include_directories(Packetizer
     PUBLIC      ${CMAKE_CURRENT_SOURCE_DIR})
 
 target_link_libraries(Packetizer
-    PRIVATE     common_build_options)
+    PRIVATE     common_build_options
+    PUBLIC      TASTE::RuntimeMocks)
 
 add_format_target(Packetizer)
 
