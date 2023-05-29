@@ -94,4 +94,4 @@ bool DeviceProvidedPacketizer_depacketize(const Packetizer* const self,
                                           size_t* const dataSize,
                                           int32_t* const errorCode);
 
-#endif // THIN_PACKETIZER_H
+#endif // DEVICE_PROVIDED_PACKETIZER_H
