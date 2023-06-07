@@ -3,7 +3,8 @@ target_sources(RuntimeMocks
   PRIVATE      system_spec.c
                device_provided_packetizer.c
   PUBLIC       system_spec.h
-               device_provided_packetizer.h)
+               device_provided_packetizer.h
+               routing.h)
 
 target_include_directories(RuntimeMocks
   PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})

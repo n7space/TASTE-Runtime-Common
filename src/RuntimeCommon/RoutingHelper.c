@@ -1,7 +1,7 @@
 /**@file
  * This file is part of the TASTE Runtime Common.
  *
- * @copyright 2021 N7 Space Sp. z o.o.
+ * @copyright 2023 N7 Space Sp. z o.o.
  *
  * TASTE Runtime Common was developed under a programme of,
  * and funded by, the European Space Agency (the "ESA").
@@ -20,22 +20,27 @@
  * limitations under the License.
  */
 
-#include "system_spec.h"
+#include "RoutingHelper.h"
 
-enum SystemBus port_to_bus_map[] = {
-    BUS_INVALID_ID,
-};
+#include <stddef.h>
 
-enum RemoteInterface bus_to_port_map[] = {
-    INTERFACE_INVALID_ID,
-};
+#include "routing.h"
 
-enum SystemBus device_to_bus_map[SYSTEM_DEVICE_NUMBER] = { 0 };
+enum RemoteInterface
+find_unique_destination(const enum SystemBus bus)
+{
+    size_t index = 0;
+    size_t found_interface = INTERFACE_INVALID_ID;
+    for(index = 0; index < INTERFACE_MAX_ID; ++index) {
+        if(port_to_partition_bus_map[index].partition != PARTITION_NAME
+           && port_to_partition_bus_map[index].bus == bus) {
+            if(found_interface != INTERFACE_INVALID_ID) {
+                return INTERFACE_INVALID_ID;
+            } else {
+                found_interface = index;
+            }
+        }
+    }
 
-void* device_configurations[SYSTEM_DEVICE_NUMBER] = { 0 };
-
-const unsigned packetizer_configurations[SYSTEM_DEVICE_NUMBER] = { 0 };
-
-struct PartitionBusPair port_to_partition_bus_map[] = {
-    { PARTITION_INVALID_ID, BUS_INVALID_ID },
-};
+    return (enum RemoteInterface)found_interface;
+}

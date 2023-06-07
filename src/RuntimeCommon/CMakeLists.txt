@@ -3,7 +3,9 @@ project(RuntimeCommon VERSION 1.0.0 LANGUAGES C)
 add_library(RuntimeCommon STATIC)
 target_sources(RuntimeCommon
     PRIVATE     DriverHelper.c
-    PUBLIC      DriverHelper.h)
+                RoutingHelper.c
+    PUBLIC      DriverHelper.h
+                RoutingHelper.h)
 
 target_include_directories(RuntimeCommon
     PUBLIC      ${CMAKE_CURRENT_SOURCE_DIR})

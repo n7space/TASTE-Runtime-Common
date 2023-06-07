@@ -53,8 +53,15 @@ enum PacketizerCfg
 
 #define SYSTEM_BUSES_NUMBER (1 + 1)
 
+struct PartitionBusPair
+{
+    enum SystemPartition partition;
+    enum SystemBus bus;
+};
+
 extern enum SystemBus port_to_bus_map[];
 extern enum RemoteInterface bus_to_port_map[];
+extern struct PartitionBusPair port_to_partition_bus_map[];
 
 enum SystemDevice
 {
