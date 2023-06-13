@@ -1,7 +1,7 @@
 /**@file
  * This file is part of the TASTE Runtime Common.
  *
- * @copyright 2021 N7 Space Sp. z o.o.
+ * @copyright 2023 N7 Space Sp. z o.o.
  *
  * TASTE Runtime Common was developed under a programme of,
  * and funded by, the European Space Agency (the "ESA").
@@ -20,22 +20,23 @@
  * limitations under the License.
  */
 
-#include "system_spec.h"
+#ifndef ROUTING_HELPER_HPP
+#define ROUTING_HELPER_HPP
 
-enum SystemBus port_to_bus_map[] = {
-    BUS_INVALID_ID,
-};
+/**
+ * @file RoutingHelper.h
+ * @brief Helper functions for runtime.
+ *
+ * Functions to operate on system spec tables.
+ */
 
-enum RemoteInterface bus_to_port_map[] = {
-    INTERFACE_INVALID_ID,
-};
+#include <system_spec.h>
 
-enum SystemBus device_to_bus_map[SYSTEM_DEVICE_NUMBER] = { 0 };
+/** @brief Find unique destination interface for given bus.
+ *
+ * @param[bus] system bus
+ * @return unique provided interface connected to given bus or INVALID_INTERFACE_ID.
+ */
+enum RemoteInterface find_unique_destination(const enum SystemBus bus);
 
-void* device_configurations[SYSTEM_DEVICE_NUMBER] = { 0 };
-
-const unsigned packetizer_configurations[SYSTEM_DEVICE_NUMBER] = { 0 };
-
-struct PartitionBusPair port_to_partition_bus_map[] = {
-    { PARTITION_INVALID_ID, BUS_INVALID_ID },
-};
+#endif
