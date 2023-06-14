@@ -1,7 +1,7 @@
 /**@file
  * This file is part of the TASTE Runtime Common.
  *
- * @copyright 2022 N7 Space Sp. z o.o.
+ * @copyright 2023 N7 Space Sp. z o.o.
  *
  * TASTE Runtime Common was developed under a programme of,
  * and funded by, the European Space Agency (the "ESA").
@@ -25,7 +25,7 @@
 
 /**
  * @file    PassthroughPacketizer.h
- * @brief   Main header file for Space Packet passthrough packetizer.
+ * @brief   Main header file for passthrough packetizer.
  */
 
 #include "Packetizer.h"
@@ -40,11 +40,7 @@
 void PassthroughPacketizer_init(Packetizer* const self, const enum SystemBus busId, size_t* const headerSize);
 
 /**
- * @brief   Packetize given data with Space Packet header and CRC.
- *
- * This function assumes that the user is passing a pointer to array
- * that contains data which is properly offsetted for header to fit
- * and is also padded to for CRC.
+ * @brief   Packetize data, by not changing it.
  *
  * @param[in,out]   self            Pointer to a structure representing Packetizer
  * @param[in]       packetType      Type of packet that should be created
@@ -67,7 +63,8 @@ size_t PassthroughPacketizer_packetize(Packetizer* const self,
                                        const size_t dataSize);
 
 /**
- * @brief   Extracts data from given packet.
+ * @brief   Extracts destination from bus_to_unique_port_map for given busId.
+ *          Data is not changed.
  *
  * @param[in]   self            Pointer to a structure representing Packetizer
  * @param[in]   packetType      Expected packet type

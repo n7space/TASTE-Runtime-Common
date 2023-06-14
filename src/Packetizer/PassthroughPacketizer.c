@@ -1,7 +1,7 @@
 /**@file
  * This file is part of the TASTE Runtime Common.
  *
- * @copyright 2022 N7 Space Sp. z o.o.
+ * @copyright 2023 N7 Space Sp. z o.o.
  *
  * TASTE Runtime Common was developed under a programme of,
  * and funded by, the European Space Agency (the "ESA").
@@ -35,7 +35,6 @@ PassthroughPacketizer_init(Packetizer* const self, const enum SystemBus busId, s
 {
     // Unused in this implementation
     (void)self;
-    (void)busId;
 
     *headerSize = 0;
 
