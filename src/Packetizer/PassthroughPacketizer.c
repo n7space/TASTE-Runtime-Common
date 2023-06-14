@@ -24,6 +24,7 @@
 
 #include <assert.h>
 #include <string.h>
+#include <stdlib.h>
 
 #include "routing.h"
 #include "PacketizerInternal.h"
@@ -37,6 +38,11 @@ PassthroughPacketizer_init(Packetizer* const self, const enum SystemBus busId, s
     (void)busId;
 
     *headerSize = 0;
+
+    if(bus_to_unique_port_map[busId] == INTERFACE_INVALID_ID) {
+        // Passthrough Packetizer requires an unique interface on bus.
+        abort();
+    }
 }
 
 size_t
@@ -54,6 +60,7 @@ PassthroughPacketizer_packetize(Packetizer* const self,
     (void)packetType;
     (void)source;
     (void)busId;
+    (void)packetPointer;
     (void)dataOffset;
     (void)destination;
 
@@ -78,6 +85,7 @@ PassthroughPacketizer_depacketize(const Packetizer* const self,
     // Unused in this implementation
     (void)self;
     (void)packetType;
+    (void)packetPointer;
     (void)busId;
     (void)source;
     (void)errorCode;
