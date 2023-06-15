@@ -12,10 +12,12 @@ target_sources(Packetizer
                 PacketizerInternal.h
                 SpacePacketInternal.h
                 DeviceProvidedPacketizer.c
+                PassthroughPacketizer.c
     PUBLIC      Packetizer.h
                 CCSDSPacketizer.h
                 DeviceProvidedPacketizer.h
-                SpacePacket.h)
+                SpacePacket.h
+                PassthroughPacketizer.h)
 
 target_include_directories(Packetizer
     PUBLIC      ${CMAKE_CURRENT_SOURCE_DIR})

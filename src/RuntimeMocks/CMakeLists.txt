@@ -2,6 +2,7 @@ add_library(RuntimeMocks STATIC)
 target_sources(RuntimeMocks
   PRIVATE      system_spec.c
                device_provided_packetizer.c
+               routing.c
   PUBLIC       system_spec.h
                device_provided_packetizer.h
                routing.h)

@@ -29,6 +29,7 @@
 #include <ThinPacketizer.h>
 #include <CCSDSPacketizer.h>
 #include <DeviceProvidedPacketizer.h>
+#include <PassthroughPacketizer.h>
 #include <DriverHelper.h>
 
 static Packetizer packetizers_data[SYSTEM_BUSES_NUMBER] = { 0 };
@@ -85,6 +86,10 @@ Broker_initialize_packetizers_functions()
     packetizers_functions[PACKETIZER_DEVICE_PROVIDED].init = &DeviceProvidedPacketizer_init;
     packetizers_functions[PACKETIZER_DEVICE_PROVIDED].packetize = &DeviceProvidedPacketizer_packetize;
     packetizers_functions[PACKETIZER_DEVICE_PROVIDED].depacketize = &DeviceProvidedPacketizer_depacketize;
+    packetizers_functions[PACKETIZER_PASSTHROUGH].headerSize = 0;
+    packetizers_functions[PACKETIZER_PASSTHROUGH].init = &PassthroughPacketizer_init;
+    packetizers_functions[PACKETIZER_PASSTHROUGH].packetize = &PassthroughPacketizer_packetize;
+    packetizers_functions[PACKETIZER_PASSTHROUGH].depacketize = &PassthroughPacketizer_depacketize;
 }
 
 void
