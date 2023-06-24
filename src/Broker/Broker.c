@@ -32,11 +32,20 @@
 #include <PassthroughPacketizer.h>
 #include <DriverHelper.h>
 
+#ifdef MSP430_TARGET
+#define BUFFER_ATTRIBUTES __attribute__((persistent))
+#elif SAMV71_TARGET
+#define BUFFER_ATTRIBUTES __attribute__((section(".sdramMemorySection")))
+#else
+#define BUFFER_ATTRIBUTES
+#endif
+
+
 static Packetizer packetizers_data[SYSTEM_BUSES_NUMBER] = { 0 };
 static PacketizerFunctions packetizers_functions[PACKETIZER_MAX_ID];
 static broker_error_detected broker_error_callback = NULL;
 
-__attribute__((section(".sdramMemorySection"))) static uint8_t packetizer_buffer[BROKER_BUFFER_SIZE];
+BUFFER_ATTRIBUTES static uint8_t packetizer_buffer[BROKER_BUFFER_SIZE];
 extern driver_send_function bus_to_driver_send_function[SYSTEM_BUSES_NUMBER];
 extern void* bus_to_driver_private_data[SYSTEM_BUSES_NUMBER];
 extern enum PacketizerCfg bus_to_packetizer_cfg[SYSTEM_BUSES_NUMBER];
@@ -118,7 +127,7 @@ Broker_initialize(enum SystemBus valid_buses[SYSTEM_BUSES_NUMBER])
     }
 }
 
-#if defined GENERIC_LINUX_TARGET || defined RTEMS6_TARGET || defined SAMV71_TARGET
+#if defined GENERIC_LINUX_TARGET || defined RTEMS6_TARGET || defined SAMV71_TARGET || defined MSP430_TARGET
 void
 Broker_deliver_request(const enum RemoteInterface interface,
                        const asn1SccPID senderPid,
@@ -153,7 +162,7 @@ Broker_deliver_request(const enum RemoteInterface interface, const uint8_t* cons
 
     packetizer_packetize_function packetizer_packetize = packetizers_functions[packetizer_type].packetize;
 
-#if defined GENERIC_LINUX_TARGET || defined RTEMS6_TARGET || defined SAMV71_TARGET
+#if defined GENERIC_LINUX_TARGET || defined RTEMS6_TARGET || defined SAMV71_TARGET || defined MSP430_TARGET
     const size_t packet_size = packetizer_packetize(&packetizers_data[bus_id],
                                                     packet_type,
                                                     bus_id,
@@ -221,7 +230,7 @@ Broker_receive_packet(enum SystemBus bus_id, uint8_t* const data, const size_t l
 
     deliver_function fn = interface_to_deliver_function[destination];
 
-#if defined GENERIC_LINUX_TARGET || defined RTEMS6_TARGET || defined SAMV71_TARGET
+#if defined GENERIC_LINUX_TARGET || defined RTEMS6_TARGET || defined SAMV71_TARGET || defined MSP430_TARGET
     fn((asn1SccPID)source, data + data_offset, data_size);
 #else
     fn(data + data_offset, data_size);
