@@ -39,4 +39,11 @@
  */
 enum RemoteInterface find_unique_destination(const enum SystemBus bus);
 
+/** @brief Check if bus has any destination port.
+ *
+ * @param[bus] system bus
+ * @return 0 if bus does not have any destination port, otherwise non-zero value
+ */
+int check_bus_has_any_destination_port(const enum SystemBus bus);
+
 #endif

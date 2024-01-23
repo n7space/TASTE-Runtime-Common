@@ -38,7 +38,7 @@ PassthroughPacketizer_init(Packetizer* const self, const enum SystemBus busId, s
 
     *headerSize = 0;
 
-    if(bus_to_unique_port_map[busId] == INTERFACE_INVALID_ID) {
+    if(bus_to_unique_port_map[busId] == INTERFACE_INVALID_ID && bus_has_any_destination_port[busId] != 0) {
         // Passthrough Packetizer requires an unique interface on bus.
         abort();
     }
