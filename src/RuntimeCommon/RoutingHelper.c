@@ -44,3 +44,18 @@ find_unique_destination(const enum SystemBus bus)
 
     return (enum RemoteInterface)found_interface;
 }
+
+int
+check_bus_has_any_destination_port(const enum SystemBus bus)
+{
+    size_t index;
+    int result = 0;
+    for(index = 0; index < INTERFACE_MAX_ID; ++index) {
+        if(port_to_partition_bus_map[index].partition != PARTITION_NAME
+           && port_to_partition_bus_map[index].bus == bus) {
+            result = 1;
+        }
+    }
+
+    return result;
+}
