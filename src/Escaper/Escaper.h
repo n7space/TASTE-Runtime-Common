@@ -127,7 +127,7 @@ void Escaper_start_encoder(Escaper* const self);
  * @param[in,out]   index           Pointer to variable holding index of next byte to encode.
  *                                  If index == length, then the whole data bufer was encoded.
  *
- * @returns	Length of packet to be sent.
+ * @returns	Length of packet to be sent or 0 if finished.
  */
 size_t Escaper_encode_packet(Escaper* const self, const uint8_t* const data, const size_t length, size_t* const index);
 

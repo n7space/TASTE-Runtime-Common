@@ -154,7 +154,7 @@ Escaper_encode_packet(Escaper* const self, const uint8_t* const data, const size
         }
     }
 
-    if(*index == length) {
+    if((*index == length) && (!self->m_encode_finished)) {
         self->m_encoded_packet_buffer[encoded_packet_buffer_index] = STOP_BYTE;
         ++encoded_packet_buffer_index;
         self->m_encode_finished = true;
