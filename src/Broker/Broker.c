@@ -40,7 +40,6 @@
 #define BUFFER_ATTRIBUTES
 #endif
 
-
 static Packetizer packetizers_data[SYSTEM_BUSES_NUMBER] = { 0 };
 static PacketizerFunctions packetizers_functions[PACKETIZER_MAX_ID];
 static broker_error_detected broker_error_callback = NULL;

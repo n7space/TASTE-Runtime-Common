@@ -23,7 +23,7 @@
 #include "IsoChecksum.h"
 
 #define MAKE_UINT16(hi, lo) (uint16_t)(((hi) << 8u) | (lo))
-#define REDUCE(x) (((x)&0xFFu) + ((x) >> 8u))
+#define REDUCE(x) (((x) & 0xFFu) + ((x) >> 8u))
 #define CHUNK_SIZE 20u
 
 static uint16_t

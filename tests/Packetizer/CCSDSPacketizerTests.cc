@@ -17,7 +17,10 @@ TEST_GROUP(CCSDSPacketizer)
             CCSDS_SPACE_PACKET_PRIMARY_HEADER_SIZE + dataSize + SPACE_PACKET_ERROR_CONTROL_SIZE;
     uint8_t packetData[packetSize];
 
-    void setup() { memset(packetData, 0, packetSize); }
+    void setup()
+    {
+        memset(packetData, 0, packetSize);
+    }
 };
 
 TEST(CCSDSPacketizer, CCSDSPacketizeTelemetry)
@@ -208,7 +211,10 @@ TEST_GROUP(CCSDSPacketizerInternal)
 {
     uint8_t packetData[CCSDS_SPACE_PACKET_PRIMARY_HEADER_SIZE];
 
-    void setup() { memset(packetData, 0, CCSDS_SPACE_PACKET_PRIMARY_HEADER_SIZE); }
+    void setup()
+    {
+        memset(packetData, 0, CCSDS_SPACE_PACKET_PRIMARY_HEADER_SIZE);
+    }
 };
 
 TEST(CCSDSPacketizerInternal, CCSDSApidMin)
