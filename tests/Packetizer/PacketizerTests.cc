@@ -17,7 +17,10 @@ TEST_GROUP(Packetizer)
                                          + SPACE_PACKET_ERROR_CONTROL_SIZE;
     uint8_t packetData[packetSize];
 
-    void setup() { memset(packetData, 0, packetSize); }
+    void setup()
+    {
+        memset(packetData, 0, packetSize);
+    }
 };
 
 TEST(Packetizer, PacketizeTelemetry)
@@ -176,7 +179,10 @@ TEST_GROUP(PacketizerInternal)
 {
     uint8_t packetData[SPACE_PACKET_PRIMARY_HEADER_SIZE];
 
-    void setup() { memset(packetData, 0, SPACE_PACKET_PRIMARY_HEADER_SIZE); }
+    void setup()
+    {
+        memset(packetData, 0, SPACE_PACKET_PRIMARY_HEADER_SIZE);
+    }
 };
 
 TEST(PacketizerInternal, ApidMin)

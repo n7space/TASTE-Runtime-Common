@@ -26,8 +26,14 @@ extern "C"
 {
     enum PacketizerCfg bus_to_packetizer_cfg[] = { PACKETIZER_DEFAULT, PACKETIZER_DEFAULT };
     deliver_function interface_to_deliver_function[INTERFACE_MAX_ID];
-    void Broker_acquire_lock() { mock_c()->actualCall("Broker_acquire_lock"); }
-    void Broker_release_lock() { mock_c()->actualCall("Broker_release_lock"); }
+    void Broker_acquire_lock()
+    {
+        mock_c()->actualCall("Broker_acquire_lock");
+    }
+    void Broker_release_lock()
+    {
+        mock_c()->actualCall("Broker_release_lock");
+    }
 }
 
 TEST_GROUP(Broker){ void setup(){ interface_to_deliver_function[INTERFACE_INVALID_ID] = &deliverFunction;
