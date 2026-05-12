@@ -48,6 +48,11 @@
 
 #include <system_spec.h>
 #include <request_size.h>
+// suppress some warnings in included file
+// the observed warning is usually: struct has no members [-Wpedantic]
+// since some repos include this as submodule to verify if whole runtime
+// compiles with -Werror flag (treat warnings as errors),
+// those pragmas allow to compile it without issues
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wpedantic"
 #include <dataview-uniq.h>
