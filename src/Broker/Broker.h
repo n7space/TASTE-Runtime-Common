@@ -53,10 +53,10 @@
 // since some repos include this as submodule to verify if whole runtime
 // compiles with -Werror flag (treat warnings as errors),
 // those pragmas allow to compile it without issues
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wpedantic"
+#pragma GCC diagnostic push                 // push compiler settings
+#pragma GCC diagnostic ignored "-Wpedantic" // ignore only warnings reported by setting -Wpedantic
 #include <dataview-uniq.h>
-#pragma GCC diagnostic pop
+#pragma GCC diagnostic pop // restore saved compiler setting
 
 /// @brief  Buffer size to store space packet data.
 #define BROKER_BUFFER_SIZE                                                                                             \
