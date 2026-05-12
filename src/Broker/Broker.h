@@ -48,7 +48,10 @@
 
 #include <system_spec.h>
 #include <request_size.h>
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wpedantic"
 #include <dataview-uniq.h>
+#pragma GCC diagnostic pop
 
 /// @brief  Buffer size to store space packet data.
 #define BROKER_BUFFER_SIZE                                                                                             \
