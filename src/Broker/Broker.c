@@ -30,7 +30,6 @@
 #include <CCSDSPacketizer.h>
 #include <DeviceProvidedPacketizer.h>
 #include <PassthroughPacketizer.h>
-#include <DriverHelper.h>
 
 #ifdef MSP430_TARGET
 #define BUFFER_ATTRIBUTES __attribute__((persistent))
@@ -90,11 +89,11 @@ Broker_initialize_packetizers_functions()
     packetizers_functions[PACKETIZER_THIN].init = &ThinPacketizer_init;
     packetizers_functions[PACKETIZER_THIN].packetize = &ThinPacketizer_packetize;
     packetizers_functions[PACKETIZER_THIN].depacketize = &ThinPacketizer_depacketize;
-    packetizers_functions[PACKETIZER_DEVICE_PROVIDED].headerSize = 0;
+    packetizers_functions[PACKETIZER_DEVICE_PROVIDED].headerSize = 0u;
     packetizers_functions[PACKETIZER_DEVICE_PROVIDED].init = &DeviceProvidedPacketizer_init;
     packetizers_functions[PACKETIZER_DEVICE_PROVIDED].packetize = &DeviceProvidedPacketizer_packetize;
     packetizers_functions[PACKETIZER_DEVICE_PROVIDED].depacketize = &DeviceProvidedPacketizer_depacketize;
-    packetizers_functions[PACKETIZER_PASSTHROUGH].headerSize = 0;
+    packetizers_functions[PACKETIZER_PASSTHROUGH].headerSize = 0u;
     packetizers_functions[PACKETIZER_PASSTHROUGH].init = &PassthroughPacketizer_init;
     packetizers_functions[PACKETIZER_PASSTHROUGH].packetize = &PassthroughPacketizer_packetize;
     packetizers_functions[PACKETIZER_PASSTHROUGH].depacketize = &PassthroughPacketizer_depacketize;
@@ -150,7 +149,7 @@ Broker_deliver_request(const enum RemoteInterface interface, const uint8_t* cons
     const enum SystemBus bus_id = port_to_bus_map[interface];
     enum PacketizerCfg packetizer_type = bus_to_packetizer_cfg[bus_id];
 
-    unsigned header_size;
+    size_t header_size = 0;
     if(packetizer_type == PACKETIZER_DEVICE_PROVIDED) {
         header_size = getDeviceProvidedPacketizerHeaderSize(bus_id);
     } else {
@@ -192,11 +191,11 @@ void
 Broker_receive_packet(enum SystemBus bus_id, uint8_t* const data, const size_t length)
 {
     Broker_acquire_lock();
-    uint16_t source;
-    uint16_t destination;
-    size_t data_offset;
-    size_t data_size;
-    int32_t error_code;
+    uint16_t source = 0;
+    uint16_t destination = 0;
+    size_t data_offset = 0;
+    size_t data_size = 0;
+    int32_t error_code = 0;
 
 #if defined BROKER_EXPECT_TELECOMMAND
     const Packetizer_PacketType packet_type = Packetizer_PacketType_Telecommand;

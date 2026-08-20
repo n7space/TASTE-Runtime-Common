@@ -40,7 +40,7 @@ Escaper_init(Escaper* const self,
     self->m_encoded_packet_max_size = m_encoded_packet_buffer_size;
     self->m_decoded_packet_buffer = m_decoded_packet_buffer;
     self->m_decoded_packet_max_size = m_decoded_packet_buffer_size;
-    self->m_decoded_packet_buffer_index = 0;
+    self->m_decoded_packet_buffer_index = 0u;
 }
 
 void
@@ -56,7 +56,7 @@ Escaper_decode_packet(Escaper* const self,
                       const size_t length,
                       Receive_packet_fn receivePacketFn)
 {
-    for(size_t i = 0; i < length; ++i) {
+    for(size_t i = 0u; i < length; ++i) {
         switch(self->m_parse_state) {
             case Escaper_State_Wait:
                 if(buffer[i] == START_BYTE) {
@@ -66,7 +66,7 @@ Escaper_decode_packet(Escaper* const self,
             case Escaper_State_Data_Byte:
                 if(buffer[i] == STOP_BYTE) {
                     receivePacketFn(bus_id, self->m_decoded_packet_buffer, self->m_decoded_packet_buffer_index);
-                    self->m_decoded_packet_buffer_index = 0;
+                    self->m_decoded_packet_buffer_index = 0u;
                     self->m_parse_state = Escaper_State_Wait;
                 } else if(buffer[i] == ESCAPE_BYTE) {
                     self->m_parse_state = Escaper_State_Escape_Byte;
@@ -78,7 +78,7 @@ Escaper_decode_packet(Escaper* const self,
                         // buffer overflow prevented
                         // the current packet cannot be delivered
                         // reset escaper to search for new START_BYTE
-                        self->m_decoded_packet_buffer_index = 0;
+                        self->m_decoded_packet_buffer_index = 0u;
                         self->m_parse_state = Escaper_State_Wait;
                     } else {
                         self->m_decoded_packet_buffer[self->m_decoded_packet_buffer_index] = buffer[i];
@@ -91,7 +91,7 @@ Escaper_decode_packet(Escaper* const self,
                     // buffer overflow prevented
                     // the current packet cannot be delivered
                     // reset escaper to search for new START_BYTE
-                    self->m_decoded_packet_buffer_index = 0;
+                    self->m_decoded_packet_buffer_index = 0u;
                     self->m_parse_state = Escaper_State_Wait;
                 } else {
                     self->m_decoded_packet_buffer[self->m_decoded_packet_buffer_index] = buffer[i];
@@ -117,7 +117,7 @@ Escaper_start_encoder(Escaper* const self)
 size_t
 Escaper_encode_packet(Escaper* const self, const uint8_t* const data, const size_t length, size_t* const index)
 {
-    size_t encoded_packet_buffer_index = 0;
+    size_t encoded_packet_buffer_index = 0u;
 
     if(!self->m_encode_started) {
         self->m_encoded_packet_buffer[0] = START_BYTE;

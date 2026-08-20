@@ -25,32 +25,33 @@
 #include <stddef.h>
 
 #include "routing.h"
+#include "system_spec.h"
 
 enum RemoteInterface
 find_unique_destination(const enum SystemBus bus)
 {
-    size_t index = 0;
-    size_t found_interface = INTERFACE_INVALID_ID;
-    for(index = 0; index < INTERFACE_MAX_ID; ++index) {
+    size_t index = 0u;
+    enum RemoteInterface found_interface = INTERFACE_INVALID_ID;
+    for(index = 0u; index < INTERFACE_MAX_ID; ++index) {
         if(port_to_partition_bus_map[index].partition != PARTITION_NAME
            && port_to_partition_bus_map[index].bus == bus) {
             if(found_interface != INTERFACE_INVALID_ID) {
                 return INTERFACE_INVALID_ID;
             } else {
-                found_interface = index;
+                found_interface = (enum RemoteInterface)index;
             }
         }
     }
 
-    return (enum RemoteInterface)found_interface;
+    return found_interface;
 }
 
 int
 check_bus_has_any_destination_port(const enum SystemBus bus)
 {
-    size_t index;
+    size_t index = 0u;
     int result = 0;
-    for(index = 0; index < INTERFACE_MAX_ID; ++index) {
+    for(index = 0u; index < (size_t)INTERFACE_MAX_ID; ++index) {
         if(port_to_partition_bus_map[index].partition != PARTITION_NAME
            && port_to_partition_bus_map[index].bus == bus) {
             result = 1;
