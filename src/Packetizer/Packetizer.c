@@ -169,7 +169,7 @@ writePacketId(uint8_t* const packetPointer, const Packetizer_PacketType packetTy
     packetPointer[0] |= (uint8_t)(1u << SPACE_PACKET_SECONDARY_HEADER_FLAG_OFFSET);
 
     // 6th bit - Application process ID (11 bits) - BIG ENDIAN
-    packetPointer[0] |= (uint8_t)(((uint8_t)(destination & PACKETIZER_DESTINATION_HIGH_BITS_MASK))
+    packetPointer[0] |= (uint8_t)(((uint16_t)(destination & PACKETIZER_DESTINATION_HIGH_BITS_MASK))
                                   >> (8u - SPACE_PACKET_APID_HIGH_BITS_OFFSET));
     packetPointer[1] |= (uint8_t)(destination & 0xFFu);
 }
@@ -183,7 +183,7 @@ writePacketSequenceControl(uint8_t* const packetPointer, const Packetizer* const
 
     // 3rd bit - Packet sequence count (14 bits)
     packetPointer[2] |=
-            (uint8_t)((uint8_t)(packetizer->packetSequenceCount & PACKETIZER_PACKET_SEQUENCE_CONTROL_HIGH_BITS_MASK)
+            (uint8_t)((uint16_t)(packetizer->packetSequenceCount & PACKETIZER_PACKET_SEQUENCE_CONTROL_HIGH_BITS_MASK)
                       >> (8u - SPACE_PACKET_SEQUENCE_CONTROL_HIGH_BITS_OFFSET));
     packetPointer[3] |= (uint8_t)(packetizer->packetSequenceCount & 0xFFu);
 }
