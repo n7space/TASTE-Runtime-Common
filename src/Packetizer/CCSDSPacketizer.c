@@ -37,7 +37,7 @@ CCSDS_Packetizer_init(Packetizer* const self, const enum SystemBus busId, size_t
     (void)busId;
 
     *headerSize = CCSDS_SPACE_PACKET_PRIMARY_HEADER_SIZE;
-    self->packetSequenceCount = 0;
+    self->packetSequenceCount = 0u;
 }
 
 size_t
@@ -59,7 +59,7 @@ CCSDS_Packetizer_packetize(Packetizer* const self,
     assert(destination <= SPACE_PACKET_MAX_APID);
     assert(packetPointer != NULL);
     assert(dataOffset == CCSDS_SPACE_PACKET_PRIMARY_HEADER_SIZE);
-    assert(dataSize >= 1);
+    assert(dataSize >= 1u);
     assert(dataSize < CCSDS_SPACE_PACKET_MAX_PACKET_DATA_SIZE);
     const uint16_t rawDestination = destination;
     assert(rawDestination <= SPACE_PACKET_MAX_APID);
@@ -77,7 +77,7 @@ CCSDS_Packetizer_packetize(Packetizer* const self,
     // Increase sequence counter, it should wrap to zero after 2^14-1
     ++self->packetSequenceCount;
     if(self->packetSequenceCount > SPACE_PACKET_MAX_PACKET_SEQUENCE_COUNT) {
-        self->packetSequenceCount = 0; // Counter should wrap to zero
+        self->packetSequenceCount = 0u; // Counter should wrap to zero
     }
 
     // return full packetSize (header + dataSizeWithErr(dataSize + SPACE_PACKET_ERROR_CONTROL_SIZE))
@@ -106,7 +106,7 @@ CCSDS_Packetizer_depacketize(const Packetizer* const self,
     assert(dataSize != NULL);
     assert(destination != NULL);
 
-    if(packetSize <= CCSDS_SPACE_PACKET_PRIMARY_HEADER_SIZE + SPACE_PACKET_ERROR_CONTROL_SIZE) {
+    if(packetSize <= (CCSDS_SPACE_PACKET_PRIMARY_HEADER_SIZE + SPACE_PACKET_ERROR_CONTROL_SIZE)) {
         // the packet is smaller than expected (header + 1 byte of payload + checksum)
         return false;
     }
@@ -122,8 +122,8 @@ CCSDS_Packetizer_depacketize(const Packetizer* const self,
 
     // Check if CRC matches
     const uint16_t receivedChecksum =
-            packetPointer[CCSDS_SPACE_PACKET_PRIMARY_HEADER_SIZE + receivedDataSize - 1]
-            | (packetPointer[CCSDS_SPACE_PACKET_PRIMARY_HEADER_SIZE + receivedDataSize - 2] << 8);
+            packetPointer[CCSDS_SPACE_PACKET_PRIMARY_HEADER_SIZE + receivedDataSize - 1u]
+            | (((uint16_t)(packetPointer[CCSDS_SPACE_PACKET_PRIMARY_HEADER_SIZE + receivedDataSize - 2u]) << 8));
 
     const uint16_t expectedChecksum =
             IsoChecksum_calculate(packetPointer, packetSize - SPACE_PACKET_ERROR_CONTROL_SIZE);
@@ -146,7 +146,7 @@ CCSDS_Packetizer_depacketize(const Packetizer* const self,
     }
 
     // Save the results
-    *destination = packetPointer[1] | (packetPointer[0] & CCSDS_SPACE_PACKET_APID_HIGH_BITS_MASK) << 8u;
+    *destination = packetPointer[1] | ((uint16_t)(packetPointer[0]) & CCSDS_SPACE_PACKET_APID_HIGH_BITS_MASK) << 8u;
     *dataOffset = CCSDS_SPACE_PACKET_PRIMARY_HEADER_SIZE;
     *dataSize = receivedDataSize - SPACE_PACKET_ERROR_CONTROL_SIZE;
 
@@ -157,33 +157,34 @@ void
 writeCCSDSPacketId(uint8_t* const packetPointer, const Packetizer_PacketType packetType, const uint16_t destination)
 {
     // 4th bit - Packet type (1 bit)
-    packetPointer[0] |= packetType << CCSDS_SPACE_PACKET_TYPE_OFFSET;
+    packetPointer[0] |= (uint8_t)(packetType << CCSDS_SPACE_PACKET_TYPE_OFFSET);
 
     // 5th bit - Secondary header flag, always set (1 bit)
-    packetPointer[0] |= 1 << CCSDS_SPACE_PACKET_SECONDARY_HEADER_FLAG_OFFSET;
+    packetPointer[0] |= (uint8_t)(1u << CCSDS_SPACE_PACKET_SECONDARY_HEADER_FLAG_OFFSET);
 
     // 6th bit - Application process ID (11 bits) - BIG ENDIAN
-    packetPointer[0] |= (destination & PACKETIZER_DESTINATION_HIGH_BITS_MASK) >> 8u;
-    packetPointer[1] |= destination & 0xFF;
+    packetPointer[0] |= (uint8_t)((destination & PACKETIZER_DESTINATION_HIGH_BITS_MASK) >> 8u);
+    packetPointer[1] |= (uint8_t)(destination & 0xFFu);
 }
 
 void
 writeCCSDSPacketSequenceControl(uint8_t* const packetPointer, const Packetizer* const packetizer)
 {
     // 1st bit - Sequence flags, both bits always set (2 bits)
-    packetPointer[2] |= 1 << CCSDS_SPACE_PACKET_SEQUENCE_FLAGS_FIRST_OFFSET;
-    packetPointer[2] |= 1 << CCSDS_SPACE_PACKET_SEQUENCE_FLAGS_SECOND_OFFSET;
+    packetPointer[2] |= (uint8_t)(1u << CCSDS_SPACE_PACKET_SEQUENCE_FLAGS_FIRST_OFFSET);
+    packetPointer[2] |= (uint8_t)(1u << CCSDS_SPACE_PACKET_SEQUENCE_FLAGS_SECOND_OFFSET);
 
     // 3rd bit - Packet sequence count (14 bits)
-    packetPointer[2] |= (packetizer->packetSequenceCount & PACKETIZER_PACKET_SEQUENCE_CONTROL_HIGH_BITS_MASK) >> 8u;
-    packetPointer[3] |= packetizer->packetSequenceCount & 0xFF;
+    packetPointer[2] |=
+            (uint8_t)((packetizer->packetSequenceCount & PACKETIZER_PACKET_SEQUENCE_CONTROL_HIGH_BITS_MASK) >> 8u);
+    packetPointer[3] |= (uint8_t)(packetizer->packetSequenceCount & 0xFFu);
 }
 
 void
 writeCCSDSPacketDataLength(uint8_t* const packetPointer, const size_t dataSize)
 {
-    packetPointer[4] = ((dataSize - 1) >> 8) & 0xFF;
-    packetPointer[5] = (dataSize - 1) & 0xFF;
+    packetPointer[4] = (uint8_t)(((dataSize - 1) >> 8) & 0xFFu);
+    packetPointer[5] = (uint8_t)((dataSize - 1) & 0xFFu);
 }
 
 void
@@ -192,12 +193,12 @@ writeChecksum(uint8_t* const packetPointer, const size_t dataSize)
     const size_t checksumInputSize = CCSDS_SPACE_PACKET_PRIMARY_HEADER_SIZE + dataSize;
     const uint16_t checksum = IsoChecksum_calculate(packetPointer, checksumInputSize);
 
-    packetPointer[checksumInputSize] = (checksum >> 8) & 0xFF;
-    packetPointer[checksumInputSize + 1] = checksum & 0xFF;
+    packetPointer[checksumInputSize] = (uint8_t)((checksum >> 8) & 0xFFu);
+    packetPointer[checksumInputSize + 1] = (uint8_t)(checksum & 0xFFu);
 }
 
 size_t
 readCCSDSPacketDataLength(const uint8_t* const packetPointer)
 {
-    return ((size_t)(packetPointer[4] << 8u) | packetPointer[5]) + 1;
+    return ((size_t)((size_t)(packetPointer[4]) << 8u) | packetPointer[5]) + 1u;
 }

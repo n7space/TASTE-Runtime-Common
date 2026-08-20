@@ -45,7 +45,7 @@ DeviceProvidedPacketizer_packetize(Packetizer* const self,
     packetizer_packetize_function packetizer_packetize = getDeviceProvidedPacketizerPacketizeFunction(busId);
 
     if(packetizer_packetize == NULL) {
-        return 0;
+        return 0u;
     }
 
     return packetizer_packetize(self, packetType, busId, source, destination, packetPointer, dataOffset, dataSize);

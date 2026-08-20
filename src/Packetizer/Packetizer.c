@@ -36,7 +36,7 @@ Packetizer_init(Packetizer* const self, const enum SystemBus busId, size_t* cons
     (void)busId;
 
     *headerSize = SPACE_PACKET_PRIMARY_HEADER_SIZE;
-    self->packetSequenceCount = 0;
+    self->packetSequenceCount = 0u;
 }
 
 size_t
@@ -70,7 +70,7 @@ Packetizer_packetize(Packetizer* const self,
     // Increase sequence counter, it should wrap to zero after 2^14-1
     ++self->packetSequenceCount;
     if(self->packetSequenceCount > SPACE_PACKET_MAX_PACKET_SEQUENCE_COUNT) {
-        self->packetSequenceCount = 0; // Counter should wrap to zero
+        self->packetSequenceCount = 0u; // Counter should wrap to zero
     }
 
     return SPACE_PACKET_PRIMARY_HEADER_SIZE + dataSize + SPACE_PACKET_SENDER_PID_SIZE + SPACE_PACKET_ERROR_CONTROL_SIZE;
@@ -97,7 +97,8 @@ Packetizer_depacketize(const Packetizer* const self,
     assert(dataSize != NULL);
     assert(destination != NULL);
 
-    if(packetSize < SPACE_PACKET_PRIMARY_HEADER_SIZE + SPACE_PACKET_SENDER_PID_SIZE + SPACE_PACKET_ERROR_CONTROL_SIZE) {
+    if(packetSize
+       < (size_t)(SPACE_PACKET_PRIMARY_HEADER_SIZE + SPACE_PACKET_SENDER_PID_SIZE + SPACE_PACKET_ERROR_CONTROL_SIZE)) {
         // the packet is smaller than expected (header + sender pid + checksum)
         if(errorCode != NULL) {
             *errorCode = Packetizer_ErrorCode_PacketTooSmall;
@@ -117,13 +118,16 @@ Packetizer_depacketize(const Packetizer* const self,
     }
 
     // Get sender PID
-    uint16_t senderPid = packetPointer[SPACE_PACKET_PRIMARY_HEADER_SIZE + receivedDataSize + 1]
-                         | (packetPointer[SPACE_PACKET_PRIMARY_HEADER_SIZE + receivedDataSize] << 8);
+    uint16_t senderPid =
+            (uint16_t)(packetPointer[SPACE_PACKET_PRIMARY_HEADER_SIZE + receivedDataSize + 1u])
+            | (uint16_t)((uint16_t)(packetPointer[SPACE_PACKET_PRIMARY_HEADER_SIZE + receivedDataSize]) << 8u);
 
     // Check if CRC matches
-    uint16_t receivedCrc =
-            packetPointer[SPACE_PACKET_PRIMARY_HEADER_SIZE + receivedDataSize + SPACE_PACKET_SENDER_PID_SIZE + 1]
-            | (packetPointer[SPACE_PACKET_PRIMARY_HEADER_SIZE + receivedDataSize + SPACE_PACKET_SENDER_PID_SIZE] << 8);
+    uint16_t receivedCrc = (uint16_t)(packetPointer[SPACE_PACKET_PRIMARY_HEADER_SIZE + receivedDataSize
+                                                    + SPACE_PACKET_SENDER_PID_SIZE + 1u])
+                           | (uint16_t)((uint16_t)(packetPointer[SPACE_PACKET_PRIMARY_HEADER_SIZE + receivedDataSize
+                                                                 + SPACE_PACKET_SENDER_PID_SIZE])
+                                        << 8u);
     uint16_t expectedCrc =
             calculateCrc16(packetPointer, packetSize - SPACE_PACKET_SENDER_PID_SIZE - SPACE_PACKET_ERROR_CONTROL_SIZE);
 
@@ -145,8 +149,9 @@ Packetizer_depacketize(const Packetizer* const self,
     }
 
     // Save the results
-    *destination = packetPointer[1]
-                   | (packetPointer[0] & SPACE_PACKET_APID_HIGH_BITS_MASK) << (8u - SPACE_PACKET_APID_HIGH_BITS_OFFSET);
+    *destination = (uint16_t)(packetPointer[1])
+                   | (uint16_t)((uint16_t)(packetPointer[0] & SPACE_PACKET_APID_HIGH_BITS_MASK)
+                                << (8u - SPACE_PACKET_APID_HIGH_BITS_OFFSET));
     *dataOffset = SPACE_PACKET_PRIMARY_HEADER_SIZE;
     *dataSize = receivedDataSize;
     *source = senderPid;
@@ -158,43 +163,44 @@ void
 writePacketId(uint8_t* const packetPointer, const Packetizer_PacketType packetType, const uint16_t destination)
 {
     // 4th bit - Packet type (1 bit)
-    packetPointer[0] |= packetType << SPACE_PACKET_TYPE_OFFSET;
+    packetPointer[0] |= (uint8_t)((uint8_t)packetType << SPACE_PACKET_TYPE_OFFSET);
 
     // 5th bit - Secondary header flag, always set (1 bit)
-    packetPointer[0] |= 1 << SPACE_PACKET_SECONDARY_HEADER_FLAG_OFFSET;
+    packetPointer[0] |= (uint8_t)(1u << SPACE_PACKET_SECONDARY_HEADER_FLAG_OFFSET);
 
     // 6th bit - Application process ID (11 bits) - BIG ENDIAN
-    packetPointer[0] |=
-            (destination & PACKETIZER_DESTINATION_HIGH_BITS_MASK) >> (8u - SPACE_PACKET_APID_HIGH_BITS_OFFSET);
-    packetPointer[1] |= destination & 0xFF;
+    packetPointer[0] |= (uint8_t)(((uint16_t)(destination & PACKETIZER_DESTINATION_HIGH_BITS_MASK))
+                                  >> (8u - SPACE_PACKET_APID_HIGH_BITS_OFFSET));
+    packetPointer[1] |= (uint8_t)(destination & 0xFFu);
 }
 
 void
 writePacketSequenceControl(uint8_t* const packetPointer, const Packetizer* const packetizer)
 {
     // 1st bit - Sequence flags, both bits always set (2 bits)
-    packetPointer[2] |= 1 << SPACE_PACKET_SEQUENCE_FLAGS_FIRST_OFFSET;
-    packetPointer[2] |= 1 << SPACE_PACKET_SEQUENCE_FLAGS_SECOND_OFFSET;
+    packetPointer[2] |= (uint8_t)(1u << SPACE_PACKET_SEQUENCE_FLAGS_FIRST_OFFSET);
+    packetPointer[2] |= (uint8_t)(1u << SPACE_PACKET_SEQUENCE_FLAGS_SECOND_OFFSET);
 
     // 3rd bit - Packet sequence count (14 bits)
-    packetPointer[2] |= (packetizer->packetSequenceCount & PACKETIZER_PACKET_SEQUENCE_CONTROL_HIGH_BITS_MASK)
-                        >> (8u - SPACE_PACKET_SEQUENCE_CONTROL_HIGH_BITS_OFFSET);
-    packetPointer[3] |= packetizer->packetSequenceCount & 0xFF;
+    packetPointer[2] |=
+            (uint8_t)((uint16_t)(packetizer->packetSequenceCount & PACKETIZER_PACKET_SEQUENCE_CONTROL_HIGH_BITS_MASK)
+                      >> (8u - SPACE_PACKET_SEQUENCE_CONTROL_HIGH_BITS_OFFSET));
+    packetPointer[3] |= (uint8_t)(packetizer->packetSequenceCount & 0xFFu);
 }
 
 void
 writePacketDataLength(uint8_t* const packetPointer, const size_t dataSize)
 {
-    if(dataSize != 0) {
-        packetPointer[4] = ((dataSize - 1) >> 24) & 0xFF;
-        packetPointer[5] = ((dataSize - 1) >> 16) & 0xFF;
-        packetPointer[6] = ((dataSize - 1) >> 8) & 0xFF;
-        packetPointer[7] = (dataSize - 1) & 0xFF;
+    if(0u != dataSize) {
+        packetPointer[4] = (uint8_t)(((dataSize - 1u) >> 24u) & 0xFFu);
+        packetPointer[5] = (uint8_t)(((dataSize - 1u) >> 16u) & 0xFFu);
+        packetPointer[6] = (uint8_t)(((dataSize - 1u) >> 8u) & 0xFFu);
+        packetPointer[7] = (uint8_t)((dataSize - 1u) & 0xFFu);
     } else {
-        packetPointer[4] = 0xFF;
-        packetPointer[5] = 0xFF;
-        packetPointer[6] = 0xFF;
-        packetPointer[7] = 0xFF;
+        packetPointer[4] = 0xFFu;
+        packetPointer[5] = 0xFFu;
+        packetPointer[6] = 0xFFu;
+        packetPointer[7] = 0xFFu;
     }
 }
 
@@ -203,15 +209,17 @@ writeCrc(uint8_t* const packetPointer, const size_t dataSize)
 {
     uint16_t crc = calculateCrc16(packetPointer, SPACE_PACKET_PRIMARY_HEADER_SIZE + dataSize);
 
-    packetPointer[SPACE_PACKET_PRIMARY_HEADER_SIZE + dataSize + SPACE_PACKET_SENDER_PID_SIZE] = (crc >> 8) & 0xFF;
-    packetPointer[SPACE_PACKET_PRIMARY_HEADER_SIZE + dataSize + SPACE_PACKET_SENDER_PID_SIZE + 1] = crc & 0xFF;
+    packetPointer[SPACE_PACKET_PRIMARY_HEADER_SIZE + dataSize + SPACE_PACKET_SENDER_PID_SIZE] =
+            (uint8_t)((crc >> 8u) & 0xFFu);
+    packetPointer[SPACE_PACKET_PRIMARY_HEADER_SIZE + dataSize + SPACE_PACKET_SENDER_PID_SIZE + 1u] =
+            (uint8_t)(crc & 0xFFu);
 }
 
 void
 writeSenderPid(uint8_t* const packetPointer, const size_t dataSize, const uint16_t senderPid)
 {
-    packetPointer[SPACE_PACKET_PRIMARY_HEADER_SIZE + dataSize] = (senderPid >> 8) & 0xFF;
-    packetPointer[SPACE_PACKET_PRIMARY_HEADER_SIZE + dataSize + 1] = senderPid & 0xFF;
+    packetPointer[SPACE_PACKET_PRIMARY_HEADER_SIZE + dataSize] = (uint8_t)((senderPid >> 8u) & 0xFFu);
+    packetPointer[SPACE_PACKET_PRIMARY_HEADER_SIZE + dataSize + 1u] = (uint8_t)(senderPid & 0xFFu);
 }
 
 size_t
@@ -220,9 +228,9 @@ readPacketDataLength(const uint8_t* const packetPointer)
     const uint32_t packetSize = ((uint32_t)(packetPointer[4]) << 24u) | ((uint32_t)(packetPointer[5]) << 16u)
                                 | ((uint32_t)(packetPointer[6]) << 8u) | (uint32_t)(packetPointer[7]);
 
-    const uint32_t zeroPacketSize = 0xffffffff;
+    const uint32_t zeroPacketSize = 0xFFFFFFFFu;
     if(packetSize == zeroPacketSize) {
         return 0;
     }
-    return (size_t)packetSize + 1;
+    return (size_t)packetSize + 1u;
 }

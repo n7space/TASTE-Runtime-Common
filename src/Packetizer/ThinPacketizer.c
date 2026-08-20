@@ -25,9 +25,6 @@
 #include <assert.h>
 #include <string.h>
 
-#include "PacketizerInternal.h"
-#include "SpacePacketInternal.h"
-
 void thinWritePacketId(uint8_t* const packetPointer, const Packetizer_PacketType packetType, const uint16_t source);
 uint16_t thinReadPacketId(const uint8_t* const packetPointer);
 void thinWritePacketDataLength(uint8_t* const packetPointer, const size_t dataSize);
@@ -63,7 +60,7 @@ ThinPacketizer_packetize(Packetizer* const self,
     assert(destination <= SPACE_PACKET_MAX_APID);
     assert(packetPointer != NULL);
     assert(dataOffset == THIN_SPACE_PACKET_PRIMARY_HEADER_SIZE);
-    assert(dataSize >= 1);
+    assert(dataSize >= 1u);
     assert(dataSize < SPACE_PACKET_MAX_PACKET_DATA_SIZE);
 
     memset(packetPointer, 0, THIN_SPACE_PACKET_PRIMARY_HEADER_SIZE);
@@ -125,8 +122,8 @@ thinWritePacketId(uint8_t* const packetPointer, const Packetizer_PacketType pack
     // Unused in this implementation
     (void)packetType;
 
-    packetPointer[0] |= (destination >> 8u) & 0xFF;
-    packetPointer[1] |= destination & 0xFF;
+    packetPointer[0] |= (uint8_t)((destination >> 8u) & 0xFFu);
+    packetPointer[1] |= (uint8_t)(destination & 0xFFu);
 }
 
 uint16_t
@@ -138,12 +135,12 @@ thinReadPacketId(const uint8_t* const packetPointer)
 void
 thinWritePacketDataLength(uint8_t* const packetPointer, const size_t dataSize)
 {
-    packetPointer[2] = ((dataSize - 1) >> 8) & 0xFF;
-    packetPointer[3] = (dataSize - 1) & 0xFF;
+    packetPointer[2] = (uint8_t)(((dataSize - 1u) >> 8u) & 0xFFu);
+    packetPointer[3] = (uint8_t)((dataSize - 1u) & 0xFFu);
 }
 
 size_t
 thinReadPacketDataLength(const uint8_t* const packetPointer)
 {
-    return ((size_t)(packetPointer[2] << 8u) | packetPointer[3]) + 1;
+    return ((size_t)packetPointer[2] << 8u) | (size_t)((packetPointer[3]) + 1u);
 }
