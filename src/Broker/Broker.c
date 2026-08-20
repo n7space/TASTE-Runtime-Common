@@ -119,9 +119,9 @@ Broker_initialize(enum SystemBus valid_buses[SYSTEM_BUSES_NUMBER])
             // It is a fix for gcc's false positive warning. The index 'bus_id' is retrieved from another array and
             // gcc is not sure if the value is outside array 'bus_to_packetizer_cfg' bounds.
             // https://gcc.gnu.org/bugzilla/show_bug.cgi?id=85398
-            enum PacketizerCfg packetizer_type = bus_to_packetizer_cfg[bus_id];
+            enum PacketizerCfg packetizer_type = bus_to_packetizer_cfg[bus_id]; // cppcheck-suppress negativeIndex
             packetizer_init_function packetizer_init = packetizers_functions[packetizer_type].init;
-            packetizer_init(&packetizers_data[bus_id], bus_id, &headerSize);
+            packetizer_init(&packetizers_data[bus_id], bus_id, &headerSize); // cppcheck-suppress negativeIndex
         }
     }
 }
