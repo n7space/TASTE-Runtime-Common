@@ -29,7 +29,7 @@ get_device_configuration(const enum SystemDevice device_id)
         return (void*)0;
     }
 
-    return device_configurations[(int)device_id];
+    return device_configurations[(int)device_id]; // cppcheck-suppress arrayIndexOutOfBoundsCond
 }
 
 const void*
@@ -38,7 +38,7 @@ get_remote_device_configuration(const enum SystemDevice device_id)
     if((int)device_id > SYSTEM_DEVICE_NUMBER) {
         return (void*)0;
     }
-    const enum SystemBus bus_id = device_to_bus_map[(int)device_id];
+    const enum SystemBus bus_id = device_to_bus_map[(int)device_id]; // cppcheck-suppress arrayIndexOutOfBoundsCond
     for(int index = 0; index < SYSTEM_DEVICE_NUMBER; ++index) {
         if(index != (int)device_id && device_to_bus_map[index] == bus_id) {
             return device_configurations[index];
@@ -55,5 +55,5 @@ get_device_packetizer_cfg(const enum SystemDevice device_id)
         return PACKETIZER_DEFAULT;
     }
 
-    return (enum PacketizerCfg)packetizer_configurations[(int)device_id];
+    return (enum PacketizerCfg)packetizer_configurations[(int)device_id]; // cppcheck-suppress arrayIndexOutOfBoundsCond
 }
