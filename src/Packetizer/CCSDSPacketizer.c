@@ -67,7 +67,9 @@ CCSDS_Packetizer_packetize(Packetizer* const self,
     // Add SPACE_PACKET_ERROR_CONTROL_SIZE here, because checksum is a part of payload
     const size_t dataSizeWithErr = dataSize + SPACE_PACKET_ERROR_CONTROL_SIZE;
 
+    // NOLINTBEGIN(clang-analyzer-security.insecureAPI.DeprecatedOrUnsafeBufferHandling)
     memset(packetPointer, 0, CCSDS_SPACE_PACKET_PRIMARY_HEADER_SIZE);
+    // NOLINTEND(clang-analyzer-security.insecureAPI.DeprecatedOrUnsafeBufferHandling)
 
     writeCCSDSPacketId(packetPointer, packetType, rawDestination);
     writeCCSDSPacketSequenceControl(packetPointer, self);

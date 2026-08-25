@@ -16,11 +16,14 @@ jobs:
         with:
           submodules: recursive
 
+      - name: Install development tools
+        run: sudo apt install -y clang-tidy
+
       - name: Run CMake
-        run: cmake .
+        run: cmake -S . -B build/ -DCMAKE_BUILD_TYPE=Debug -DTOOLS_ENABLE_TIDY=ON -DTASTE_RUNTIME_COMMON_BUILD_TESTS=ON -DTASTE_RUNTIME_COMMON_WARNINGS_AS_ERRORS=ON
 
       - name: Build
-        run: make
+        run: cmake --build build/
 
       - name: Run tests
-        run: ctest -V
+        run: ctest --test-dir build/ -V --output-on-failure

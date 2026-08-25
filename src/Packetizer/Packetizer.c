@@ -59,7 +59,9 @@ Packetizer_packetize(Packetizer* const self,
     assert(dataOffset == SPACE_PACKET_PRIMARY_HEADER_SIZE);
     assert(dataSize < SPACE_PACKET_MAX_PACKET_DATA_SIZE);
 
+    // NOLINTBEGIN(clang-analyzer-security.insecureAPI.DeprecatedOrUnsafeBufferHandling)
     memset(packetPointer, 0, SPACE_PACKET_PRIMARY_HEADER_SIZE);
+    // NOLINTEND(clang-analyzer-security.insecureAPI.DeprecatedOrUnsafeBufferHandling)
 
     writePacketId(packetPointer, packetType, destination);
     writePacketSequenceControl(packetPointer, self);

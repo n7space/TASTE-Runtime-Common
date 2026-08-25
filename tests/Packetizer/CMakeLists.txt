@@ -4,6 +4,7 @@ add_library(PacketizerTests SHARED)
 target_sources(PacketizerTests
     PRIVATE     PacketizerTests.cc
                 CCSDSPacketizerTests.cc)
+set_source_files_properties(PacketizerTests.cc CCSDSPacketizerTests.cc PROPERTIES SKIP_LINTING ON)
 target_link_libraries(PacketizerTests
     PRIVATE     common_build_options
     PUBLIC      CppUTest

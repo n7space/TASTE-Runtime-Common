@@ -5,6 +5,8 @@ set (CMAKE_CXX_STANDARD 17)
 add_executable(RunAllTests)
 target_sources(RunAllTests
     PRIVATE     main.cc)
+set_source_files_properties(main.cc PROPERTIES SKIP_LINTING ON)
+
 target_link_libraries(RunAllTests
     PRIVATE     common_build_options
                 CppUTest
