@@ -6,6 +6,13 @@ target_sources(RuntimeMocks
   PUBLIC       system_spec.h
                device_provided_packetizer.h
                routing.h)
+set_source_files_properties(system_spec.c
+               device_provided_packetizer.c
+               routing.c
+               system_spec.h
+               device_provided_packetizer.h
+               routing.h
+               PROPERTIES SKIP_LINTING ON)
 
 target_include_directories(RuntimeMocks
   PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})

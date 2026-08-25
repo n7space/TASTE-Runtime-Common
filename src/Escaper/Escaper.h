@@ -101,7 +101,7 @@ void Escaper_start_decoder(Escaper* const self);
  */
 void Escaper_decode_packet(Escaper* const self,
                            enum SystemBus bus_id,
-                           uint8_t* buffer,
+                           const uint8_t* buffer,
                            const size_t length,
                            Receive_packet_fn receivePacketFn);
 
