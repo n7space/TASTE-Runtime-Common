@@ -81,8 +81,8 @@ include(ClangFormat)
 include(Doxygen)
 
 if(TOOLS_ENABLE_TIDY)
-    set(CMAKE_CXX_CLANG_TIDY ${CLANG-TIDY}; --use-color)
-    set(CMAKE_C_CLANG_TIDY ${CLANG-TIDY}; --extra-arg=-std=c${CMAKE_C_STANDARD}; --use-color)
+    set(CMAKE_CXX_CLANG_TIDY ${CLANG_TIDY_EXE}; --use-color)
+    set(CMAKE_C_CLANG_TIDY ${CLANG_TIDY_EXE}; --extra-arg=-std=c${CMAKE_C_STANDARD}; --use-color)
 endif()
 
 if(TOOLS_ENABLE_CPPCHECK)
