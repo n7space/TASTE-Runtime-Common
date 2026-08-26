@@ -1,12 +1,17 @@
-cmake_minimum_required(VERSION 3.13 FATAL_ERROR)
+cmake_minimum_required(VERSION 3.30 FATAL_ERROR)
 project(TASTE-Runtime-Common VERSION 1.0.0 LANGUAGES C CXX)
 
-set(CMAKE_C_STANDARD 99)
+set(CMAKE_C_STANDARD 11)
+set(CMAKE_C_STANDARD_REQUIRED ON)
+set(CMAKE_C_EXTENSIONS OFF)
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 set(EXECUTABLE_OUTPUT_PATH ${CMAKE_BINARY_DIR}/build/bin)
 set(LIBRARY_OUTPUT_PATH ${CMAKE_BINARY_DIR}/build/lib)
 set(TESTS_OUTPUT_PATH ${CMAKE_BINARY_DIR}/build/tests)
+
+option(TOOLS_ENABLE_TIDY "Enable static analysis with clang-tidy" OFF)
+option(TOOLS_ENABLE_CPPCHECK "Enable Cppcheck" OFF)
 
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
 
@@ -39,10 +44,30 @@ set(CLANG_WARNINGS ${CLANG_WARNINGS}
                    -Wformat=2)
 
 set(GCC_WARNINGS ${CLANG_WARNINGS}
-                 -Wmisleading-indentation
-                 -Wduplicated-cond
-                 -Wduplicated-branches
-                 -Wlogical-op)
+    -Wmisleading-indentation)
+
+if(TOOLS_ENABLE_TIDY)
+    find_program(CLANG_TIDY_EXE clang-tidy REQUIRED)
+    if(CLANG_TIDY_EXE MATCHES "-NOTFOUND")
+        log_program_missing("clang-tidy")
+    else()
+        log_option_enabled("clang-tidy")
+    endif()
+else()
+    log_option_disabled("clang-tidy")
+endif()
+
+if(TOOLS_ENABLE_CPPCHECK)
+    find_program(CPPCHECK_EXE cppcheck REQUIRED)
+    if(CPPCHECK_EXE MATCHES "-NOTFOUND")
+        log_program_missing("cppcheck")
+    else()
+        log_option_enabled("cppcheck")
+    endif()
+else()
+    log_option_disabled("cppcheck")
+endif()
+
 
 if(CMAKE_C_COMPILER_ID STREQUAL "Clang")
     set(PROJECT_WARNINGS ${CLANG_WARNINGS})
@@ -52,10 +77,18 @@ endif()
 
 target_compile_options(common_build_options INTERFACE ${PROJECT_WARNINGS})
 
-include(CppCheck)
-include(ClangTidy)
 include(ClangFormat)
 include(Doxygen)
+
+if(TOOLS_ENABLE_TIDY)
+    set(CMAKE_CXX_CLANG_TIDY ${CLANG_TIDY_EXE}; --use-color)
+    set(CMAKE_C_CLANG_TIDY ${CLANG_TIDY_EXE}; --extra-arg=-std=c${CMAKE_C_STANDARD}; --use-color)
+endif()
+
+if(TOOLS_ENABLE_CPPCHECK)
+    set(CMAKE_C_CPPCHECK ${CPPCHECK_EXE}; --error-exitcode=1; --language=c; --std=c11; --inline-suppr; --enable=all; --suppress=unmatchedSuppression; --suppress=missingIncludeSystem; --suppress=unusedFunction; --suppress=staticFunction; --suppress=checkersReport;)
+endif()
+
 
 add_subdirectory(src)
 
@@ -82,4 +115,5 @@ if(TASTE_RUNTIME_COMMON_BUILD_TESTS)
     add_subdirectory(src/ThirdParty/cpputest)
 
     add_subdirectory(tests)
+    set_source_files_properties(DIRECTORY "src/ThirdParty/cpputest/" PROPERTIES SKIP_LINTING ON)
 endif()

@@ -3,6 +3,7 @@ project(BrokerTests VERSION 1.0.0 LANGUAGES CXX)
 add_library(BrokerTests SHARED)
 target_sources(BrokerTests
     PRIVATE     BrokerTests.cc)
+set_source_files_properties(BrokerTests.cc PROPERTIES SKIP_LINTING ON)
 target_link_libraries(BrokerTests
     PRIVATE     TASTE::Broker
                 TASTE::RuntimeMocks

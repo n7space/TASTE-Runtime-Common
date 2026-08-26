@@ -49,8 +49,8 @@ extern void* bus_to_driver_private_data[SYSTEM_BUSES_NUMBER];
 extern enum PacketizerCfg bus_to_packetizer_cfg[SYSTEM_BUSES_NUMBER];
 extern deliver_function interface_to_deliver_function[INTERFACE_MAX_ID];
 
-extern void Broker_acquire_lock();
-extern void Broker_release_lock();
+extern void Broker_acquire_lock(void);
+extern void Broker_release_lock(void);
 
 static Broker_ErrorType
 Broker_packetizer_error_to_broker_error(int32_t packetizer_error)
@@ -71,7 +71,7 @@ Broker_packetizer_error_to_broker_error(int32_t packetizer_error)
 }
 
 void
-Broker_initialize_packetizers_functions()
+Broker_initialize_packetizers_functions(void)
 {
     packetizers_functions[PACKETIZER_DEFAULT].headerSize = SPACE_PACKET_PRIMARY_HEADER_SIZE;
     packetizers_functions[PACKETIZER_DEFAULT].init = &Packetizer_init;
@@ -100,9 +100,9 @@ Broker_initialize_packetizers_functions()
 }
 
 void
-Broker_initialize(enum SystemBus valid_buses[SYSTEM_BUSES_NUMBER])
+Broker_initialize(const enum SystemBus valid_buses[SYSTEM_BUSES_NUMBER])
 {
-    size_t headerSize;
+    size_t headerSize = 0;
     Broker_initialize_packetizers_functions();
 
     for(int i = 0; i < SYSTEM_BUSES_NUMBER; ++i) {
@@ -118,9 +118,11 @@ Broker_initialize(enum SystemBus valid_buses[SYSTEM_BUSES_NUMBER])
             // It is a fix for gcc's false positive warning. The index 'bus_id' is retrieved from another array and
             // gcc is not sure if the value is outside array 'bus_to_packetizer_cfg' bounds.
             // https://gcc.gnu.org/bugzilla/show_bug.cgi?id=85398
-            enum PacketizerCfg packetizer_type = bus_to_packetizer_cfg[bus_id]; // cppcheck-suppress negativeIndex
+            // cppcheck-suppress negativeIndex
+            enum PacketizerCfg packetizer_type = bus_to_packetizer_cfg[bus_id];
             packetizer_init_function packetizer_init = packetizers_functions[packetizer_type].init;
-            packetizer_init(&packetizers_data[bus_id], bus_id, &headerSize); // cppcheck-suppress negativeIndex
+            // cppcheck-suppress negativeIndex
+            packetizer_init(&packetizers_data[bus_id], bus_id, &headerSize);
         }
     }
 }
@@ -156,7 +158,9 @@ Broker_deliver_request(const enum RemoteInterface interface, const uint8_t* cons
         header_size = packetizers_functions[packetizer_type].headerSize;
     }
 
+    // NOLINTBEGIN(clang-analyzer-security.insecureAPI.DeprecatedOrUnsafeBufferHandling)
     memcpy(packetizer_buffer + header_size, data, length);
+    // NOLINTEND(clang-analyzer-security.insecureAPI.DeprecatedOrUnsafeBufferHandling)
 
     packetizer_packetize_function packetizer_packetize = packetizers_functions[packetizer_type].packetize;
 

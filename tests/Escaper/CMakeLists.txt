@@ -3,6 +3,7 @@ project(EscaperTests VERSION 1.0.0 LANGUAGES CXX)
 add_library(EscaperTests SHARED)
 target_sources(EscaperTests
     PRIVATE     EscaperTests.cc)
+set_source_files_properties(EscaperTests.cc PROPERTIES SKIP_LINTING ON)
 target_link_libraries(EscaperTests
     PRIVATE     TASTE::Escaper
                 TASTE::RuntimeMocks

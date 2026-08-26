@@ -41,6 +41,7 @@ TEST_GROUP(Broker){ void setup(){ interface_to_deliver_function[INTERFACE_INVALI
 void
 teardown()
 {
+    mock_c()->clear();
 }
 }
 ;

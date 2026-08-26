@@ -63,7 +63,9 @@ ThinPacketizer_packetize(Packetizer* const self,
     assert(dataSize >= 1u);
     assert(dataSize < SPACE_PACKET_MAX_PACKET_DATA_SIZE);
 
+    // NOLINTBEGIN(clang-analyzer-security.insecureAPI.DeprecatedOrUnsafeBufferHandling)
     memset(packetPointer, 0, THIN_SPACE_PACKET_PRIMARY_HEADER_SIZE);
+    // NOLINTEND(clang-analyzer-security.insecureAPI.DeprecatedOrUnsafeBufferHandling)
 
     thinWritePacketId(packetPointer, packetType, destination);
     thinWritePacketDataLength(packetPointer, dataSize);

@@ -86,7 +86,7 @@ typedef void (*broker_error_detected)(const Broker_ErrorType, uint8_t* const, co
  *
  * @param[in]    valid_buses   An array of busses used in the broker instance
  */
-void Broker_initialize(enum SystemBus valid_buses[SYSTEM_BUSES_NUMBER]);
+void Broker_initialize(const enum SystemBus valid_buses[SYSTEM_BUSES_NUMBER]);
 
 /** @brief Deliver message to remote interface
  *
