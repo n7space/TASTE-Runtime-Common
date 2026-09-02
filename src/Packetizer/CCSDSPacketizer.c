@@ -108,7 +108,7 @@ CCSDS_Packetizer_depacketize(const Packetizer* const self,
     assert(dataSize != NULL);
     assert(destination != NULL);
 
-    if(packetSize <= (CCSDS_SPACE_PACKET_PRIMARY_HEADER_SIZE + SPACE_PACKET_ERROR_CONTROL_SIZE)) {
+    if(packetSize <= (size_t)(CCSDS_SPACE_PACKET_PRIMARY_HEADER_SIZE + SPACE_PACKET_ERROR_CONTROL_SIZE)) {
         // the packet is smaller than expected (header + 1 byte of payload + checksum)
         return false;
     }
@@ -125,7 +125,8 @@ CCSDS_Packetizer_depacketize(const Packetizer* const self,
     // Check if CRC matches
     const uint16_t receivedChecksum =
             packetPointer[CCSDS_SPACE_PACKET_PRIMARY_HEADER_SIZE + receivedDataSize - 1u]
-            | (((uint16_t)(packetPointer[CCSDS_SPACE_PACKET_PRIMARY_HEADER_SIZE + receivedDataSize - 2u]) << 8));
+            | ((uint16_t)((uint16_t)(packetPointer[CCSDS_SPACE_PACKET_PRIMARY_HEADER_SIZE + receivedDataSize - 2u])
+                          << 8));
 
     const uint16_t expectedChecksum =
             IsoChecksum_calculate(packetPointer, packetSize - SPACE_PACKET_ERROR_CONTROL_SIZE);
@@ -148,7 +149,8 @@ CCSDS_Packetizer_depacketize(const Packetizer* const self,
     }
 
     // Save the results
-    *destination = packetPointer[1] | ((uint16_t)(packetPointer[0]) & CCSDS_SPACE_PACKET_APID_HIGH_BITS_MASK) << 8u;
+    *destination = packetPointer[1]
+                   | ((uint16_t)((uint16_t)(packetPointer[0]) & CCSDS_SPACE_PACKET_APID_HIGH_BITS_MASK) << 8u);
     *dataOffset = CCSDS_SPACE_PACKET_PRIMARY_HEADER_SIZE;
     *dataSize = receivedDataSize - SPACE_PACKET_ERROR_CONTROL_SIZE;
 
@@ -185,8 +187,8 @@ writeCCSDSPacketSequenceControl(uint8_t* const packetPointer, const Packetizer* 
 void
 writeCCSDSPacketDataLength(uint8_t* const packetPointer, const size_t dataSize)
 {
-    packetPointer[4] = (uint8_t)(((dataSize - 1) >> 8) & 0xFFu);
-    packetPointer[5] = (uint8_t)((dataSize - 1) & 0xFFu);
+    packetPointer[4] = (uint8_t)((uint16_t)((dataSize - 1u) >> 8u) & 0xFFu);
+    packetPointer[5] = (uint8_t)((dataSize - 1u) & 0xFFu);
 }
 
 void
@@ -196,7 +198,7 @@ writeChecksum(uint8_t* const packetPointer, const size_t dataSize)
     const uint16_t checksum = IsoChecksum_calculate(packetPointer, checksumInputSize);
 
     packetPointer[checksumInputSize] = (uint8_t)((checksum >> 8) & 0xFFu);
-    packetPointer[checksumInputSize + 1] = (uint8_t)(checksum & 0xFFu);
+    packetPointer[checksumInputSize + 1u] = (uint8_t)(checksum & 0xFFu);
 }
 
 size_t

@@ -71,7 +71,7 @@ Escaper_decode_packet(Escaper* const self,
                 } else if(buffer[i] == ESCAPE_BYTE) {
                     self->m_parse_state = Escaper_State_Escape_Byte;
                 } else if(buffer[i] == START_BYTE) {
-                    self->m_decoded_packet_buffer_index = 0;
+                    self->m_decoded_packet_buffer_index = 0u;
                     self->m_parse_state = Escaper_State_Data_Byte;
                 } else {
                     if(self->m_decoded_packet_buffer_index >= self->m_decoded_packet_max_size) {

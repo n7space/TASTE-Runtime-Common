@@ -32,7 +32,7 @@ find_unique_destination(const enum SystemBus bus)
 {
     size_t index = 0u;
     enum RemoteInterface found_interface = INTERFACE_INVALID_ID;
-    for(index = 0u; index < INTERFACE_MAX_ID; ++index) {
+    for(index = 0u; index < (size_t)INTERFACE_MAX_ID; ++index) {
         if(port_to_partition_bus_map[index].partition != PARTITION_NAME
            && port_to_partition_bus_map[index].bus == bus) {
             if(found_interface != INTERFACE_INVALID_ID) {
