@@ -212,7 +212,7 @@ writeCrc(uint8_t* const packetPointer, const size_t dataSize)
     uint16_t crc = calculateCrc16(packetPointer, SPACE_PACKET_PRIMARY_HEADER_SIZE + dataSize);
 
     packetPointer[SPACE_PACKET_PRIMARY_HEADER_SIZE + dataSize + SPACE_PACKET_SENDER_PID_SIZE] =
-            (uint8_t)((crc >> 8u) & 0xFFu);
+            (uint8_t)((uint8_t)(crc >> 8u) & 0xFFu);
     packetPointer[SPACE_PACKET_PRIMARY_HEADER_SIZE + dataSize + SPACE_PACKET_SENDER_PID_SIZE + 1u] =
             (uint8_t)(crc & 0xFFu);
 }
@@ -220,7 +220,7 @@ writeCrc(uint8_t* const packetPointer, const size_t dataSize)
 void
 writeSenderPid(uint8_t* const packetPointer, const size_t dataSize, const uint16_t senderPid)
 {
-    packetPointer[SPACE_PACKET_PRIMARY_HEADER_SIZE + dataSize] = (uint8_t)((senderPid >> 8u) & 0xFFu);
+    packetPointer[SPACE_PACKET_PRIMARY_HEADER_SIZE + dataSize] = (uint8_t)((uint8_t)(senderPid >> 8u) & 0xFFu);
     packetPointer[SPACE_PACKET_PRIMARY_HEADER_SIZE + dataSize + 1u] = (uint8_t)(senderPid & 0xFFu);
 }
 
@@ -232,7 +232,7 @@ readPacketDataLength(const uint8_t* const packetPointer)
 
     const uint32_t zeroPacketSize = 0xFFFFFFFFu;
     if(packetSize == zeroPacketSize) {
-        return 0;
+        return 0u;
     }
     return (size_t)packetSize + 1u;
 }

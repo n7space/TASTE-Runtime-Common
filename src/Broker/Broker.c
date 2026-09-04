@@ -102,7 +102,7 @@ Broker_initialize_packetizers_functions(void)
 void
 Broker_initialize(const enum SystemBus valid_buses[SYSTEM_BUSES_NUMBER])
 {
-    size_t headerSize = 0;
+    size_t headerSize = 0u;
     Broker_initialize_packetizers_functions();
 
     for(int i = 0; i < SYSTEM_BUSES_NUMBER; ++i) {
@@ -151,7 +151,7 @@ Broker_deliver_request(const enum RemoteInterface interface, const uint8_t* cons
     const enum SystemBus bus_id = port_to_bus_map[interface];
     enum PacketizerCfg packetizer_type = bus_to_packetizer_cfg[bus_id];
 
-    size_t header_size = 0;
+    size_t header_size = 0u;
     if(packetizer_type == PACKETIZER_DEVICE_PROVIDED) {
         header_size = getDeviceProvidedPacketizerHeaderSize(bus_id);
     } else {
@@ -195,10 +195,10 @@ void
 Broker_receive_packet(enum SystemBus bus_id, uint8_t* const data, const size_t length)
 {
     Broker_acquire_lock();
-    uint16_t source = 0;
-    uint16_t destination = 0;
-    size_t data_offset = 0;
-    size_t data_size = 0;
+    uint16_t source = 0u;
+    uint16_t destination = 0u;
+    size_t data_offset = 0u;
+    size_t data_size = 0u;
     int32_t error_code = 0;
 
 #if defined BROKER_EXPECT_TELECOMMAND
