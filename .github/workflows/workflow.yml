@@ -20,7 +20,7 @@ jobs:
         run: sudo apt install -y clang-tidy
 
       - name: Run CMake
-        run: cmake -S . -B build/ -DCMAKE_BUILD_TYPE=Debug -DTOOLS_ENABLE_TIDY=ON -DTASTE_RUNTIME_COMMON_BUILD_TESTS=ON -DTASTE_RUNTIME_COMMON_WARNINGS_AS_ERRORS=ON
+        run: cmake -S . -B build/ -DCMAKE_BUILD_TYPE=Debug -DTOOLS_ENABLE_CLANG_TIDY=ON -DTASTE_RUNTIME_COMMON_BUILD_TESTS=ON -DTASTE_RUNTIME_COMMON_WARNINGS_AS_ERRORS=ON
 
       - name: Build
         run: cmake --build build/
