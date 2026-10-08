@@ -10,7 +10,7 @@ set(EXECUTABLE_OUTPUT_PATH ${CMAKE_BINARY_DIR}/build/bin)
 set(LIBRARY_OUTPUT_PATH ${CMAKE_BINARY_DIR}/build/lib)
 set(TESTS_OUTPUT_PATH ${CMAKE_BINARY_DIR}/build/tests)
 
-option(TOOLS_ENABLE_TIDY "Enable static analysis with clang-tidy" OFF)
+option(TOOLS_ENABLE_CLANG_TIDY "Enable static analysis with clang-tidy" OFF)
 option(TOOLS_ENABLE_CPPCHECK "Enable Cppcheck" OFF)
 
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
@@ -46,7 +46,7 @@ set(CLANG_WARNINGS ${CLANG_WARNINGS}
 set(GCC_WARNINGS ${CLANG_WARNINGS}
     -Wmisleading-indentation)
 
-if(TOOLS_ENABLE_TIDY)
+if(TOOLS_ENABLE_CLANG_TIDY)
     find_program(CLANG_TIDY_EXE clang-tidy REQUIRED)
     if(CLANG_TIDY_EXE MATCHES "-NOTFOUND")
         log_program_missing("clang-tidy")
@@ -80,7 +80,9 @@ target_compile_options(common_build_options INTERFACE ${PROJECT_WARNINGS})
 include(ClangFormat)
 include(Doxygen)
 
-if(TOOLS_ENABLE_TIDY)
+configure_doxygen_target()
+
+if(TOOLS_ENABLE_CLANG_TIDY)
     set(CMAKE_CXX_CLANG_TIDY ${CLANG_TIDY_EXE}; --use-color)
     set(CMAKE_C_CLANG_TIDY ${CLANG_TIDY_EXE}; --extra-arg=-std=c${CMAKE_C_STANDARD}; --use-color)
 endif()
@@ -88,7 +90,6 @@ endif()
 if(TOOLS_ENABLE_CPPCHECK)
     set(CMAKE_C_CPPCHECK ${CPPCHECK_EXE}; --error-exitcode=1; --language=c; --std=c11; --inline-suppr; --enable=all; --suppress=unmatchedSuppression; --suppress=missingIncludeSystem; --suppress=unusedFunction; --suppress=staticFunction; --suppress=checkersReport;)
 endif()
-
 
 add_subdirectory(src)
 
